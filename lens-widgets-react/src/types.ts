@@ -21,7 +21,8 @@ export enum ThemeColor {
   lavender = '#dbccf3',
   blonde = '#ffebB8',
   white = 'white',
-  black = 'black'
+  black = 'black',
+  transparent = 'none',
 }
 
 export enum Size {

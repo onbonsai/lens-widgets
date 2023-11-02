@@ -1,3 +1,4 @@
+import { ProfileFragment } from '@lens-protocol/client'
 import {
   Theme, Size, ThemeColor, Profile
 } from './types'
@@ -101,20 +102,32 @@ export function formatProfilePictures(profiles: Profile[]) {
   })
 }
 
-export function formatProfilePicture(profile: Profile) {
-  profile = JSON.parse(JSON.stringify(profile))
-  let { picture, coverPicture } = profile
-  if (picture && picture.__typename === 'MediaSet') {
-    if (picture.original) {
-      picture.original.url = returnIpfsPathOrUrl(picture.original.url)
-    }
+export function formatProfilePicture(profile: ProfileFragment) {
+  const _profile = JSON.parse(JSON.stringify(profile))
+  let { picture, coverPicture } = _profile.metadata || {} // TODO: need to handle higher up with `rawURI`
+
+  if (picture?.optimized?.uri) {
+    picture.url = returnIpfsPathOrUrl(picture.optimized.uri)
+  } else {
+    picture.url = returnIpfsPathOrUrl(picture.raw.uri)
   }
-  if (coverPicture && coverPicture.__typename === 'MediaSet') {
-    if (coverPicture.original.url) {
-      coverPicture.original.url = returnIpfsPathOrUrl(coverPicture.original.url)
-    }
+
+  if (coverPicture?.optimized?.uri) {
+    coverPicture.url = returnIpfsPathOrUrl(coverPicture.optimized.uri)
+  } else {
+    coverPicture.url = returnIpfsPathOrUrl(coverPicture.raw.uri)
   }
-  return profile
+
+  _profile.metadata.picture = picture
+  _profile.metadata.coverPicutre = coverPicture
+
+  return _profile
+}
+
+export function getDisplayName(profile: ProfileFragment) {
+  return profile.metadata?.displayName ||
+    profile.handle?.suggestedFormatted?.localName ||
+    profile.handle?.localName;
 }
 
 export function configureMirrorAndIpfsUrl(items: any[]) {
