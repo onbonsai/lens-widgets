@@ -22,7 +22,7 @@ export function Profile({
   profileId,
   profileData,
   ethereumAddress,
-  handle, // format: namespace/handle (handle.fullName) ex: lens/madfinance
+  handle, // ex: lens/madfinance
   onClick,
   theme = Theme.default,
   containerStyle = profileContainerStyle,
@@ -106,6 +106,7 @@ export function Profile({
     if (profileData) {
       formatProfile(profileData)
       fetchFollowers(profileData.id)
+      return;
     }
     if (!profileId && !ethereumAddress && !handle) {
       return console.log('please pass in either a Lens profile ID or an Ethereum address')
@@ -136,19 +137,6 @@ export function Profile({
       }
     } else {
       throw new Error('not supporting address yet');
-
-      // TODO:
-      // try {
-      //   const { data } = await client
-      //     .query(profileByAddress, {
-      //       address: ethereumAddress
-      //     })
-      //     .toPromise()
-      //   fetchFollowers(data.defaultProfile.id)
-      //   formatProfile(data.defaultProfile)
-      // } catch (err) {
-      //   console.log('error fetching profile... ', err)
-      // }
     }
   }
   function formatProfile(profile: ProfileFragment) {

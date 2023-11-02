@@ -108,16 +108,21 @@ export function formatProfilePicture(profile: ProfileFragment) {
 
   if (picture?.optimized?.uri) {
     picture.url = returnIpfsPathOrUrl(picture.optimized.uri)
-  } else {
+  } else if (picture?.raw?.uri) {
     picture.url = returnIpfsPathOrUrl(picture.raw.uri)
+  } else {
+    picture = { url: "" }
   }
 
   if (coverPicture?.optimized?.uri) {
     coverPicture.url = returnIpfsPathOrUrl(coverPicture.optimized.uri)
-  } else {
+  } else if (coverPicture?.raw?.uri) {
     coverPicture.url = returnIpfsPathOrUrl(coverPicture.raw.uri)
+  } else {
+    coverPicture = { url: "" }
   }
 
+  if (!_profile.metadata) _profile.metadata = {}
   _profile.metadata.picture = picture
   _profile.metadata.coverPicutre = coverPicture
 
