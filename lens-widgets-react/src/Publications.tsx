@@ -4,6 +4,10 @@ import {
 import { css } from '@emotion/css'
 import { client, profileByHandle, getPublications } from './graphql'
 import { Publication as PublicationComponent } from './Publication'
+import { PublicationOperationsFragment } from '@lens-protocol/client'
+import {
+  PublicationsDocument
+} from './graphql/generated'
 import { Theme } from './types'
 
 enum LimitType {
@@ -23,6 +27,8 @@ export function Publications({
   hideQuoteButton = false,
   hideShareButton = false,
   onLikeButtonClick,
+  hasUpvotedComment,
+  getOperationsFor,
 } : {
   profileId?: string,
   handle?: string,
@@ -34,6 +40,8 @@ export function Publications({
   hideQuoteButton?: boolean,
   hideShareButton?: boolean,
   onLikeButtonClick?: (e, publicationId: string) => void,
+  hasUpvotedComment: (publicationId: string) => boolean,
+  getOperationsFor: (publicationId: string) => PublicationOperationsFragment | undefined
 }) {
   const [_publications, setPublications] = useState<any[] | undefined>([])
 
@@ -93,7 +101,11 @@ export function Publications({
                 hideCommentButton={hideCommentButton}
                 hideQuoteButton={hideQuoteButton}
                 hideShareButton={hideShareButton}
-                onLikeButtonClick={(e) => { if(onLikeButtonClick) onLikeButtonClick(e, publication.id) }}
+                onLikeButtonClick={onLikeButtonClick && !hasUpvotedComment(publication.id)
+                  ? (e) => onLikeButtonClick(e, publication.id)
+                  : undefined
+                }
+                operations={getOperationsFor(publication.id)}
               />
             </div>
           )
