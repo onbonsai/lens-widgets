@@ -2,7 +2,7 @@ import {
   useEffect, useState
 } from 'react'
 import { css } from '@emotion/css'
-import { Environment, LensClient, development, production } from "@lens-protocol/client";
+import { Environment, LensClient, production, PublicationOperationsFragment } from "@lens-protocol/client";
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 import { ThemeColor, Theme } from './types'
@@ -38,6 +38,7 @@ export function Publication({
   hideCommentButton = false,
   hideQuoteButton = false,
   hideShareButton = false,
+  operations,
 }: {
   publicationId?: string,
   publicationData?: any,
@@ -51,11 +52,12 @@ export function Publication({
   onActButtonClick?: (e) => void,
   onCommentButtonClick?: (e) => void,
   onMirrorButtonClick?: (e) => void,
-  onLikeButtonClick?: (e, publicationId: string) => void,
+  onLikeButtonClick?: (e) => void,
   onShareButtonClick?: (e) => void,
   hideCommentButton?: boolean,
   hideQuoteButton?: boolean,
   hideShareButton?: boolean,
+  operations?: PublicationOperationsFragment
 }) {
   let [publication, setPublication] = useState<any>()
   let [showFullText, setShowFullText] = useState(false)
@@ -104,37 +106,23 @@ export function Publication({
   const reactionTextColor = isDarkTheme ? ThemeColor.lightGray : ThemeColor.darkGray
 
   let media, cover
-  if (publication.metadata.media?.length) {
-    media = publication.metadata.media[0]
-    if (media && media.original) {
-      if (
-        media.original.mimeType === 'image/jpg' ||
-        media.original.mimeType === 'image/jpeg' ||
-        media.original.mimeType === 'image/png' ||
-        media.original.mimeType === 'image/gif'
-      ) {
-        media.type = 'image'
-      }
-      if (
-        media.original.mimeType === 'video/mp4' ||
-        media.original.mimeType === 'video/quicktime' ||
-        media.original.mimeTuype === 'application/x-mpegURL' ||
-        media.original.mimeType === 'video/MP2T'
-      ) {
-        media.type = 'video'
-      }
-      if (
-        media.original.mimeType === 'audio/mpeg' ||
-        media.original.mimeType === 'audio/wav' ||
-        media.original.mimeType === 'audio/mp3'
-      ) {
-        media.type = 'audio'
-      }
-      media.original.url = returnIpfsPathOrUrl(media.original.url, ipfsGateway)
+  if (publication.metadata.asset) {
+    media = publication.metadata.asset
+    if (media.__typename === "PublicationMetadataMediaImage") {
+      media.type = 'image'
+      media.original = { url: returnIpfsPathOrUrl(media.image.optimized?.uri || media.image.raw?.uri, ipfsGateway) }
     }
-  }
-  if (publication.metadata.cover) {
-    cover = returnIpfsPathOrUrl(publication.metadata.cover.original.url, ipfsGateway)
+    if (media.__typename === "PublicationMetadataMediaVideo") {
+      media.type = 'video'
+      media.original = { url: returnIpfsPathOrUrl(media.video.optimized?.uri || media.video.raw?.uri, ipfsGateway) }
+    }
+    if (media.__typename === "PublicationMetadataMediaAudio") {
+      media.type = 'audio'
+      media.original = { url: returnIpfsPathOrUrl(media.audio.optimized?.uri || media.audio.raw?.uri, ipfsGateway) }
+    }
+    if (media.cover) {
+      cover = returnIpfsPathOrUrl(media.cover?.optimized?.uri || media.cover.raw?.uri, ipfsGateway)
+    }
   }
 
   return (
@@ -234,13 +222,16 @@ export function Publication({
         className={reactionsContainerStyle}
         onClick={onPublicationPress}
       >
-        <div className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated)}>
-          <HeartIcon color={reactionTextColor} />
+        <div
+          className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated, operations?.hasUpvoted)}
+          onClick={onLikeButtonClick}
+        >
+          <HeartIcon color={!operations?.hasUpvoted ? reactionTextColor : ThemeColor.red} />
           <p>{publication.stats.upvoteReactions > 0 ? publication.stats.upvoteReactions : null}</p>
         </div>
         {!hideCommentButton && (
           <div
-            className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated)}
+            className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated, false)}
             onClick={onCommentButtonClick}
           >
             <MessageIcon color={reactionTextColor} />
@@ -248,14 +239,17 @@ export function Publication({
           </div>
         )}
         {!hideQuoteButton && (
-          <div className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated)}>
-            <MirrorIcon color={reactionTextColor} />
+          <div
+            className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated, operations?.hasMirrored)}
+            onClick={onMirrorButtonClick}
+          >
+            <MirrorIcon color={!operations?.hasMirrored ? reactionTextColor : ThemeColor.lightGreen} />
             <p>{publication.stats.mirrors + publication.stats.quotes > 0 ? publication.stats.mirrors + publication.stats.quotes : null}</p>
           </div>
         )}
         {
           publication.stats.bookmarks > Number(0) && (
-            <div className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated)}>
+            <div className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated, false)}>
               <CollectIcon color={reactionTextColor} />
               <p>{publication.stats.bookmarks}</p>
             </div>
@@ -398,10 +392,10 @@ const mirroredByContainerStyle = css`
   }
 `
 
-const reactionContainerStyle = (color, backgroundColor, isAuthenticated) => css`
+const reactionContainerStyle = (color, backgroundColor, isAuthenticated, hasReacted) => css`
   background-color: transparent;
   &:hover {
-    background-color: ${isAuthenticated ? backgroundColor : 'transparent'};
+    background-color: ${isAuthenticated && !hasReacted ? backgroundColor : 'transparent'};
   }
   display: flex;
   border-radius: 24px;
@@ -414,7 +408,7 @@ const reactionContainerStyle = (color, backgroundColor, isAuthenticated) => css`
     margin: 0;
     margin-left: 4px;
   }
-  cursor: ${isAuthenticated ? 'pointer' : 'default'};
+  cursor: ${isAuthenticated && !hasReacted ? 'pointer' : 'default'};
 `
 
 const shareContainerStyle = (color, backgroundColor) => css`

@@ -23,6 +23,7 @@ export enum ThemeColor {
   white = 'white',
   black = 'black',
   transparent = 'none',
+  red = 'red',
 }
 
 export enum Size {
