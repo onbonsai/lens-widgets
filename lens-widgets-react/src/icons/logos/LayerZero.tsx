@@ -1,4 +1,4 @@
-export function LayerZeroLogo(isDarkTheme: boolean) {
+export function LayerZeroLogo({ isDarkTheme }, { isDarkTheme: boolean }) {
   if (isDarkTheme) {
     return (
       <svg style={iconStyle} viewBox="0 0 318 558" fill="none" xmlns="http://www.w3.org/2000/svg">
