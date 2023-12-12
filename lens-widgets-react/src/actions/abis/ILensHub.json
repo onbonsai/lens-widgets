@@ -1,0 +1,146 @@
+[
+  {
+    "type": "function",
+    "name": "act",
+    "inputs": [
+      {
+        "name": "publicationActionParams",
+        "type": "tuple",
+        "internalType": "struct Types.PublicationActionParams",
+        "components": [
+          {
+            "name": "publicationActedProfileId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "publicationActedId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "actorProfileId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "referrerProfileIds",
+            "type": "uint256[]",
+            "internalType": "uint256[]"
+          },
+          {
+            "name": "referrerPubIds",
+            "type": "uint256[]",
+            "internalType": "uint256[]"
+          },
+          {
+            "name": "actionModuleAddress",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "actionModuleData",
+            "type": "bytes",
+            "internalType": "bytes"
+          }
+        ]
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "actWithSig",
+    "inputs": [
+      {
+        "name": "publicationActionParams",
+        "type": "tuple",
+        "internalType": "struct Types.PublicationActionParams",
+        "components": [
+          {
+            "name": "publicationActedProfileId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "publicationActedId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "actorProfileId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "referrerProfileIds",
+            "type": "uint256[]",
+            "internalType": "uint256[]"
+          },
+          {
+            "name": "referrerPubIds",
+            "type": "uint256[]",
+            "internalType": "uint256[]"
+          },
+          {
+            "name": "actionModuleAddress",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "actionModuleData",
+            "type": "bytes",
+            "internalType": "bytes"
+          }
+        ]
+      },
+      {
+        "name": "signature",
+        "type": "tuple",
+        "internalType": "struct Types.EIP712Signature",
+        "components": [
+          {
+            "name": "signer",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "v",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "r",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "s",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "deadline",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  }
+]

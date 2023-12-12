@@ -4,7 +4,7 @@ import {
 import { css } from '@emotion/css'
 import { client, profileByHandle, getPublications } from './graphql'
 import { Publication as PublicationComponent } from './Publication'
-import { PublicationOperationsFragment } from '@lens-protocol/client'
+import { ProfileFragment, PublicationOperationsFragment } from '@lens-protocol/client'
 import {
   PublicationsDocument
 } from './graphql/generated'
@@ -22,7 +22,7 @@ export function Publications({
   theme,
   numberOfPublications,
   publications,
-  isAuthenticated = false,
+  authenticatedProfile,
   hideCommentButton = false,
   hideQuoteButton = false,
   hideShareButton = false,
@@ -35,7 +35,7 @@ export function Publications({
   theme?: Theme,
   numberOfPublications?: number,
   publications?: any[],
-  isAuthenticated?: boolean,
+  authenticatedProfile?: ProfileFragment | null,
   hideCommentButton?: boolean,
   hideQuoteButton?: boolean,
   hideShareButton?: boolean,
@@ -97,7 +97,7 @@ export function Publications({
                 publicationData={publication}
                 publicationId={publication.id}
                 theme={theme}
-                isAuthenticated={isAuthenticated}
+                authenticatedProfile={authenticatedProfile}
                 hideCommentButton={hideCommentButton}
                 hideQuoteButton={hideQuoteButton}
                 hideShareButton={hideShareButton}

@@ -2,7 +2,13 @@ import {
   useEffect, useState
 } from 'react'
 import { css } from '@emotion/css'
-import { Environment, LensClient, production, PublicationOperationsFragment } from "@lens-protocol/client";
+import {
+  Environment,
+  LensClient,
+  production,
+  PublicationOperationsFragment,
+  ProfileFragment,
+} from "@lens-protocol/client";
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 import { ThemeColor, Theme } from './types'
@@ -12,6 +18,7 @@ import {
 } from './icons'
 import {
   formatProfilePicture,
+  returnIpfsPathOrUrl,
   systemFonts,
   getSubstring,
   formatHandleColors,
@@ -19,6 +26,12 @@ import {
 } from './utils'
 import ReactPlayer from 'react-player'
 import { AudioPlayer } from './AudioPlayer'
+import useSupportedActionModule from './hooks/useSupportedActionModule';
+import Spinner from './components/Spinner';
+import ActModal from './components/ActModal';
+import MintNFTCard from './components/MintNFTCard';
+import { WalletClient } from 'viem';
+import { Toast } from './types';
 
 export function Publication({
   publicationId,
@@ -28,7 +41,8 @@ export function Publication({
   ipfsGateway,
   fontSize,
   environment = production,
-  isAuthenticated = false,
+  authenticatedProfile,
+  walletClient,
   renderActButtonWithCTA,
   onActButtonClick,
   onCommentButtonClick,
@@ -39,6 +53,8 @@ export function Publication({
   hideQuoteButton = false,
   hideShareButton = false,
   operations,
+  focusedOpenActionModuleName,
+  useToast,
 }: {
   publicationId?: string,
   publicationData?: any,
@@ -47,7 +63,8 @@ export function Publication({
   ipfsGateway?: string,
   fontSize?: string,
   environment?: Environment,
-  isAuthenticated?: boolean,
+  authenticatedProfile?: ProfileFragment | null,
+  walletClient?: WalletClient,
   renderActButtonWithCTA?: string,
   onActButtonClick?: (e) => void,
   onCommentButtonClick?: (e) => void,
@@ -57,10 +74,26 @@ export function Publication({
   hideCommentButton?: boolean,
   hideQuoteButton?: boolean,
   hideShareButton?: boolean,
-  operations?: PublicationOperationsFragment
+  operations?: PublicationOperationsFragment,
+  focusedOpenActionModuleName?: string // in case a post has multiple action modules
+  useToast?: Toast // ex: react-hot-toast to render notifs
 }) {
-  let [publication, setPublication] = useState<any>()
+  let [publication, setPublication] = useState<any>(publicationData)
   let [showFullText, setShowFullText] = useState(false)
+  let [openActModal, setOpenActModal] = useState(false)
+  const actHandledExternally = renderActButtonWithCTA && onActButtonClick;
+
+  const {
+    isActionModuleSupported,
+    actionModuleHandler,
+    isLoading: isLoadingActionModuleState,
+  } = useSupportedActionModule(
+    environment,
+    publication,
+    authenticatedProfile?.id,
+    walletClient,
+    focusedOpenActionModuleName,
+  );
 
   useEffect(() => {
     if (!publicationData) {
@@ -69,6 +102,7 @@ export function Publication({
       setPublication(publicationData)
     }
   }, [publicationId])
+
   async function fetchPublication() {
     try {
       const lensClient = new LensClient({ environment });
@@ -87,6 +121,15 @@ export function Publication({
       // window.open(URI, '_blank')
     }
   }
+  function _onActButtonClick(e) {
+    if (isActionModuleSupported) {
+      e.stopPropagation();
+      setOpenActModal(true);
+    } else if (actHandledExternally) {
+      onActButtonClick(e);
+    }
+  }
+
   if (!publication) return null
   let isMirror = false
   if (publication.mirrorOf) {
@@ -98,12 +141,18 @@ export function Publication({
   publication.profile = formatProfilePicture(publication.by)
   const { profile } = publication
 
+  // theming
   const isDarkTheme = theme === Theme.dark
   const color = isDarkTheme ? ThemeColor.white : ThemeColor.darkGray
   const backgroundColor = isDarkTheme ? ThemeColor.lightBlack : ThemeColor.white
   const reactionBgColor = isDarkTheme ? ThemeColor.darkGray : ThemeColor.lightGray;
   const actButttonBgColor = isDarkTheme ? ThemeColor.darkGray : ThemeColor.lightGray;
   const reactionTextColor = isDarkTheme ? ThemeColor.lightGray : ThemeColor.darkGray
+
+  // misc
+  const isAuthenticated = !!authenticatedProfile?.id;
+  const renderActButton = walletClient && ((isActionModuleSupported && !isLoadingActionModuleState) || actHandledExternally);
+  const renderActLoading = walletClient && (isActionModuleSupported && isLoadingActionModuleState && !actHandledExternally);
 
   let media, cover
   if (publication.metadata.asset) {
@@ -184,40 +233,50 @@ export function Publication({
         )}
         </div>
       </div>
-      {
-        publication.metadata?.__typename === "ImageMetadataV3"  && (
-          <div className={imageContainerStyle}>
-            <img
-              className={mediaImageStyle}
-              src={publication.metadata.asset.image.optimized.uri}
-              onClick={onPublicationPress}
-            />
-          </div>
-        )
-      }
-      {
-        publication.metadata?.__typename === "VideoMetadataV3" && (
-          <div className={videoContainerStyle}>
-            <ReactPlayer
-              className={videoStyle}
-              url={publication.metadata.asset.video.optimized?.uri}
-              controls
-            />
-          </div>
-        )
-      }
-      {
-        publication.metadata?.__typename === "AudioMetadataV3" && (
-          <div className={audioContainerStyle}>
-            <AudioPlayer
-              url={publication.metadata.asset.audio.optimized?.uri}
-              theme={theme}
-              cover={publication.metadata.asset.cover?.optimized?.uri}
-              profile={publication.by}
-            />
-          </div>
-        )
-      }
+      {/* Render a NFT preview component OR the media content */}
+      {!isLoadingActionModuleState && actionModuleHandler?.mintableNFT && (
+        <div className={nftContainerStyle}>
+          <MintNFTCard metadata={actionModuleHandler?.mintableNFTMetadata} />
+        </div>
+      )}
+      {!isLoadingActionModuleState && !actionModuleHandler?.mintableNFT && (
+        <>
+          {
+            publication.metadata?.__typename === "ImageMetadataV3" && (
+              <div className={imageContainerStyle}>
+                <img
+                  className={mediaImageStyle}
+                  src={publication.metadata.asset.image.optimized.uri}
+                  onClick={onPublicationPress}
+                />
+              </div>
+            )
+          }
+          {
+            publication.metadata?.__typename === "VideoMetadataV3" && (
+              <div className={videoContainerStyle}>
+                <ReactPlayer
+                  className={videoStyle}
+                  url={publication.metadata.asset.video.optimized?.uri}
+                  controls
+                />
+              </div>
+            )
+          }
+          {
+            publication.metadata?.__typename === "AudioMetadataV3" && (
+              <div className={audioContainerStyle}>
+                <AudioPlayer
+                  url={publication.metadata.asset.audio.optimized?.uri}
+                  theme={theme}
+                  cover={publication.metadata.asset.cover?.optimized?.uri}
+                  profile={publication.by}
+                />
+              </div>
+            )
+          }
+        </>
+      )}
       <div
         className={reactionsContainerStyle}
         onClick={onPublicationPress}
@@ -247,35 +306,41 @@ export function Publication({
             <p>{publication.stats.mirrors + publication.stats.quotes > 0 ? publication.stats.mirrors + publication.stats.quotes : null}</p>
           </div>
         )}
-        {
-          publication.stats.bookmarks > Number(0) && (
-            <div className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated, false)}>
-              <CollectIcon color={reactionTextColor} />
-              <p>{publication.stats.bookmarks}</p>
-            </div>
-          )
-        }
-        {
-          renderActButtonWithCTA && (
+        {renderActButton && (
             <div
               className={actButtonContainerStyle(reactionTextColor, actButttonBgColor)}
-              onClick={onActButtonClick}
+              onClick={_onActButtonClick}
             >
-              <p>{renderActButtonWithCTA}</p>
+              <p>{actionModuleHandler!.getActButtonLabel()}</p>
             </div>
-          )
-        }
-        {
-          !renderActButtonWithCTA && !hideShareButton && (
-            <div
-              className={shareContainerStyle(reactionTextColor, reactionBgColor)}
-              onClick={onShareButtonClick}
-            >
-              <ShareIcon color={reactionTextColor} />
-            </div>
-          )
-        } */}
+        )}
+        {renderActLoading && (
+          <div className={shareContainerStyle(reactionTextColor, reactionBgColor)}>
+            <Spinner customClasses="h-6 w-6" color={color} />
+          </div>
+        )}
+        {!isActionModuleSupported && !hideShareButton && (
+          <div
+            className={shareContainerStyle(reactionTextColor, reactionBgColor)}
+            onClick={onShareButtonClick}
+          >
+            <ShareIcon color={reactionTextColor} />
+          </div>
+        )}
       </div>
+      {renderActButton && actionModuleHandler && (
+        <ActModal
+          handler={actionModuleHandler}
+          openActModal={openActModal}
+          setOpenActModal={setOpenActModal}
+          style={{ backgroundColor, color }}
+          publicationBy={publication.by}
+          walletClient={walletClient}
+          isDarkTheme={isDarkTheme}
+          countOpenActions={publication.stats.countOpenActions}
+          toast={useToast}
+        />
+      )}
     </div>
   )
 }
@@ -304,6 +369,14 @@ const imageContainerStyle = css`
   width: 100%;
   overflow: hidden;
   max-height: 480px;
+  margin-top: 14px;
+`
+
+const nftContainerStyle = css`
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  max-height: 600px;
   margin-top: 14px;
 `
 
@@ -438,6 +511,8 @@ const actButtonContainerStyle = (color, backgroundColor) => css`
   display: flex;
   border-radius: 16px;
   padding: 10px;
+  padding-left: 14px;
+  padding-right: 14px;
   margin-right: 14px;
   position: absolute;
   right: 5px;

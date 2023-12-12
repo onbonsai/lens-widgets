@@ -468,7 +468,7 @@ function getProfilePictureContainerStyle(theme: Theme) {
 function getHeaderImageStyle(url?:string) {
   const backgroundImage = url ? `url(${url})` : 'none'
   return {
-    height: '100px',
+    height: '120px',
     backgroundColor: ThemeColor.lightGreen,
     backgroundSize: 'cover',
     backgroundPosition: 'center center',

@@ -330,3 +330,9 @@ export type ModuleFeeAmount = {
   /** Floating point number as string (e.g. 42.009837). It could have the entire precision of the Asset or be truncated to the last significant decimal. */
   value: Scalars['String']
 }
+
+export type Toast = {
+  loading: (s: string, o?: any) => void,
+  success: (s: string, o?: any) => void,
+  error: (s: string, o?: any) => void,
+}
