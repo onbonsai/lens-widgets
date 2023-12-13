@@ -4,6 +4,10 @@ import {
 import { css } from '@emotion/css'
 import { client, profileByHandle, getPublications } from './graphql'
 import { Publication as PublicationComponent } from './Publication'
+import { ProfileFragment, PublicationOperationsFragment } from '@lens-protocol/client'
+import {
+  PublicationsDocument
+} from './graphql/generated'
 import { Theme } from './types'
 
 enum LimitType {
@@ -16,18 +20,38 @@ export function Publications({
   profileId,
   handle,
   theme,
-  numberOfPublications
+  numberOfPublications,
+  publications,
+  authenticatedProfile,
+  hideCommentButton = false,
+  hideQuoteButton = false,
+  hideShareButton = false,
+  onLikeButtonClick,
+  hasUpvotedComment,
+  getOperationsFor,
 } : {
   profileId?: string,
   handle?: string,
   theme?: Theme,
-  numberOfPublications?: number
+  numberOfPublications?: number,
+  publications?: any[],
+  authenticatedProfile?: ProfileFragment | null,
+  hideCommentButton?: boolean,
+  hideQuoteButton?: boolean,
+  hideShareButton?: boolean,
+  onLikeButtonClick?: (e, publicationId: string) => void,
+  hasUpvotedComment: (publicationId: string) => boolean,
+  getOperationsFor: (publicationId: string) => PublicationOperationsFragment | undefined
 }) {
-  const [publications, setPublications] = useState<any[] | undefined>([])
+  const [_publications, setPublications] = useState<any[] | undefined>([])
 
   useEffect(() => {
-    fetchPublications()
-  }, [profileId, handle])
+    if (!publications?.length) {
+      fetchPublications()
+    } else {
+      setPublications(publications)
+    }
+  }, [profileId, handle, publications])
 
   async function fetchPublications() {
     let id = profileId
@@ -73,6 +97,15 @@ export function Publications({
                 publicationData={publication}
                 publicationId={publication.id}
                 theme={theme}
+                authenticatedProfile={authenticatedProfile}
+                hideCommentButton={hideCommentButton}
+                hideQuoteButton={hideQuoteButton}
+                hideShareButton={hideShareButton}
+                onLikeButtonClick={onLikeButtonClick && !hasUpvotedComment(publication.id)
+                  ? (e) => onLikeButtonClick(e, publication.id)
+                  : undefined
+                }
+                operations={getOperationsFor(publication.id)}
               />
             </div>
           )

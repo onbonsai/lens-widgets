@@ -1,30 +1,35 @@
 {
-  "name": "@lens-protocol/widgets-react",
-  "version": "2.1.0",
-  "description": "React widgets to easily integrate Lens into your app",
+  "name": "@madfi/widgets-react",
+  "version": "2.1.1",
+  "description": "React widgets to render Lens components, with support for Smart Posts",
   "main": "dist/index.js",
   "scripts": {
+    "build": "npx tsc",
     "watch:ts": "npx tsc --watch",
     "generate": "graphql-codegen --config ./codegen.yaml"
   },
-  "repository": {
-    "type": "git", 
-    "url": "git+https://github.com/lens-protocol/lens-widgets/tree/main/lens-widgets-react"
-  },
+  "repository": "https://github.com/mad-finance/lens-widgets",
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@emotion/css": "^11.10.5",
+    "@lens-protocol/client": "2.0.0-alpha.25",
     "@types/react": "^18.0.28",
     "date-fns": "^2.29.3",
     "ethers": "^5.7.2",
     "graphql": "^16.6.0",
+    "lodash": "^4.17.21",
     "react-markdown": "^8.0.6",
     "react-player": "^2.12.0",
     "rehype-raw": "^6.1.1",
-    "typescript": "^4.9.5",
-    "urql": "^3.0.3"
+    "typescript": "^5.2.2",
+    "urql": "^3.0.3",
+    "viem": "^1.19.9",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^3.3.1",

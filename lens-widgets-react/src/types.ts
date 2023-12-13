@@ -21,7 +21,9 @@ export enum ThemeColor {
   lavender = '#dbccf3',
   blonde = '#ffebB8',
   white = 'white',
-  black = 'black'
+  black = 'black',
+  transparent = 'none',
+  red = 'red',
 }
 
 export enum Size {
@@ -327,4 +329,10 @@ export type ModuleFeeAmount = {
   asset: Erc20
   /** Floating point number as string (e.g. 42.009837). It could have the entire precision of the Asset or be truncated to the last significant decimal. */
   value: Scalars['String']
+}
+
+export type Toast = {
+  loading: (s: string, o?: any) => void,
+  success: (s: string, o?: any) => void,
+  error: (s: string, o?: any) => void,
 }

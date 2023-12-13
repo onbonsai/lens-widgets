@@ -1,0 +1,21 @@
+export const MUMBAI_CURRENCY_WMATIC = "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889";
+export const POLYGON_CURRENCY_WMATIC = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
+
+export const MUMBAI_CURRENCY_WETH = "0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa";
+export const POLYGON_CURRENCY_WETH = "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619";
+
+// TODO: not working with swap quote
+// export const MUMBAI_CURRENCY_USDC = "0x2058A9D7613eEE744279e3856Ef0eAda5FCbaA7e";
+export const POLYGON_CURRENCY_USDC = "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359";
+
+export const MUMBAI_WHITELISTED_CURRENCIES = [
+  { address: MUMBAI_CURRENCY_WMATIC, symbol: "WMATIC", },
+  { address: MUMBAI_CURRENCY_WETH, symbol: "WETH" },
+  // { address: MUMBAI_CURRENCY_USDC, symbol: "USDC" },
+];
+
+export const POLYGON_WHITELISTED_CURRENCIES = [
+  { address: POLYGON_CURRENCY_WMATIC, symbol: "WMATIC", },
+  { address: POLYGON_CURRENCY_WETH, symbol: "WETH" },
+  { address: POLYGON_CURRENCY_USDC, symbol: "USDC" },
+];

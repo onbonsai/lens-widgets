@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Theme, Size, Tokens, Profile } from './types'
 import { getContainerStyle, getTextStyle } from './utils'
+// @ts-ignore: ??
 import { Web3Provider } from '@ethersproject/providers'
 import { ethers } from 'ethers'
 import { client } from './graphql/client'

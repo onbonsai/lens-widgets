@@ -1,9 +1,14 @@
 ## Lens Widgets React library
 
+### Dependencies
+These packages must be installed in the root React app
+- react
+- tailwindcss
+
 ### Installation
 
 ```sh
-npm install @lens-protocol/widgets-react
+yarn install @madfi/widgets-react
 ```
 
 ### With Next.js
@@ -11,7 +16,7 @@ npm install @lens-protocol/widgets-react
 If you are using Next.js `pages` directory please update your `next.config.js` with the following:
 
 ```javascript
-transpilePackages: ['@lens-protocol'],
+transpilePackages: ['@madfi/widgets-react'],
 ```
 
 So the final configuration might look like this:
@@ -21,16 +26,41 @@ So the final configuration might look like this:
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  transpilePackages: ['@lens-protocol']
+  transpilePackages: ['@madfi/widgets-react']
 }
 module.exports = nextConfig
 ```
 
 Once this update is made, please re-run the server:
-
 ```sh
-npm run dev
+yarn watch:ts
 ```
+
+### Local Development
+
+1. Install deps
+```sh
+nvm use
+pnpm install
+```
+
+2. Create a symlink in this directory
+```sh
+yarn link
+```
+
+3. Build the app in watch mode
+```sh
+yarn watch:ts
+```
+
+4. Install in your project + use the symlink
+```sh
+yarn install @madfi/widgets-react
+yarn link "@madfi/widgets-react"
+```
+
+### With Next.js Dynamic Imports
 
 Another option when working with Next.js `pages` directory apps is using a Dynamic Import:
 
@@ -38,11 +68,11 @@ Another option when working with Next.js `pages` directory apps is using a Dynam
 /* Profile created in separate component */
 import {
   Profile
-} from '@lens-protocol/widgets-react'
+} from '@madfi/widgets-react'
 
 export default function ProfileComponent() {
   return (
-    <Profile handle='lens/christina' />
+    <Profile handle='lens/madfinance' />
   )
 }
 
@@ -58,4 +88,3 @@ export default () => {
   )
 }
 ```
-

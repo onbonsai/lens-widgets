@@ -16,6 +16,7 @@
     "lib": ["ESNext", "DOM"],
     "strict": true,
     "outDir": "./dist",
+    "resolveJsonModule": true
   },
   "include": ["src/**/*"]
 }

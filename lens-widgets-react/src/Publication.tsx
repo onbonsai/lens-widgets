@@ -2,21 +2,36 @@ import {
   useEffect, useState
 } from 'react'
 import { css } from '@emotion/css'
+import {
+  Environment,
+  LensClient,
+  production,
+  PublicationOperationsFragment,
+  ProfileFragment,
+} from "@lens-protocol/client";
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 import { ThemeColor, Theme } from './types'
 import { formatDistance } from 'date-fns'
 import {
-  MessageIcon, MirrorIcon, HeartIcon
+  MessageIcon, MirrorIcon, HeartIcon, ShareIcon
 } from './icons'
 import {
+  formatProfilePicture,
+  returnIpfsPathOrUrl,
   systemFonts,
   getSubstring,
-  formatHandleColors
+  formatHandleColors,
+  getDisplayName,
 } from './utils'
-import { client, getPublication } from './graphql'
 import ReactPlayer from 'react-player'
 import { AudioPlayer } from './AudioPlayer'
+import useSupportedActionModule from './hooks/useSupportedActionModule';
+import Spinner from './components/Spinner';
+import ActModal from './components/ActModal';
+import MintNFTCard from './components/MintNFTCard';
+import { WalletClient } from 'viem';
+import { Toast } from './types';
 
 export function Publication({
   publicationId,
@@ -25,98 +40,144 @@ export function Publication({
   theme = Theme.default,
   ipfsGateway,
   fontSize,
+  environment = production,
+  authenticatedProfile,
+  walletClient,
+  renderActButtonWithCTA,
+  onActButtonClick,
+  onCommentButtonClick,
+  onMirrorButtonClick,
+  onLikeButtonClick,
+  onShareButtonClick,
+  hideCommentButton = false,
+  hideQuoteButton = false,
+  hideShareButton = false,
+  operations,
+  focusedOpenActionModuleName,
+  useToast,
 }: {
   publicationId?: string,
   publicationData?: any,
-  onClick?: () => void,
+  onClick?: (e) => void,
   theme?: Theme,
   ipfsGateway?: string,
-  fontSize?: string
+  fontSize?: string,
+  environment?: Environment,
+  authenticatedProfile?: ProfileFragment | null,
+  walletClient?: WalletClient,
+  renderActButtonWithCTA?: string,
+  onActButtonClick?: (e) => void,
+  onCommentButtonClick?: (e) => void,
+  onMirrorButtonClick?: (e) => void,
+  onLikeButtonClick?: (e) => void,
+  onShareButtonClick?: (e) => void,
+  hideCommentButton?: boolean,
+  hideQuoteButton?: boolean,
+  hideShareButton?: boolean,
+  operations?: PublicationOperationsFragment,
+  focusedOpenActionModuleName?: string // in case a post has multiple action modules
+  useToast?: Toast // ex: react-hot-toast to render notifs
 }) {
-  let [publication, setPublication] = useState<any>()
+  let [publication, setPublication] = useState<any>(publicationData)
   let [showFullText, setShowFullText] = useState(false)
+  let [openActModal, setOpenActModal] = useState(false)
+  const actHandledExternally = renderActButtonWithCTA && onActButtonClick;
+
+  const {
+    isActionModuleSupported,
+    actionModuleHandler,
+    isLoading: isLoadingActionModuleState,
+  } = useSupportedActionModule(
+    environment,
+    publication,
+    authenticatedProfile?.id,
+    walletClient,
+    focusedOpenActionModuleName,
+  );
 
   useEffect(() => {
     if (!publicationData) {
-      fetchPublication()
+      fetchPublication();
     } else {
       setPublication(publicationData)
     }
   }, [publicationId])
+
   async function fetchPublication() {
     try {
-      const { data } = await client
-        .query(getPublication, {
-          publicationId
-        })
-       .toPromise()
-       setPublication(data.publication)
+      const lensClient = new LensClient({ environment });
+      const pub = await lensClient.publication.fetch({ forId: publicationId });
+      setPublication(pub);
     } catch (err) {
       console.log('error fetching publication: ', err)
     }
   }
-  function onPublicationPress() {
+  function onPublicationPress(e) {
     if (onClick) {
-      onClick()
+      onClick(e)
     } else {
-      const URI = `https://share.lens.xyz/p/${publicationId}`
-      window.open(URI, '_blank')
+      // const pubId = publicationId || publicationData.id;
+      // const URI = `https://share.lens.xyz/p/${pubId}`;
+      // window.open(URI, '_blank')
     }
   }
+  function _onActButtonClick(e) {
+    if (isActionModuleSupported) {
+      e.preventDefault();
+      e.stopPropagation();
+      setOpenActModal(true);
+    } else if (actHandledExternally) {
+      onActButtonClick(e);
+    }
+  }
+
   if (!publication) return null
   let isMirror = false
-  // if (publication.mirrorOn) {
-  //   isMirror = true
-  //   const { mirrorOn, ...original} = publication
-  //   publication = publication.mirrorOn
-  //   publication.original = original
-  // }
-  // publication.profile = formatProfilePicture(publication.profile)
-  // const { profile } = publication
+  if (publication.mirrorOf) {
+    isMirror = true
+    const { mirrorOf, ...original} = publication
+    publication = publication.mirrorOf
+    publication.original = original
+  }
+  publication.profile = formatProfilePicture(publication.by)
+  const { profile } = publication
 
+  // theming
   const isDarkTheme = theme === Theme.dark
   const color = isDarkTheme ? ThemeColor.white : ThemeColor.darkGray
   const backgroundColor = isDarkTheme ? ThemeColor.lightBlack : ThemeColor.white
-  const reactionBgColor = isDarkTheme ? ThemeColor.darkGray : ThemeColor.lightGray
+  const reactionBgColor = isDarkTheme ? ThemeColor.darkGray : ThemeColor.lightGray;
+  const actButttonBgColor = isDarkTheme ? ThemeColor.darkGray : ThemeColor.lightGray;
   const reactionTextColor = isDarkTheme ? ThemeColor.lightGray : ThemeColor.darkGray
 
+  // misc
+  const isAuthenticated = !!authenticatedProfile?.id;
+  const renderActButton = walletClient && ((isActionModuleSupported && !isLoadingActionModuleState) || actHandledExternally);
+  const renderActLoading = walletClient && (isActionModuleSupported && isLoadingActionModuleState && !actHandledExternally);
+
   let media, cover
-  // if (publication.metadata.media.length) {
-  //   media = publication.metadata.media[0]
-  //   if (media && media.original) {
-  //     if (
-  //       media.original.mimeType === 'image/jpg' ||
-  //       media.original.mimeType === 'image/jpeg' ||
-  //       media.original.mimeType === 'image/png' ||
-  //       media.original.mimeType === 'image/gif'
-  //     ) {
-  //       media.type = 'image'
-  //     }
-  //     if (
-  //       media.original.mimeType === 'video/mp4' ||
-  //       media.original.mimeType === 'video/quicktime' ||
-  //       media.original.mimeTuype === 'application/x-mpegURL' ||
-  //       media.original.mimeType === 'video/MP2T'
-  //     ) {
-  //       media.type = 'video'
-  //     }
-  //     if (
-  //       media.original.mimeType === 'audio/mpeg' ||
-  //       media.original.mimeType === 'audio/wav' ||
-  //       media.original.mimeType === 'audio/mp3'
-  //     ) {
-  //       media.type = 'audio'
-  //     }
-  //     media.original.url = returnIpfsPathOrUrl(media.original.url, ipfsGateway)
-  //   }
-  // }
-  // if (publication.metadata.cover) {
-  //   cover = returnIpfsPathOrUrl(publication.metadata.cover.original.url, ipfsGateway)
-  // }
+  if (publication.metadata.asset) {
+    media = publication.metadata.asset
+    if (media.__typename === "PublicationMetadataMediaImage") {
+      media.type = 'image'
+      media.original = { url: returnIpfsPathOrUrl(media.image.optimized?.uri || media.image.raw?.uri, ipfsGateway) }
+    }
+    if (media.__typename === "PublicationMetadataMediaVideo") {
+      media.type = 'video'
+      media.original = { url: returnIpfsPathOrUrl(media.video.optimized?.uri || media.video.raw?.uri, ipfsGateway) }
+    }
+    if (media.__typename === "PublicationMetadataMediaAudio") {
+      media.type = 'audio'
+      media.original = { url: returnIpfsPathOrUrl(media.audio.optimized?.uri || media.audio.raw?.uri, ipfsGateway) }
+    }
+    if (media.cover) {
+      cover = returnIpfsPathOrUrl(media.cover?.optimized?.uri || media.cover.raw?.uri, ipfsGateway)
+    }
+  }
 
   return (
     <div
-      className={publicationContainerStyle(backgroundColor)}
+      className={publicationContainerStyle(backgroundColor, onClick ? true : false)}
     >
       <div
        onClick={onPublicationPress}
@@ -126,7 +187,7 @@ export function Publication({
             isMirror && (
               <div className={mirroredByContainerStyle}>
                 <MirrorIcon color={ThemeColor.mediumGray} />
-                <p>mirrored by {publication.original.profile.handle || publication.original.profile.name}</p>
+                <p>mirrored by {getDisplayName(publication.original.by)}</p>
               </div>
             )
           } */}
@@ -138,7 +199,7 @@ export function Publication({
                 <img
                   src={
                     publication.by.metadata.picture.__typename === 'NftImage' ?
-                    publication.by.metadata.picture?.image.optimized?.uri : publication.by.metadata.picture?.optimized?.uri 
+                    publication.by.metadata.picture?.image.optimized?.uri : publication.by.metadata.picture?.optimized?.uri
                   }
                   className={profilePictureStyle}
                 />
@@ -150,24 +211,20 @@ export function Publication({
             }
           </div>
           <div className={profileDetailsContainerStyle(color)}>
-            <p className={profileNameStyle}>{publication.by?.metadata?.displayName}</p>
-            {
-              publication.createdAt && (
-                <p className={dateStyle}> {formatDistance(new Date(publication.createdAt), new Date())}</p>
-              )
-            }
+            <p className={profileNameStyle}>{getDisplayName(profile)}</p>
+            <p className={dateStyle}> {formatDistance(new Date(publication.createdAt), new Date())} ago</p>
           </div>
         </div>
         <div className={textContainerStyle}>
-        <ReactMarkdown
-          className={markdownStyle(color,fontSize)}
-          rehypePlugins={[rehypeRaw]}
-        >
-          {showFullText 
-            ? formatHandleColors(publication.metadata?.content) 
-            : formatHandleColors(getSubstring(publication.metadata?.content, 339))}
-        </ReactMarkdown>
-        {publication.metadata?.content?.length > 339 && (
+          <ReactMarkdown
+            className={markdownStyle(color,fontSize)}
+            rehypePlugins={[rehypeRaw]}
+          >
+            {showFullText
+              ? formatHandleColors(publication.metadata.content)
+              : formatHandleColors(getSubstring(publication.metadata.content, 339))}
+          </ReactMarkdown>
+        {publication.metadata.content.length > 339 && (
           <button className={showMoreStyle} onClick={(event) => {
             event.stopPropagation()
             setShowFullText(!showFullText)
@@ -177,65 +234,114 @@ export function Publication({
         )}
         </div>
       </div>
-      {
-        publication.metadata?.__typename === "ImageMetadataV3"  && (
-          <div className={imageContainerStyle}>
-            <img
-              className={mediaImageStyle}
-              src={publication.metadata.asset.image.optimized.uri}
-              onClick={onPublicationPress}
-            />
-          </div>
-        )
-      }
-      {
-        publication.metadata?.__typename === "VideoMetadataV3" && (
-          <div className={videoContainerStyle}>
-            <ReactPlayer
-              className={videoStyle}
-              url={publication.metadata.asset.video.optimized?.uri}
-              controls
-            />
-          </div>
-        )
-      }
-      {
-        publication.metadata?.__typename === "AudioMetadataV3" && (
-          <div className={audioContainerStyle}>
-            <AudioPlayer
-              url={publication.metadata.asset.audio.optimized?.uri}
-              theme={theme}
-              cover={publication.metadata.asset.cover?.optimized?.uri}
-              profile={publication.by}
-            />
-          </div>
-        )
-      }
+      {/* Render a NFT preview component OR the media content */}
+      {!isLoadingActionModuleState && actionModuleHandler?.mintableNFT && (
+        <div className={nftContainerStyle}>
+          <MintNFTCard metadata={actionModuleHandler?.mintableNFTMetadata} isDarkTheme={isDarkTheme} />
+        </div>
+      )}
+      {!isLoadingActionModuleState && !actionModuleHandler?.mintableNFT && (
+        <>
+          {
+            publication.metadata?.__typename === "ImageMetadataV3" && (
+              <div className={imageContainerStyle}>
+                <img
+                  className={mediaImageStyle}
+                  src={publication.metadata.asset.image.optimized.uri}
+                  onClick={onPublicationPress}
+                />
+              </div>
+            )
+          }
+          {
+            publication.metadata?.__typename === "VideoMetadataV3" && (
+              <div className={videoContainerStyle}>
+                <ReactPlayer
+                  className={videoStyle}
+                  url={publication.metadata.asset.video.optimized?.uri}
+                  controls
+                />
+              </div>
+            )
+          }
+          {
+            publication.metadata?.__typename === "AudioMetadataV3" && (
+              <div className={audioContainerStyle}>
+                <AudioPlayer
+                  url={publication.metadata.asset.audio.optimized?.uri}
+                  theme={theme}
+                  cover={publication.metadata.asset.cover?.optimized?.uri}
+                  profile={publication.by}
+                />
+              </div>
+            )
+          }
+        </>
+      )}
       <div
         className={reactionsContainerStyle}
         onClick={onPublicationPress}
       >
-        <div className={reactionContainerStyle(reactionTextColor, reactionBgColor)}>
-          <MessageIcon color={reactionTextColor} />
-          <p>{publication.stats?.comments}</p>
+        <div
+          className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated, operations?.hasUpvoted)}
+          onClick={onLikeButtonClick}
+        >
+          <HeartIcon color={!operations?.hasUpvoted ? reactionTextColor : ThemeColor.red} />
+          <p>{publication.stats.upvoteReactions > 0 ? publication.stats.upvoteReactions : null}</p>
         </div>
-        <div className={reactionContainerStyle(reactionTextColor, reactionBgColor)}>
-          <MirrorIcon color={reactionTextColor} />
-          <p>{publication.stats?.mirrors}</p>
-        </div>
-        <div className={reactionContainerStyle(reactionTextColor, reactionBgColor)}>
-          <HeartIcon color={reactionTextColor} />
-          <p>{publication.stats?.reactions}</p>
-        </div>
-        {/* {
-          publication.stats.totalAmountOfCollects > Number(0) && (
-            <div className={reactionContainerStyle(reactionTextColor, reactionBgColor)}>
-              <CollectIcon color={reactionTextColor} />
-              <p>{publication.stats.totalAmountOfCollects}</p>
+        {!hideCommentButton && (
+          <div
+            className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated, false)}
+            onClick={onCommentButtonClick}
+          >
+            <MessageIcon color={reactionTextColor} />
+            <p>{publication.stats.comments > 0 ? publication.stats.comments : null}</p>
+          </div>
+        )}
+        {!hideQuoteButton && (
+          <div
+            className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated, operations?.hasMirrored)}
+            onClick={onMirrorButtonClick}
+          >
+            <MirrorIcon color={!operations?.hasMirrored ? reactionTextColor : ThemeColor.lightGreen} />
+            <p>{publication.stats.mirrors + publication.stats.quotes > 0 ? publication.stats.mirrors + publication.stats.quotes : null}</p>
+          </div>
+        )}
+        {renderActButton && actionModuleHandler && (
+            <div
+              className={actButtonContainerStyle(reactionTextColor, actButttonBgColor)}
+              onClick={_onActButtonClick}
+            >
+              <p>{actionModuleHandler!.getActButtonLabel()}</p>
             </div>
-          )
-        } */}
+        )}
+        {renderActLoading && (
+          <div className={shareContainerStyle(reactionTextColor, reactionBgColor)}>
+            <Spinner customClasses="h-6 w-6" color={color} />
+          </div>
+        )}
+        {!isActionModuleSupported && !hideShareButton && (
+          <div
+            className={shareContainerStyle(reactionTextColor, reactionBgColor)}
+            onClick={onShareButtonClick}
+          >
+            <ShareIcon color={reactionTextColor} />
+          </div>
+        )}
       </div>
+      {renderActButton && actionModuleHandler && (
+        <ActModal
+          handler={actionModuleHandler}
+          openActModal={openActModal}
+          setOpenActModal={setOpenActModal}
+          style={{ backgroundColor, color }}
+          publicationBy={publication.by}
+          walletClient={walletClient}
+          isDarkTheme={isDarkTheme}
+          countOpenActions={publication.stats.countOpenActions}
+          toast={useToast}
+        />
+      )}
     </div>
   )
 }
@@ -252,7 +358,7 @@ const showMoreStyle = css`
 `
 
 const textContainerStyle = css`
-  padding-top: 12px;
+  padding-top: 22px;
 `
 
 const topLevelContentStyle = css`
@@ -264,6 +370,14 @@ const imageContainerStyle = css`
   width: 100%;
   overflow: hidden;
   max-height: 480px;
+  margin-top: 14px;
+`
+
+const nftContainerStyle = css`
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  max-height: 600px;
   margin-top: 14px;
 `
 
@@ -327,12 +441,15 @@ const profilePictureStyle = css`
 `
 
 const reactionsContainerStyle = css`
+  position: relative;
   padding: 0px 18px 18px;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
   margin-top: 15px;
+  gap: 10px;
+  cursor: default;
 `
 
 const mirroredByContainerStyle = css`
@@ -349,11 +466,14 @@ const mirroredByContainerStyle = css`
   }
 `
 
-const reactionContainerStyle = (color, backgroundColor) => css`
-  background-color: ${backgroundColor};
+const reactionContainerStyle = (color, backgroundColor, isAuthenticated, hasReacted) => css`
+  background-color: transparent;
+  &:hover {
+    background-color: ${isAuthenticated && !hasReacted ? backgroundColor : 'transparent'};
+  }
   display: flex;
-  border-radius: 20px;
-  padding: 10px;
+  border-radius: 24px;
+  padding: 12px 16px 10px 16px;
   margin-right: 10px;
   p {
     color: ${color};
@@ -362,12 +482,54 @@ const reactionContainerStyle = (color, backgroundColor) => css`
     margin: 0;
     margin-left: 4px;
   }
+  cursor: ${isAuthenticated && !hasReacted ? 'pointer' : 'default'};
 `
 
-const publicationContainerStyle = color => css`
+const shareContainerStyle = (color, backgroundColor) => css`
+  background-color: transparent;
+  &:hover {
+    background-color: ${backgroundColor}
+  }
+  display: flex;
+  border-radius: 24px;
+  padding: 12px 16px 10px 16px;
+  margin-right: 10px;
+  position: absolute;
+  right: 5px;
+  top: 0px;
+  p {
+    color: ${color};
+    font-size: 12px;
+    opacity: .75;
+    margin: 0;
+    margin-left: 4px;
+  }
+  cursor: pointer;
+`
+
+const actButtonContainerStyle = (color, backgroundColor) => css`
+  background-color: ${backgroundColor};
+  display: flex;
+  border-radius: 16px;
+  padding: 10px;
+  padding-left: 14px;
+  padding-right: 14px;
+  margin-right: 14px;
+  position: absolute;
+  right: 5px;
+  p {
+    color: ${color};
+    font-size: 14px;
+    opacity: 1;
+    margin: 0;
+  }
+  cursor: pointer;
+`
+
+const publicationContainerStyle = (color, onClick: boolean) => css`
   width: 510px;
   background-color: ${color};
-  cursor: pointer;
+  cursor: ${onClick ? 'pointer': 'default'};
   border-radius: 18px;
   @media (max-width: 510px) {
     width: 100%
