@@ -1,4 +1,4 @@
-## Lens Widgets React library (MadFi Fork)
+## Lens Widgets React library
 
 ### Dependencies
 These packages must be installed in the root React app
@@ -8,12 +8,7 @@ These packages must be installed in the root React app
 ### Installation
 
 ```sh
-yarn install @mad-finance/widgets-react
-```
-or
-
-```sh
-npm install @mad-finance/widgets-react
+yarn install @madfi/widgets-react
 ```
 
 ### With Next.js
@@ -21,7 +16,7 @@ npm install @mad-finance/widgets-react
 If you are using Next.js `pages` directory please update your `next.config.js` with the following:
 
 ```javascript
-transpilePackages: ['@mad-finance/widgets-react'],
+transpilePackages: ['@madfi/widgets-react'],
 ```
 
 So the final configuration might look like this:
@@ -31,19 +26,14 @@ So the final configuration might look like this:
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  transpilePackages: ['@mad-finance/widgets-react']
+  transpilePackages: ['@madfi/widgets-react']
 }
 module.exports = nextConfig
 ```
 
 Once this update is made, please re-run the server:
-
 ```sh
 yarn watch:ts
-```
-or
-```sh
-npm run watch:ts
 ```
 
 ### Local Development
@@ -66,8 +56,8 @@ yarn watch:ts
 
 4. Install in your project + use the symlink
 ```sh
-yarn install @mad-finance/widgets-react
-yarn link "@mad-finance/widgets-react"
+yarn install @madfi/widgets-react
+yarn link "@madfi/widgets-react"
 ```
 
 ### With Next.js Dynamic Imports
@@ -78,7 +68,7 @@ Another option when working with Next.js `pages` directory apps is using a Dynam
 /* Profile created in separate component */
 import {
   Profile
-} from '@mad-finance/widgets-react'
+} from '@madfi/widgets-react'
 
 export default function ProfileComponent() {
   return (
