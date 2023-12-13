@@ -2,8 +2,9 @@ import { useMemo } from "react";
 import { ProfileFragment } from "@lens-protocol/client";
 import { WalletClient } from "viem";
 import Modal from "./Modal";
-import ZoraLzMintActionModal from "./../actions/modals/ZoraLzMintActionModal";
 import HandlerBase from "../actions/handlers/HandlerBase";
+import ZoraLzMintActionModal from "./../actions/modals/ZoraLzMintActionModal";
+import SimpleCollectionMintActionModal from "../actions/modals/SimpleCollectionMintActionModal";
 import { Toast } from "../types";
 
 interface ActModalProps {
@@ -45,7 +46,19 @@ const ActModal = ({
           countOpenActions={countOpenActions}
           toast={toast}
         />
-      )
+      );
+    } else if (metadata.name === "SimpleCollectionMintAction") {
+      return (
+        <SimpleCollectionMintActionModal
+          // @ts-expect-error: casted correctly in the modal
+          handler={handler}
+          publicationBy={publicationBy}
+          walletClient={walletClient}
+          isDarkTheme={isDarkTheme}
+          countOpenActions={countOpenActions}
+          toast={toast}
+        />
+      );
     }
 
     return null;

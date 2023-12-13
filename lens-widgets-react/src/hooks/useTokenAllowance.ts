@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Abi, PublicClient, WalletClient } from 'viem';
+import { Abi, PublicClient, WalletClient, zeroAddress } from 'viem';
 import IERC20Abi from "../actions/abis/IERC20.json";
 
 export default (
@@ -24,7 +24,7 @@ export default (
   };
 
   useEffect(() => {
-    if (tokenAddress && walletClient) {
+    if ((tokenAddress && tokenAddress !== zeroAddress) && walletClient) {
       setIsLoading(true);
       fetchAllowance();
     }

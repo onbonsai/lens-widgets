@@ -123,6 +123,7 @@ export function Publication({
   }
   function _onActButtonClick(e) {
     if (isActionModuleSupported) {
+      e.preventDefault();
       e.stopPropagation();
       setOpenActModal(true);
     } else if (actHandledExternally) {
@@ -236,7 +237,7 @@ export function Publication({
       {/* Render a NFT preview component OR the media content */}
       {!isLoadingActionModuleState && actionModuleHandler?.mintableNFT && (
         <div className={nftContainerStyle}>
-          <MintNFTCard metadata={actionModuleHandler?.mintableNFTMetadata} />
+          <MintNFTCard metadata={actionModuleHandler?.mintableNFTMetadata} isDarkTheme={isDarkTheme} />
         </div>
       )}
       {!isLoadingActionModuleState && !actionModuleHandler?.mintableNFT && (
@@ -306,7 +307,7 @@ export function Publication({
             <p>{publication.stats.mirrors + publication.stats.quotes > 0 ? publication.stats.mirrors + publication.stats.quotes : null}</p>
           </div>
         )}
-        {renderActButton && (
+        {renderActButton && actionModuleHandler && (
             <div
               className={actButtonContainerStyle(reactionTextColor, actButttonBgColor)}
               onClick={_onActButtonClick}

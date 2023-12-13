@@ -68,10 +68,11 @@ class ZoraLzMintAction extends HandlerBase {
   public remoteTokenId?: string;
   public zoraURL?: string;
   public remoteBalanceOf?: BigInt;
+  public hasMinted?: boolean;
   public apiKey?: string; // MadFi API key
 
-  constructor(_environment: Environment, profileId: string, publicationId: string) {
-    super(_environment, profileId, publicationId);
+  constructor(_environment: Environment, profileId: string, publicationId: string, authenticatedProfileId?: string) {
+    super(_environment, profileId, publicationId, authenticatedProfileId);
     this.apiKey = DEFAULT_MADFI_API_KEY; // will be undefined unless the root app sets in env
     this.mintableNFT = true; // render mint nft card
   }
@@ -121,6 +122,7 @@ class ZoraLzMintAction extends HandlerBase {
     this.remoteMintData = remoteMintData;
     this.remoteChain = remoteChain;
     this.remoteBalanceOf = remoteBalanceOf;
+    this.hasMinted = BigInt(this.remoteBalanceOf.toString()) > BigInt(0);
     this.remoteTokenAddress = madContract1155 as string;
     this.remoteTokenId = (remoteTokenId as BigInt).toString();
     const metadata = await fetchTokenWithMetadata(
@@ -184,7 +186,7 @@ class ZoraLzMintAction extends HandlerBase {
   }
 
   getActButtonLabel(): string {
-    if (this.remoteBalanceOf && this.remoteBalanceOf) return "Minted";
+    if (this.hasMinted) return "Minted";
 
     return "Mint"
   }

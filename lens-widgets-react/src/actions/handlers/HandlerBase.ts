@@ -37,7 +37,7 @@ export type MintableNFT = {
   name: string;
   description: string;
   image: string;
-  chainId: number;
+  chainId?: number; // if it's on another chain
 }
 
 // must be implemented by every action module in this directory

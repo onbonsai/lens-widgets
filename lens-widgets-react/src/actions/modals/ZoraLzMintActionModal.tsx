@@ -150,8 +150,13 @@ const ZoraLzMintActionModal = ({
       <h2 className="text-lg text-center font-owners font-light mt-2">
         {actionModuleMetadata.description}
       </h2>
+      {handler.hasMinted && (
+        <h2 className="text-lg font-bold text-center font-owners mt-4">
+          Already minted 🎉
+        </h2>
+      )}
       <div className="flex flex-col w-full items-center justify-center md:pb-4">
-        <div className="flex flex-col space-y-2 justify-center mt-8">
+        <div className="flex flex-col space-y-2 justify-center mt-4">
           <div className="mb-4">
             <div className="mb-1 text-xl font-bold">{handler.mintableNFTMetadata?.name}</div>
             <div className="mb-4 flex items-center gap-x-2">
@@ -167,7 +172,7 @@ const ZoraLzMintActionModal = ({
                 />
                 <div className="flex max-w-full flex-wrap items-center">
                   <div className="mr-2 max-w-[75%] truncate">{publicationBy.metadata?.displayName}</div>
-                  <span className="ld-text-gray-500 text-sm">@{publicationBy.handle?.localName}</span>
+                  <span className="ld-text-gray-500 text-sm">[@{publicationBy.handle?.localName}]</span>
                 </div>
               </div>
             </div>
@@ -220,16 +225,16 @@ const ZoraLzMintActionModal = ({
                   <div className="w-20">Chain</div>
                   <div><b>{handler.remoteChain?.name}</b></div>
                 </div>
-                {
+                {/* {
                   handler.zoraURL && (
                     <a className="flex items-center space-x-2" rel="noopener noreferrer" target="_blank" href={handler.zoraURL}>
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" className="ld-text-gray-500 h-4 w-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"></path>
+                        <path strokeLinecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"></path>
                       </svg>
-                      <b>Open in Zora</b>
+                      <b>View on Zora</b>
                     </a>
                   )
-                }
+                } */}
               </div>
             </div>
           )}

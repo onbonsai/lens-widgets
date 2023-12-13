@@ -57,13 +57,14 @@ const modalStyle = (display: boolean) => css`
   transition: opacity ${display ? TRANSITION.enterDuration : TRANSITION.leaveDuration} ${display ? TRANSITION.enter : TRANSITION.leave};
   z-index: 10;
   overflow-y: auto;
+  cursor: default;
 `;
 
 const modalContentStyle = (backgroundColor, color) => css`
   background-color: ${backgroundColor};
   color: ${color};
-  width: 50vh;
-  height: 50vh;
+  width: 75vh;
+  height: auto;
   color: var(--color-secondary);
   position: relative;
   border-radius: 0.25rem;
