@@ -1,9 +1,19 @@
-## Lens Widgets React library
+## Lens Widgets React library (MadFi Fork)
+
+### Dependencies
+These packages must be installed in the root React app
+- react
+- tailwindcss
 
 ### Installation
 
 ```sh
-npm install @lens-protocol/widgets-react
+yarn install @mad-finance/widgets-react
+```
+or
+
+```sh
+npm install @mad-finance/widgets-react
 ```
 
 ### With Next.js
@@ -11,7 +21,7 @@ npm install @lens-protocol/widgets-react
 If you are using Next.js `pages` directory please update your `next.config.js` with the following:
 
 ```javascript
-transpilePackages: ['@lens-protocol'],
+transpilePackages: ['@mad-finance/widgets-react'],
 ```
 
 So the final configuration might look like this:
@@ -21,7 +31,7 @@ So the final configuration might look like this:
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  transpilePackages: ['@lens-protocol']
+  transpilePackages: ['@mad-finance/widgets-react']
 }
 module.exports = nextConfig
 ```
@@ -29,8 +39,38 @@ module.exports = nextConfig
 Once this update is made, please re-run the server:
 
 ```sh
-npm run dev
+yarn watch:ts
 ```
+or
+```sh
+npm run watch:ts
+```
+
+### Local Development
+
+1. Install deps
+```sh
+nvm use
+pnpm install
+```
+
+2. Create a symlink in this directory
+```sh
+yarn link
+```
+
+3. Build the app in watch mode
+```sh
+yarn watch:ts
+```
+
+4. Install in your project + use the symlink
+```sh
+yarn install @mad-finance/widgets-react
+yarn link "@mad-finance/widgets-react"
+```
+
+### With Next.js Dynamic Imports
 
 Another option when working with Next.js `pages` directory apps is using a Dynamic Import:
 
@@ -38,11 +78,11 @@ Another option when working with Next.js `pages` directory apps is using a Dynam
 /* Profile created in separate component */
 import {
   Profile
-} from '@lens-protocol/widgets-react'
+} from '@mad-finance/widgets-react'
 
 export default function ProfileComponent() {
   return (
-    <Profile handle='christina' />
+    <Profile handle='madfinance' />
   )
 }
 
@@ -58,4 +98,3 @@ export default () => {
   )
 }
 ```
-

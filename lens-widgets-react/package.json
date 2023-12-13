@@ -1,14 +1,14 @@
 {
   "name": "@mad-finance/widgets-react",
   "version": "2.1.0",
-  "description": "React widgets to easily integrate Lens into your app",
+  "description": "React widgets to render Lens components, with support for Smart Posts",
   "main": "dist/index.js",
   "scripts": {
     "build": "npx tsc",
     "watch:ts": "npx tsc --watch",
     "generate": "graphql-codegen --config ./codegen.yaml"
   },
-  "repository": "https://github.com/madfi/lens-widgets",
+  "repository": "https://github.com/mad-finance/lens-widgets",
   "keywords": [],
   "author": "",
   "license": "ISC",
