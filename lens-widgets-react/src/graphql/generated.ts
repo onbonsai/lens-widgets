@@ -1,3 +1,4 @@
+// @ts-expect-error: ??
 import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -4776,4 +4777,3 @@ export const PublicationsDocument = {"kind":"Document","definitions":[{"kind":"O
   }
 };
       export default result;
-    

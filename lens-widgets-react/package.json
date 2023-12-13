@@ -1,5 +1,5 @@
 {
-  "name": "@mad-finance/widgets-react",
+  "name": "@madfi/widgets-react",
   "version": "2.1.0",
   "description": "React widgets to render Lens components, with support for Smart Posts",
   "main": "dist/index.js",
@@ -12,6 +12,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@emotion/css": "^11.10.5",
     "@lens-protocol/client": "2.0.0-alpha.25",

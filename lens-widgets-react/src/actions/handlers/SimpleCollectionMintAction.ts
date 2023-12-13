@@ -71,7 +71,9 @@ class SimpleCollectionMintAction extends HandlerBase {
     super(_environment, profileId, publicationId, authenticatedProfileId);
 
     if (this.isPolygon) {
+      // @ts-expect-error: TODO mainnet
       this.madSBTAddress = MAD_SBT_MAINNET_ADDRESS;
+      // @ts-expect-error: TODO mainnet
       this.sbtLevelsAddress = SBT_LEVELS_MAINNET_ADDRESS;
     } else {
       this.madSBTAddress = MAD_SBT_TESTNET_ADDRESS;
@@ -164,7 +166,7 @@ class SimpleCollectionMintAction extends HandlerBase {
   }
 
   encodeModuleInitData(data: ModuleInitDataSchema): string {
-    if (data.amount && data.amount > 0 && !(data.currency && data.currencyDecimals)) {
+    if (data.amount && BigInt(data.amount) > 0 && !(data.currency && data.currencyDecimals)) {
       throw new Error('when `amount` is a value greater than 0, you must provide `currency` and `currencyDecimals`');
     }
 
