@@ -30,7 +30,7 @@ export const fetchTokenWithMetadata = async (address: string, tokenId: string, c
   return data?.token?.token?.metadata;
 };
 
-export const getZoraChainInfo = (chain: number): { logo: string; name: string } => {
+export const getChainInfo = (chain: number): { logo: string; name: string } => {
   switch (chain) {
     case 1:
     case 5:
@@ -68,5 +68,3 @@ export const getZoraChainInfo = (chain: number): { logo: string; name: string } 
       };
   }
 };
-
-export default getZoraChainInfo;

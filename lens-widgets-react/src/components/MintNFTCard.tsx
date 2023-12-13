@@ -1,11 +1,11 @@
 import React from 'react';
 import { MintableNFT } from '../actions';
-import { getZoraChainInfo } from '../actions/utils/zora';
+import { getChainInfo } from '../actions/utils/zora';
 
 const MintNFTCard = ({ metadata, isDarkTheme }: { metadata?: MintableNFT, isDarkTheme: boolean }) => {
   if (!metadata) return null;
 
-  const chainInfo = metadata.chainId ? getZoraChainInfo(metadata.chainId) : undefined;
+  const chainInfo = metadata.chainId ? getChainInfo(metadata.chainId) : undefined;
 
   return (
     <div className="">
