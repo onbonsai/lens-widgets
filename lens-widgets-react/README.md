@@ -82,7 +82,7 @@ import {
 
 export default function ProfileComponent() {
   return (
-    <Profile handle='madfinance' />
+    <Profile handle='lens/madfinance' />
   )
 }
 
