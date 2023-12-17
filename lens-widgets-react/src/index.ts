@@ -6,6 +6,9 @@ export { ProfileLarge } from "./ProfileLarge"
 export { Publication } from './Publication'
 export { Publications } from './Publications'
 export { ProfileListItem } from './ProfileListItem'
+export { MintNFTCard } from './components/MintNFTCard'
+
+export { useZoraTokenMetadata } from './hooks/useZoraTokenMetadata'
 
 export * from './types'
 export * from "./utils"

@@ -11,6 +11,7 @@ export default (
   publication?: PubWithModules,
   authenticatedProfileId?: string,
   walletClient?: WalletClient,
+  rpcURLs?: { [chainId: number]: string },
   focusedOpenActionModuleName?: string
 ) => {
   const [handler, setHandler] = useState<HandlerBase | undefined>();
@@ -32,13 +33,13 @@ export default (
       if (actionModulesHandlers.length == 1 || !focusedOpenActionModuleName) {
         const ActionModuleHandler = actionModulesHandlers[0].handler;
 
-        setHandler(new ActionModuleHandler(environment, profileId, pubId, authenticatedProfileId));
+        setHandler(new ActionModuleHandler(environment, profileId, pubId, authenticatedProfileId, rpcURLs));
       } else if (focusedOpenActionModuleName) {
         const focusedHandler = actionModulesHandlers.find((handler) => handler.name === focusedOpenActionModuleName);
         if (focusedHandler) {
           const ActionModuleHandler = focusedHandler.handler;
 
-          setHandler(new ActionModuleHandler(environment, profileId, pubId, authenticatedProfileId));
+          setHandler(new ActionModuleHandler(environment, profileId, pubId, authenticatedProfileId, rpcURLs));
         }
       }
     }

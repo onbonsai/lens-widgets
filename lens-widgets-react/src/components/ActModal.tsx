@@ -35,7 +35,7 @@ const ActModal = ({
 
     // TODO: make this more dynamic in registry
     // open your handler modal
-    if (metadata.name === "ZoraLzMintAction") {
+    if (metadata?.metadata?.name === "ZoraLzMintActionV1") {
       return (
         <ZoraLzMintActionModal
           // @ts-expect-error: casted correctly in the modal
@@ -47,7 +47,7 @@ const ActModal = ({
           toast={toast}
         />
       );
-    } else if (metadata.name === "SimpleCollectionMintAction") {
+    } else if (metadata?.metadata?.name === "SimpleCollectionMintAction") {
       return (
         <SimpleCollectionMintActionModal
           // @ts-expect-error: casted correctly in the modal

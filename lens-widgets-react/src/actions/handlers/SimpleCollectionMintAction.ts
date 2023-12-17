@@ -1,8 +1,7 @@
 import { z } from "zod";
-import { parseUnits, zeroAddress, Abi, Chain, TransactionReceipt } from 'viem';
-import { Environment, production } from "@lens-protocol/client";
+import { parseUnits, zeroAddress, Abi, TransactionReceipt } from 'viem';
+import { Environment, encodeData } from "@lens-protocol/client";
 import HandlerBase, { ActionModuleConfig, DefaultFetchActionModuleDataParams } from "./HandlerBase";
-import { encodeAbi } from "../utils/viem";
 import SimpleCollectionMintActionAbi from "./../abis/SimpleCollectionMintAction.json";
 import MadSBTAbi from "./../abis/MadSBT.json";
 import MadSBTLevelsAbi from "./../abis/SBTLevels.json";
@@ -67,8 +66,14 @@ class SimpleCollectionMintAction extends HandlerBase {
   public isFreeMint?: boolean;
   public hasMinted?: boolean;
 
-  constructor(_environment: Environment, profileId: string, publicationId: string, authenticatedProfileId?: string) {
-    super(_environment, profileId, publicationId, authenticatedProfileId);
+  constructor(
+    _environment: Environment,
+    profileId: string,
+    publicationId: string,
+    authenticatedProfileId?: string,
+    rpcURLs?: { [chainId: number]: string }
+  ) {
+    super(_environment, profileId, publicationId, authenticatedProfileId, rpcURLs);
 
     if (this.isPolygon) {
       // @ts-expect-error: TODO mainnet
@@ -85,6 +90,8 @@ class SimpleCollectionMintAction extends HandlerBase {
 
   async fetchActionModuleData(data: DefaultFetchActionModuleDataParams): Promise<any> {
     this.authenticatedProfileId = data.authenticatedProfileId; // in case it wasn't set before
+    // @ts-expect-error: type
+    this.metadata = await this.lensClient.modules.fetchMetadata({ implementation: this.address });
 
     const collectionId = await this.publicClient.readContract({
       address: this.address,
@@ -145,20 +152,14 @@ class SimpleCollectionMintAction extends HandlerBase {
 
   getActionModuleConfig(): ActionModuleConfig {
     return {
-      metadata: {
-        name: "SimpleCollectionMintAction",
-        displayName: "Join Social Club",
-        description: "Mint this badge NFT and get access to exclusive content, rewards, and more"
-      },
+      displayName: "Join Social Club",
+      description: "Mint this badge NFT and get access to exclusive content, rewards, and more",
       address: {
         mumbai: SIMPLE_COLLECTION_MINT_TESTNET_ADDRESS,
         polygon: SIMPLE_COLLECTION_MINT_MAINNET_ADDRESS
       },
-      actButtonStateLabels: {
-        pre: "Join Club",
-        post: "Joined"
-      }
-    }
+      metadata: this.metadata
+    };
   }
 
   getModuleInitDataSchema() {
@@ -171,7 +172,7 @@ class SimpleCollectionMintAction extends HandlerBase {
     }
 
     const baseFeeCollectModuleInitData = {
-      amount: !!data.amount ?parseUnits(data.amount.toString(), data.currencyDecimals!) : 0,
+      amount: !!data.amount ? parseUnits(data.amount.toString(), data.currencyDecimals!).toString() : 0,
       collectLimit: data.collectLimit || 0,
       currency: data.currency || zeroAddress,
       recipient: data.recipient,
@@ -180,12 +181,9 @@ class SimpleCollectionMintAction extends HandlerBase {
       endTimestamp: data.endTimestamp || 0,
     };
 
-    return encodeAbi(
-      [
-        'uint256',
-        '(uint160 amount, uint96 collectLimit, address currency, uint16 referralFee, bool followerOnly, uint72 endTimestamp, address recipient)'
-      ],
-      [this.collectionId, baseFeeCollectModuleInitData]
+    return encodeData(
+      JSON.parse(this.metadata!.metadata.initializeCalldataABI),
+      [this.collectionId!.toString(), JSON.stringify(baseFeeCollectModuleInitData)] // TODO: stringified?
     );
   }
 
@@ -194,8 +192,8 @@ class SimpleCollectionMintAction extends HandlerBase {
   }
 
   encodeModuleActData(data: ModuleActDataSchema): string {
-    return encodeAbi(
-      ['address', 'uint256'],
+    return encodeData(
+      JSON.parse(this.metadata!.metadata.processCalldataABI),
       [data.currency, data.amount]
     );
   }

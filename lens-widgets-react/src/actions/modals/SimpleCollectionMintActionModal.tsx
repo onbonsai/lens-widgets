@@ -72,9 +72,9 @@ const SimpleCollectionMintActionModal = ({
     }
   }, [handler, isLoadingAllowance, allowance]);
 
-  const actionModuleMetadata = useMemo(() => {
-    const { metadata } = handler.getActionModuleConfig();
-    return metadata;
+  const actionModuleMetadata: { displayName?: string, description?: string } = useMemo(() => {
+    const { displayName, description } = handler.getActionModuleConfig();
+    return { displayName, description };
   }, [handler]);
 
   const handleAct = async () => {

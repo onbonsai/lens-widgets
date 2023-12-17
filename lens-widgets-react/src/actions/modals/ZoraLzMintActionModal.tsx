@@ -51,11 +51,9 @@ const ZoraLzMintActionModal = ({
       setQuoteData(data);
       setIsLoadingQuoteData(false);
     };
-    // TODO: provide a way to get quote data without api key
-    if (handler.apiKey) {
-      setIsLoadingQuoteData(true);
-      fetchQuoteData();
-    }
+
+    setIsLoadingQuoteData(true);
+    fetchQuoteData();
   }, [handler, walletClient, currency]);
 
   const formattedCost = useMemo(() => {
@@ -82,9 +80,9 @@ const ZoraLzMintActionModal = ({
     }
   }, [quoteData, isLoadingQuoteData, isLoadingAllowance, allowance]);
 
-  const actionModuleMetadata = useMemo(() => {
-    const { metadata } = handler.getActionModuleConfig();
-    return metadata;
+  const actionModuleMetadata: { displayName?: string, description?: string } = useMemo(() => {
+    const { displayName, description } = handler.getActionModuleConfig();
+    return { displayName, description };
   }, [handler]);
 
   const getRelayScanURL = (txHash: string): string => (
@@ -187,8 +185,8 @@ const ZoraLzMintActionModal = ({
                       isLoadingQuoteData
                         ? <div className="pl-6"><Spinner customClasses="h-3 w-3" color={isDarkTheme ? 'white' : 'black'} /></div>
                         : <div className="space-x-1.5">
-                          <b>{formattedCost}</b>
-                        </div>
+                            <b>{formattedCost}</b>
+                          </div>
                     }
                     <select
                       style={{ right: '-100px' }}
@@ -225,16 +223,6 @@ const ZoraLzMintActionModal = ({
                   <div className="w-20">Chain</div>
                   <div><b>{handler.remoteChain?.name}</b></div>
                 </div>
-                {/* {
-                  handler.zoraURL && (
-                    <a className="flex items-center space-x-2" rel="noopener noreferrer" target="_blank" href={handler.zoraURL}>
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" className="ld-text-gray-500 h-4 w-4">
-                        <path strokeLinecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"></path>
-                      </svg>
-                      <b>View on Zora</b>
-                    </a>
-                  )
-                } */}
               </div>
             </div>
           )}

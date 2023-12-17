@@ -6,6 +6,9 @@ const STATIC_IMAGES_URL = "https://hey-assets.b-cdn.net/images" // ty hey
 const CHAIN_ID_TO_NETWORK_INPUT = {
   84531: { network: 'BASE', chain: 'BASE_GOERLI' },
   8453: { network: 'BASE', chain: 'BASE_MAINNET' },
+  5: { network: 'ETHEREUM', chain: 'GOERLI' },
+  1: { network: 'ETHEREUM', chain: 'MAINNET' },
+  7777777: { network: 'ZORA', chain: 'ZORA_MAINNET' }
 };
 
 const FETCH_TOKEN = `
@@ -18,7 +21,7 @@ const FETCH_TOKEN = `
   }
 `;
 
-export const fetchTokenWithMetadata = async (address: string, tokenId: string, chainId: string) => {
+export const fetchTokenWithMetadata = async (address: string, tokenId: string, chainId: number) => {
   const client = createClient({ url: API_URL });
 
   const { data } = await client.query(FETCH_TOKEN, {

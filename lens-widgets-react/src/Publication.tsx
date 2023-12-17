@@ -29,7 +29,7 @@ import { AudioPlayer } from './AudioPlayer'
 import useSupportedActionModule from './hooks/useSupportedActionModule';
 import Spinner from './components/Spinner';
 import ActModal from './components/ActModal';
-import MintNFTCard from './components/MintNFTCard';
+import { MintNFTCard } from './components/MintNFTCard';
 import { WalletClient } from 'viem';
 import { Toast } from './types';
 
@@ -55,6 +55,7 @@ export function Publication({
   operations,
   focusedOpenActionModuleName,
   useToast,
+  rpcURLs,
 }: {
   publicationId?: string,
   publicationData?: any,
@@ -77,11 +78,11 @@ export function Publication({
   operations?: PublicationOperationsFragment,
   focusedOpenActionModuleName?: string // in case a post has multiple action modules
   useToast?: Toast // ex: react-hot-toast to render notifs
+  rpcURLs?: { [chainId: number]: string }
 }) {
   let [publication, setPublication] = useState<any>(publicationData)
   let [showFullText, setShowFullText] = useState(false)
   let [openActModal, setOpenActModal] = useState(false)
-  const actHandledExternally = renderActButtonWithCTA && onActButtonClick;
 
   const {
     isActionModuleSupported,
@@ -92,8 +93,11 @@ export function Publication({
     publication,
     authenticatedProfile?.id,
     walletClient,
+    rpcURLs,
     focusedOpenActionModuleName,
   );
+
+  const actHandledExternally = !isActionModuleSupported && renderActButtonWithCTA && onActButtonClick;
 
   useEffect(() => {
     if (!publicationData) {
@@ -152,8 +156,8 @@ export function Publication({
 
   // misc
   const isAuthenticated = !!authenticatedProfile?.id;
-  const renderActButton = walletClient && ((isActionModuleSupported && !isLoadingActionModuleState) || actHandledExternally);
-  const renderActLoading = walletClient && (isActionModuleSupported && isLoadingActionModuleState && !actHandledExternally);
+  const renderActButton = walletClient && isAuthenticated && ((isActionModuleSupported && !isLoadingActionModuleState && !actionModuleHandler?.panicked) || actHandledExternally);
+  const renderActLoading = walletClient && isAuthenticated && (isActionModuleSupported && isLoadingActionModuleState && !actionModuleHandler?.panicked && !actHandledExternally);
 
   let media, cover
   if (publication.metadata.asset) {
@@ -237,7 +241,10 @@ export function Publication({
       {/* Render a NFT preview component OR the media content */}
       {!isLoadingActionModuleState && actionModuleHandler?.mintableNFT && (
         <div className={nftContainerStyle}>
-          <MintNFTCard metadata={actionModuleHandler?.mintableNFTMetadata} isDarkTheme={isDarkTheme} />
+          <MintNFTCard
+            metadata={actionModuleHandler?.mintableNFTMetadata}
+            isDarkTheme={isDarkTheme}
+          />
         </div>
       )}
       {!isLoadingActionModuleState && !actionModuleHandler?.mintableNFT && (
@@ -307,12 +314,12 @@ export function Publication({
             <p>{publication.stats.mirrors + publication.stats.quotes > 0 ? publication.stats.mirrors + publication.stats.quotes : null}</p>
           </div>
         )}
-        {renderActButton && actionModuleHandler && (
+        {renderActButton && (
             <div
               className={actButtonContainerStyle(reactionTextColor, actButttonBgColor)}
               onClick={_onActButtonClick}
             >
-              <p>{actionModuleHandler!.getActButtonLabel()}</p>
+              <p>{actHandledExternally ? renderActButtonWithCTA : actionModuleHandler?.getActButtonLabel()}</p>
             </div>
         )}
         {renderActLoading && (
@@ -320,7 +327,7 @@ export function Publication({
             <Spinner customClasses="h-6 w-6" color={color} />
           </div>
         )}
-        {!isActionModuleSupported && !hideShareButton && (
+        {!(renderActButton || renderActLoading) && !hideShareButton && (
           <div
             className={shareContainerStyle(reactionTextColor, reactionBgColor)}
             onClick={onShareButtonClick}
