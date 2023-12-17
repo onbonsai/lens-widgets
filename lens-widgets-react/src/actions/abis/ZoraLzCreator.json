@@ -13,6 +13,11 @@
       },
       {
         "internalType": "address",
+        "name": "_oldFixedPriceSaleStrategy",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "_lzEndpoint",
         "type": "address"
       },
@@ -70,11 +75,6 @@
   {
     "inputs": [],
     "name": "InvalidRemoteInput",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "InvalidTokenId",
     "type": "error"
   },
   {
@@ -285,6 +285,38 @@
   },
   {
     "inputs": [],
+    "name": "ZORA_MINT_FEE_PER_MINT",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "numTokens",
+        "type": "uint256"
+      }
+    ],
+    "name": "computeTotalReward",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "defaultReferralRecipient",
     "outputs": [
       {
@@ -393,6 +425,30 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "creator1155",
+        "type": "address"
+      }
+    ],
+    "name": "getFixedPriceStrategyForContractVersion",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "creator1155",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
@@ -442,6 +498,81 @@
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
+      }
+    ],
+    "name": "getSalesConfig",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "saleStart",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint64",
+            "name": "saleEnd",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint64",
+            "name": "maxTokensPerAddress",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint96",
+            "name": "pricePerToken",
+            "type": "uint96"
+          },
+          {
+            "internalType": "address",
+            "name": "fundsRecipient",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct IZoraCreatorFixedPriceSaleStrategy.SalesConfig",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "creator1155",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "getSalesPrice",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
       },
       {
         "internalType": "uint256",
@@ -474,6 +605,30 @@
         "internalType": "bytes",
         "name": "",
         "type": "bytes"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "creator1155",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "hasEnabledMinterRole",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -607,6 +762,19 @@
     "name": "nonblockingLzReceive",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "oldFixedPriceSaleStrategy",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {

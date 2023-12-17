@@ -1,19 +1,19 @@
 import { z } from "zod";
-import { Abi, createPublicClient, http, encodeFunctionData, formatEther } from 'viem';
-import { polygon, polygonMumbai, base, baseGoerli, Chain, zora, zoraTestnet } from 'viem/chains'
-import { Environment, production } from "@lens-protocol/client";
+import { Abi, createPublicClient, http, zeroAddress } from 'viem';
+import { polygon, polygonMumbai, base, baseGoerli, Chain, zora, zoraTestnet, goerli, mainnet } from 'viem/chains'
+import { Environment, encodeData } from "@lens-protocol/client";
 import HandlerBase, { ActionModuleConfig, DefaultFetchActionModuleDataParams } from "./HandlerBase";
-import { encodeAbi } from "../utils/viem";
 import ZoraLzMintActionAbi from "./../abis/ZoraLzMintAction.json";
 import IERC1155Abi from "./../abis/IERC1155.json";
 import ZoraLzCreatorAbi from "./../abis/ZoraLzCreator.json";
-import { MADFI_API_BASE_URL, DEFAULT_MADFI_API_KEY } from "./../utils/madfi";
 import { fetchTokenWithMetadata } from "./../utils/zora";
 
-const ZORA_LZ_MINT_TESTNET_ADDRESS = "0x8915Ccd5ACb14334FD744bA8C538A662e3D4dcf2";
+const ZORA_LZ_MINT_TESTNET_ADDRESS = "0x55991a42e8FEb9DFAC9Fcc172f133D36AC2282A2";
 const ZORA_LZ_MINT_MAINNET_ADDRESS = "";
 
 const MODULE_INIT_DATA_SCHEMA = z.object({
+  remoteContract: z.string().optional().nullable(),
+  remoteTokenId: z.string().optional().nullable(),
   remoteLzChainId: z.number().optional().nullable(),
   salePriceEthWei: z.string().optional().nullable(),
   maxTokensPerAddress: z.number().optional().nullable(),
@@ -31,10 +31,12 @@ const MODULE_ACT_DATA_SCHEMA = z.object({
 type ModuleInitDataSchema = z.infer<typeof MODULE_INIT_DATA_SCHEMA>;
 type ModuleActDataSchema = z.infer<typeof MODULE_ACT_DATA_SCHEMA>;
 export type RemoteMintData = {
-  zoraCreator: string; // the ERC1155 contract on the remote chain
-  lzChainId: number; // the remote lz chain id
+  zoraCreator: string; // the default ERC1155 contract on the remote chain
+  remoteContract1155: string; // the existing ERC1155 contract
+  remoteTokenId: BigInt; // the existing ERC1155 tokenId
   salePrice: BigInt; // the cost in wei on the remote chain
   maxTokensPerAddress: BigInt; // the max tokens mintable per address
+  lzChainId: number; // the remote lz chain id
   uri: string; // the nft uri
 };
 export type QuoteData = {
@@ -51,6 +53,8 @@ const LZ_CHAIN_ID_TO_CHAIN = {
   184: base,
   10195: zoraTestnet,
   195: zora,
+  10121: goerli,
+  101: mainnet
 };
 
 const DEFAULT_QTY = 1;
@@ -69,16 +73,23 @@ class ZoraLzMintAction extends HandlerBase {
   public zoraURL?: string;
   public remoteBalanceOf?: BigInt;
   public hasMinted?: boolean;
-  public apiKey?: string; // MadFi API key
+  // public apiKey?: string; // MadFi API key; not used anymore
 
-  constructor(_environment: Environment, profileId: string, publicationId: string, authenticatedProfileId?: string) {
-    super(_environment, profileId, publicationId, authenticatedProfileId);
-    this.apiKey = DEFAULT_MADFI_API_KEY; // will be undefined unless the root app sets in env
+  constructor(
+    _environment: Environment,
+    profileId: string,
+    publicationId: string,
+    authenticatedProfileId?: string,
+    rpcURLs?: { [chainId: number]: string }
+  ) {
+    super(_environment, profileId, publicationId, authenticatedProfileId, rpcURLs);
     this.mintableNFT = true; // render mint nft card
   }
 
   async fetchActionModuleData(data: DefaultFetchActionModuleDataParams): Promise<any> {
     this.authenticatedProfileId = data.authenticatedProfileId; // in case it wasn't set before
+    // @ts-expect-error: type
+    this.metadata = await this.lensClient.modules.fetchMetadata({ implementation: this.address });
 
     // fetch data from the contract
     const _remoteMintData = await this.publicClient.readContract({
@@ -89,31 +100,59 @@ class ZoraLzMintAction extends HandlerBase {
     }) as RemoteMintData;
     const remoteMintData = {
       zoraCreator: _remoteMintData[0],
-      lzChainId: _remoteMintData[1],
-      salePrice: _remoteMintData[2],
-      maxTokensPerAddress: _remoteMintData[3],
-      uri: _remoteMintData[4],
+      remoteContract1155: _remoteMintData[1],
+      remoteTokenId: _remoteMintData[2],
+      salePrice: _remoteMintData[3],
+      maxTokensPerAddress: _remoteMintData[4],
+      lzChainId: _remoteMintData[5],
+      uri: _remoteMintData[6]
     };
 
     // fetch data on remote chain zora creator
     const remoteChain = LZ_CHAIN_ID_TO_CHAIN[remoteMintData.lzChainId];
-    const remoteRpcUrl = remoteChain.rpcUrls.default.http[0]; // TODO: set/accept remoteRpcUrls
+    const remoteRpcUrl = this.rpcURLs && this.rpcURLs[remoteChain.id]
+      ? this.rpcURLs[this.chain.id]
+      : remoteChain.rpcUrls.default.http[0];
     const remoteClient = createPublicClient({ chain: remoteChain, transport: http(remoteRpcUrl) });
-    const [remoteTokenId, madContract1155] = await Promise.all([
-      remoteClient.readContract({
+
+    let remoteContract;
+    let remoteTokenId;
+    if (remoteMintData.remoteContract1155 == zeroAddress) {
+      const [_remoteTokenId, madContract1155] = await Promise.all([
+        remoteClient.readContract({
+          address: remoteMintData.zoraCreator as `0x${string}`,
+          abi: ZoraLzCreatorAbi as unknown as Abi,
+          functionName: "publicationTokens",
+          args: [this.profileId, this.publicationId],
+        }),
+        remoteClient.readContract({
+          address: remoteMintData.zoraCreator as `0x${string}`,
+          abi: ZoraLzCreatorAbi as unknown as Abi,
+          functionName: "madContract1155"
+        }),
+      ]);
+      remoteContract = madContract1155 as string;
+      remoteTokenId = _remoteTokenId;
+    } else {
+      remoteContract = remoteMintData.remoteContract1155;
+      remoteTokenId = remoteMintData.remoteTokenId;
+      // get the latest sale price
+      const salesConfig = await remoteClient.readContract({
         address: remoteMintData.zoraCreator as `0x${string}`,
         abi: ZoraLzCreatorAbi as unknown as Abi,
-        functionName: "publicationTokens",
-        args: [this.profileId, this.publicationId],
-      }),
-      remoteClient.readContract({
-        address: remoteMintData.zoraCreator as `0x${string}`,
-        abi: ZoraLzCreatorAbi as unknown as Abi,
-        functionName: "madContract1155"
-      }),
-    ]);
+        functionName: "getSalesConfig",
+        args: [remoteContract, remoteTokenId],
+      }) as unknown[];
+      const latestSalePrice = salesConfig[3] as BigInt;
+      if (remoteMintData.salePrice < latestSalePrice) {
+        console.log(`sales price changed for: ${remoteContract}/${remoteTokenId}; no longer mintable from here`);
+        this.panicked = true;
+        return; // not setting the mintable nft
+      }
+    }
+
     const remoteBalanceOf = await remoteClient.readContract({
-      address: madContract1155 as `0x${string}`,
+      address: remoteContract as `0x${string}`,
       abi: IERC1155Abi as unknown as Abi,
       functionName: "balanceOf",
       args: [data.connectedWalletAddress, remoteTokenId],
@@ -123,7 +162,7 @@ class ZoraLzMintAction extends HandlerBase {
     this.remoteChain = remoteChain;
     this.remoteBalanceOf = remoteBalanceOf;
     this.hasMinted = BigInt(this.remoteBalanceOf.toString()) > BigInt(0);
-    this.remoteTokenAddress = madContract1155 as string;
+    this.remoteTokenAddress = remoteContract as string;
     this.remoteTokenId = (remoteTokenId as BigInt).toString();
     const metadata = await fetchTokenWithMetadata(
       this.remoteTokenAddress,
@@ -139,20 +178,13 @@ class ZoraLzMintAction extends HandlerBase {
 
   getActionModuleConfig(): ActionModuleConfig {
     return {
-      metadata: {
-        name: "ZoraLzMintAction",
-        displayName: `Crosschain Zora Mint`,
-        description: 'Mint this crosschain Zora NFT'
-      },
+      displayName: `Crosschain Zora Mint`,
+      description: 'Mint this crosschain Zora NFT',
       address: {
         mumbai: ZORA_LZ_MINT_TESTNET_ADDRESS,
         polygon: ZORA_LZ_MINT_MAINNET_ADDRESS
       },
-      actButtonStateLabels: {
-        pre: "Mint",
-        post: "Minted"
-      },
-      abi: ZoraLzMintActionAbi as unknown as Abi
+      metadata: this.metadata
     }
   }
 
@@ -161,13 +193,22 @@ class ZoraLzMintAction extends HandlerBase {
   }
 
   encodeModuleInitData(data: ModuleInitDataSchema): string {
+    const remoteContract = data.remoteContract || zeroAddress;
+    const remoteTokenId = data.remoteTokenId || '0';
     const remoteLzChainId = data.remoteLzChainId || 0; // use default remote chain
     const salePriceEthWei = data.salePriceEthWei || 0; // free mint
     const maxTokensPerAddress = data.maxTokensPerAddress || 0; // unlimited mints
 
-    return encodeAbi(
-      ['uint16', 'uint96', 'uint64', 'uint256', 'string'],
-      [remoteLzChainId, salePriceEthWei, maxTokensPerAddress, data.estimatedNativeFee, data.uri]
+    return encodeData(
+      JSON.parse(this.metadata!.metadata.initializeCalldataABI),
+      [
+        remoteContract,
+        remoteTokenId,
+        data.estimatedNativeFee,
+        salePriceEthWei.toString(),
+        maxTokensPerAddress.toString(),
+        remoteLzChainId.toString(), data.uri
+      ]
     );
   }
 
@@ -179,26 +220,19 @@ class ZoraLzMintAction extends HandlerBase {
     const quantity = data.quantity || DEFAULT_QTY;
     const uniFee = data.uniFee || DEFAULT_UNI_FEE;
 
-    return encodeAbi(
-      ['address', 'uint256', 'uint256', 'uint24'],
-      [data.currency, quantity, data.quotedAmountIn, uniFee]
+    return encodeData(
+      JSON.parse(this.metadata!.metadata.processCalldataABI),
+      [data.currency, quantity.toString(), data.quotedAmountIn, uniFee.toString()]
     );
   }
 
   getActButtonLabel(): string {
     if (this.hasMinted) return "Minted";
-
     return "Mint"
   }
 
-  // set the api key for use with the madfi api (get swap quote)
-  setApiKey(key: string): void {
-    this.apiKey = key;
-  }
-
-  // call the madfi api to simulate the non-view funtion, which returns the quote to pay for the relay + destination
+  // simulates the module's non-view quote function, which returns the quote to pay for the relay + destination
   // sale price, when swapping `currency` for WMATIC
-  // NOTE: this will throw an error if the api key was not set via `this.setApiKey`
   // NOTE: this swap is not necessary when the `currency` is wmatic
   async quoteAmountForPaymentSwap(
     from: string,
@@ -206,40 +240,17 @@ class ZoraLzMintAction extends HandlerBase {
     estimatedNativeFee: BigInt,
     routerFee: number
   ): Promise<BigInt> {
-    const apiKey = this.apiKey || DEFAULT_MADFI_API_KEY;
-    if (!apiKey) throw new Error('Missing MadFi api key');
+    if (currency === this.wmatic) return estimatedNativeFee;
 
-    const inputData = encodeFunctionData({
+    const { result } = await this.publicClient.simulateContract({
+      address: this.address,
       abi: ZoraLzMintActionAbi,
       functionName: 'quoteAmountForPaymentSwap',
-      args: [currency, estimatedNativeFee, routerFee]
+      args: [currency, estimatedNativeFee, routerFee],
+      account: from as `0x${string}`,
     });
 
-    const payload = {
-      save: false,
-      save_if_fails: false,
-      simulation_type: "quick",
-      network_id: this.chain.id.toString(),
-      from,
-      to: this.address,
-      input: inputData,
-      gas: 450000,
-      gas_price: 0,
-      value: 0
-    };
-
-    const response = await fetch(`${MADFI_API_BASE_URL}/simulate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey
-      },
-      body: JSON.stringify(payload)
-    });
-
-    const { output } = await response.json();
-
-    return BigInt(output);
+    return BigInt(result as string);
   }
 
   // NOTE: `currency` should be whitelisted by lens protocol
@@ -295,9 +306,8 @@ class ZoraLzMintAction extends HandlerBase {
       maxTokens: maxTokens || 0,
       quantity,
       nativeForDst,
-      // TODO: remove these after next deploymnet
-      paymentCurrency: this.weth,
-      fee: DEFAULT_UNI_FEE,
+      remoteContract: this.remoteMintData!.remoteContract1155,
+      remoteTokenId: this.remoteMintData!.remoteTokenId
     };
   }
 

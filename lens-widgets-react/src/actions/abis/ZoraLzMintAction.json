@@ -89,39 +89,6 @@
         "internalType": "uint256",
         "name": "pubId",
         "type": "uint256"
-      },
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "zoraCreator",
-            "type": "address"
-          },
-          {
-            "internalType": "uint16",
-            "name": "lzChainId",
-            "type": "uint16"
-          },
-          {
-            "internalType": "uint96",
-            "name": "salePrice",
-            "type": "uint96"
-          },
-          {
-            "internalType": "uint64",
-            "name": "maxTokensPerAddress",
-            "type": "uint64"
-          },
-          {
-            "internalType": "string",
-            "name": "uri",
-            "type": "string"
-          }
-        ],
-        "indexed": false,
-        "internalType": "struct RemoteMint",
-        "name": "data",
-        "type": "tuple"
       }
     ],
     "name": "InitAction",
@@ -360,14 +327,14 @@
       {
         "components": [
           {
-            "internalType": "uint16",
-            "name": "lzChainId",
-            "type": "uint16"
+            "internalType": "address",
+            "name": "profileOwner",
+            "type": "address"
           },
           {
-            "internalType": "enum IZoraLzCreator.RelayAction",
-            "name": "relayAction",
-            "type": "uint8"
+            "internalType": "address",
+            "name": "remoteContract",
+            "type": "address"
           },
           {
             "internalType": "uint256",
@@ -380,19 +347,19 @@
             "type": "uint256"
           },
           {
-            "internalType": "address",
-            "name": "profileOwner",
-            "type": "address"
+            "internalType": "uint256",
+            "name": "quantity",
+            "type": "uint256"
           },
           {
-            "internalType": "address",
-            "name": "paymentCurrency",
-            "type": "address"
+            "internalType": "uint256",
+            "name": "nativeForDst",
+            "type": "uint256"
           },
           {
-            "internalType": "string",
-            "name": "uri",
-            "type": "string"
+            "internalType": "uint256",
+            "name": "remoteTokenId",
+            "type": "uint256"
           },
           {
             "internalType": "uint96",
@@ -405,19 +372,19 @@
             "type": "uint64"
           },
           {
-            "internalType": "uint256",
-            "name": "quantity",
-            "type": "uint256"
+            "internalType": "uint16",
+            "name": "lzChainId",
+            "type": "uint16"
           },
           {
-            "internalType": "uint24",
-            "name": "fee",
-            "type": "uint24"
+            "internalType": "enum IZoraLzCreator.RelayAction",
+            "name": "relayAction",
+            "type": "uint8"
           },
           {
-            "internalType": "uint256",
-            "name": "nativeForDst",
-            "type": "uint256"
+            "internalType": "string",
+            "name": "uri",
+            "type": "string"
           }
         ],
         "internalType": "struct EstimateLzFeesInput",
@@ -901,9 +868,14 @@
         "type": "address"
       },
       {
-        "internalType": "uint16",
-        "name": "lzChainId",
-        "type": "uint16"
+        "internalType": "address",
+        "name": "remoteContract1155",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "remoteTokenId",
+        "type": "uint256"
       },
       {
         "internalType": "uint96",
@@ -914,6 +886,11 @@
         "internalType": "uint64",
         "name": "maxTokensPerAddress",
         "type": "uint64"
+      },
+      {
+        "internalType": "uint16",
+        "name": "lzChainId",
+        "type": "uint16"
       },
       {
         "internalType": "string",

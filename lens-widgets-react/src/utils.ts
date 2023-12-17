@@ -232,3 +232,11 @@ const styles = {
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"'
   }
 }
+
+export const getHashFromUri = (uriOrHash: string) =>
+  typeof uriOrHash === "string" && uriOrHash.startsWith("ipfs://") ? uriOrHash.split("ipfs://")[1] : uriOrHash;
+
+export const defaultIpfsGatewayURL = (uriOrHash: string): string => `https://gw.ipfs-lens.dev/ipfs/${uriOrHash}`;
+
+export const ipfsOrNotWithDefaultGateway = (uriOrHash?: string) =>
+  uriOrHash?.startsWith("ipfs://") ? defaultIpfsGatewayURL(getHashFromUri(uriOrHash)) : uriOrHash;

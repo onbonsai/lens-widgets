@@ -1,15 +1,22 @@
-import React from 'react';
+import { useMemo } from 'react';
+import { formatEther } from 'viem';
 import { MintableNFT } from '../actions';
 import { getChainInfo } from '../actions/utils/zora';
+import { ipfsOrNotWithDefaultGateway } from '../utils';
 
-const MintNFTCard = ({ metadata, isDarkTheme }: { metadata?: MintableNFT, isDarkTheme: boolean }) => {
-  if (!metadata) return null;
+export const MintNFTCard = ({ metadata, isDarkTheme, imageHeight, priceWei }: { metadata?: MintableNFT, isDarkTheme: boolean, imageHeight?: `${string}px`, priceWei?: string }) => {
+  if (!metadata?.name) return null;
 
   const chainInfo = metadata.chainId ? getChainInfo(metadata.chainId) : undefined;
+  const descriptionOrPrice = useMemo(() => {
+    return priceWei
+      ? `${parseFloat(formatEther(BigInt(priceWei))).toFixed(5)} ETH`
+      : metadata.description;
+  }, [priceWei, metadata]);
 
   return (
-    <div className="">
-      <img className="h-[400px] w-full rounded-t-xl object-cover" src={metadata.image} />
+    <div className="w-full">
+      <img className={`h-[${imageHeight || '400px'}] w-full rounded-t-xl object-cover`} src={ipfsOrNotWithDefaultGateway(metadata.image)} />
       <div
         className="flex justify-between border-t border-b px-3 py-4 border-dark-grey"
         style={{ backgroundColor: isDarkTheme ? '#3a3b3c' : '#f0f2f5' }}
@@ -23,13 +30,13 @@ const MintNFTCard = ({ metadata, isDarkTheme }: { metadata?: MintableNFT, isDark
               </div>
             </span>
           )}
-          <span>{metadata.name}</span>
+          <span className="w-48 overflow-hidden whitespace-nowrap text-ellipsis font-bold">{metadata.name}</span>
         </div>
         <div className="flex justify-end">
           <div className="w-48">
             {/* TODO: the only way `textAlign` was applied, bad root config? */}
             <p style={{ textAlign: "right"}} className="overflow-hidden whitespace-nowrap text-ellipsis">
-              {metadata.description}
+              {descriptionOrPrice}
             </p>
           </div>
         </div>
@@ -37,5 +44,3 @@ const MintNFTCard = ({ metadata, isDarkTheme }: { metadata?: MintableNFT, isDark
     </div>
   );
 };
-
-export default MintNFTCard;
