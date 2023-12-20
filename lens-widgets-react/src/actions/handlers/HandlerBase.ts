@@ -93,10 +93,10 @@ abstract class HandlerBase {
     rpcURLs?: { [chainId: number]: string }
   ) {
     this.lensClient = new LensClient({ environment: _environment });
-    this.chain = _environment == production
+    this.chain = _environment.name === "production"
       ? polygon
       : polygonMumbai;
-    this.isPolygon = _environment == production;
+    this.isPolygon = _environment.name === "production";
     this.rpcURLs = rpcURLs;
 
     // @ts-expect-error: throw error right after
@@ -115,7 +115,7 @@ abstract class HandlerBase {
       ? POLYGON_WHITELISTED_CURRENCIES
       : MUMBAI_WHITELISTED_CURRENCIES;
 
-    if (_environment === production) {
+    if (_environment.name === "production") {
       this.wmatic = POLYGON_CURRENCY_WMATIC;
       this.weth = POLYGON_CURRENCY_WETH;
     } else {
