@@ -18,14 +18,12 @@ export default (
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [actionModuleStateData, setActionModuleStateData] = useState({});
 
-  const { openActionModules } = publication || {};
-
   useEffect(() => {
-    if (environment && publication?.id && openActionModules?.length) {
+    if (environment && publication?.id && publication?.openActionModules?.length) {
       const [profileId, pubId] = publication.id.split("-");
 
       // @ts-expect-error we check `openActionModules` array length in `fetchActionModuleHandlers`
-      const actionModulesHandlers = fetchActionModuleHandlers(environment, openActionModules);
+      const actionModulesHandlers = fetchActionModuleHandlers(environment, publication.openActionModules);
 
       if (!actionModulesHandlers.length) return;
 

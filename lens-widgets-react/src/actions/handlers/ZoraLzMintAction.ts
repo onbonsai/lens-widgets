@@ -9,7 +9,7 @@ import ZoraLzCreatorAbi from "./../abis/ZoraLzCreator.json";
 import { fetchTokenWithMetadata } from "./../utils/zora";
 
 const ZORA_LZ_MINT_TESTNET_ADDRESS = "0x55991a42e8FEb9DFAC9Fcc172f133D36AC2282A2";
-const ZORA_LZ_MINT_MAINNET_ADDRESS = "";
+const ZORA_LZ_MINT_MAINNET_ADDRESS = "0xe51f055aBf11Aba71e8ff06c70cdc17c3B5FE354";
 
 const MODULE_INIT_DATA_SCHEMA = z.object({
   remoteContract: z.string().optional().nullable(),

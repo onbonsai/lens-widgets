@@ -15,7 +15,7 @@ import {
 
 // 2. add the entry for MAINNET, where `handler` is the exported handler class
 const MAINNET = [
-  // { address: SIMPLE_COLLECTION_MINT_MAINNET_ADDRESS, handler: SimpleCollectionMintAction, name: "SimpleCollectionMintAction" },
+  { address: ZORA_LZ_MINT_MAINNET_ADDRESS, handler: ZoraLzMintAction, name: "ZoraLzMintAction" },
 ];
 
 // 2. add the entry for TESTNET
@@ -26,7 +26,7 @@ const TESTNET = [
 
 // 3. you are gucci
 const supportedActionModules = (_environment: Environment) => {
-  const list = _environment === production ? MAINNET : TESTNET;
+  const list = _environment.name === "production" ? MAINNET : TESTNET;
   return list.reduce((memo, data) => ({ ...memo, [getAddress(data.address)]: data }), {});
 };
 
