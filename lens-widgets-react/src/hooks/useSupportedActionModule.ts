@@ -6,7 +6,7 @@ import HandlerBase from "./../actions/handlers/HandlerBase";
 
 type PubWithModules = PostFragment | CommentBaseFragment;
 
-export default (
+export const useSupportedActionModule = (
   environment: Environment,
   publication?: PubWithModules,
   authenticatedProfileId?: string,

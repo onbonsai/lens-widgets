@@ -70,7 +70,8 @@ abstract class HandlerBase {
   public lensClient: LensClient;
   public publicClient: PublicClient;
   public profileId: string;
-  public publicationId: string;
+  public pubId: string;
+  public publicationId?: string; // {profileId}-{pubId}
   public authenticatedProfileId?: string;
   public wmatic: `0x${string}`;
   public weth: `0x${string}`;
@@ -88,11 +89,16 @@ abstract class HandlerBase {
   constructor(
     _environment: Environment,
     profileId: string,
-    publicationId: string,
+    pubId: string,
     authenticatedProfileId?: string,
     rpcURLs?: { [chainId: number]: string }
   ) {
-    this.lensClient = new LensClient({ environment: _environment });
+    // TODO: something cleaner
+    let storage;
+    if (typeof window !== 'undefined') {
+      storage = window.localStorage;
+    }
+    this.lensClient = new LensClient({ environment: _environment, storage });
     this.chain = _environment.name === "production"
       ? polygon
       : polygonMumbai;
@@ -108,7 +114,8 @@ abstract class HandlerBase {
     const rpc = rpcURLs && rpcURLs[this.chain.id] ? rpcURLs[this.chain.id] : this.chain.rpcUrls.default.http[0];
     this.publicClient = createPublicClient({ chain: this.chain, transport: http(rpc) });
     this.profileId = profileId;
-    this.publicationId = publicationId;
+    this.pubId = pubId;
+    this.publicationId = `${profileId}-${pubId}`;
     this.authenticatedProfileId = authenticatedProfileId;
     // @ts-expect-error: 0x{string}
     this.currencies = this.chain === polygon

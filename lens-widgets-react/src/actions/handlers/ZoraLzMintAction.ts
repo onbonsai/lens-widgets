@@ -1,6 +1,17 @@
 import { z } from "zod";
 import { Abi, createPublicClient, http, zeroAddress } from 'viem';
-import { polygon, polygonMumbai, base, baseGoerli, Chain, zora, zoraTestnet, goerli, mainnet } from 'viem/chains'
+import {
+  Chain,
+  polygon,
+  polygonMumbai,
+  base,
+  baseGoerli,
+  zora,
+  zoraTestnet,
+  goerli,
+  mainnet,
+  optimism
+} from 'viem/chains';
 import { Environment, encodeData } from "@lens-protocol/client";
 import HandlerBase, { ActionModuleConfig, DefaultFetchActionModuleDataParams } from "./HandlerBase";
 import ZoraLzMintActionAbi from "./../abis/ZoraLzMintAction.json";
@@ -9,7 +20,7 @@ import ZoraLzCreatorAbi from "./../abis/ZoraLzCreator.json";
 import { fetchTokenWithMetadata } from "./../utils/zora";
 
 const ZORA_LZ_MINT_TESTNET_ADDRESS = "0x55991a42e8FEb9DFAC9Fcc172f133D36AC2282A2";
-const ZORA_LZ_MINT_MAINNET_ADDRESS = "0xe51f055aBf11Aba71e8ff06c70cdc17c3B5FE354";
+const ZORA_LZ_MINT_MAINNET_ADDRESS = "0x5f377e3e9BE56Ff72588323Df6a4ecd5cEedc56A";
 
 const MODULE_INIT_DATA_SCHEMA = z.object({
   remoteContract: z.string().optional().nullable(),
@@ -54,7 +65,8 @@ const LZ_CHAIN_ID_TO_CHAIN = {
   10195: zoraTestnet,
   195: zora,
   10121: goerli,
-  101: mainnet
+  101: mainnet,
+  111: optimism
 };
 
 const DEFAULT_QTY = 1;
@@ -73,7 +85,6 @@ class ZoraLzMintAction extends HandlerBase {
   public zoraURL?: string;
   public remoteBalanceOf?: BigInt;
   public hasMinted?: boolean;
-  // public apiKey?: string; // MadFi API key; not used anymore
 
   constructor(
     _environment: Environment,
@@ -96,7 +107,7 @@ class ZoraLzMintAction extends HandlerBase {
       address: this.address! as `0x${string}`,
       abi: ZoraLzMintActionAbi as unknown as Abi,
       functionName: "remoteMints",
-      args: [this.profileId, this.publicationId],
+      args: [this.profileId, this.pubId],
     }) as RemoteMintData;
     const remoteMintData = {
       zoraCreator: _remoteMintData[0],
@@ -123,7 +134,7 @@ class ZoraLzMintAction extends HandlerBase {
           address: remoteMintData.zoraCreator as `0x${string}`,
           abi: ZoraLzCreatorAbi as unknown as Abi,
           functionName: "publicationTokens",
-          args: [this.profileId, this.publicationId],
+          args: [this.profileId, this.pubId],
         }),
         remoteClient.readContract({
           address: remoteMintData.zoraCreator as `0x${string}`,
@@ -178,8 +189,8 @@ class ZoraLzMintAction extends HandlerBase {
 
   getActionModuleConfig(): ActionModuleConfig {
     return {
-      displayName: `Crosschain Zora Mint`,
-      description: 'Mint this crosschain Zora NFT',
+      displayName: `Cross-chain Zora Mint`,
+      description: 'Mint this Zora NFT on another chain',
       address: {
         mumbai: ZORA_LZ_MINT_TESTNET_ADDRESS,
         polygon: ZORA_LZ_MINT_MAINNET_ADDRESS
@@ -266,7 +277,7 @@ class ZoraLzMintAction extends HandlerBase {
       address: this.address! as `0x${string}`,
       abi: ZoraLzMintActionAbi as unknown as Abi,
       functionName: "getDestinationSalePrice",
-      args: [this.profileId, this.publicationId, quantity],
+      args: [this.profileId, this.pubId, quantity],
     }) as BigInt;
     const estimateFeesInput = this.getEstimateFeesInput(RelayAction.MINT_TOKEN, from, BigInt(quantity), nativeForDst);
     const estimatedFees = await this.publicClient.readContract({
@@ -299,7 +310,7 @@ class ZoraLzMintAction extends HandlerBase {
       lzChainId: BigInt(this.remoteMintData!.lzChainId),
       relayAction: BigInt(action),
       profileId: BigInt(this.profileId),
-      pubId: BigInt(this.publicationId),
+      pubId: BigInt(this.pubId),
       profileOwner,
       uri: uri || "",
       salePrice: salePrice || 0,
