@@ -17,6 +17,7 @@ interface ActModalProps {
   isDarkTheme: boolean;
   countOpenActions: number;
   toast?: Toast;
+  appDomainWhitelistedGasless?: boolean;
 };
 
 const ActModal = ({
@@ -29,6 +30,7 @@ const ActModal = ({
   isDarkTheme,
   countOpenActions,
   toast,
+  appDomainWhitelistedGasless,
 }: ActModalProps) => {
   const handlerModal = useMemo(() => {
     const { metadata } = handler.getActionModuleConfig();
@@ -45,6 +47,7 @@ const ActModal = ({
           isDarkTheme={isDarkTheme}
           countOpenActions={countOpenActions}
           toast={toast}
+          appDomainWhitelistedGasless={appDomainWhitelistedGasless}
         />
       );
     } else if (metadata?.metadata?.name === "SimpleCollectionMintAction") {
@@ -57,6 +60,7 @@ const ActModal = ({
           isDarkTheme={isDarkTheme}
           countOpenActions={countOpenActions}
           toast={toast}
+          appDomainWhitelistedGasless={appDomainWhitelistedGasless}
         />
       );
     }

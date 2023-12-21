@@ -9,6 +9,7 @@ export { ProfileListItem } from './ProfileListItem'
 export { MintNFTCard } from './components/MintNFTCard'
 
 export { useZoraTokenMetadata } from './hooks/useZoraTokenMetadata'
+export { useSupportedActionModule } from './hooks/useSupportedActionModule';
 
 export * from './types'
 export * from "./utils"

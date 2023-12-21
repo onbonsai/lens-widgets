@@ -26,7 +26,7 @@ import {
 } from './utils'
 import ReactPlayer from 'react-player'
 import { AudioPlayer } from './AudioPlayer'
-import useSupportedActionModule from './hooks/useSupportedActionModule';
+import { useSupportedActionModule } from './hooks/useSupportedActionModule';
 import Spinner from './components/Spinner';
 import ActModal from './components/ActModal';
 import { MintNFTCard } from './components/MintNFTCard';
@@ -56,6 +56,7 @@ export function Publication({
   focusedOpenActionModuleName,
   useToast,
   rpcURLs,
+  appDomainWhitelistedGasless,
 }: {
   publicationId?: string,
   publicationData?: any,
@@ -78,7 +79,8 @@ export function Publication({
   operations?: PublicationOperationsFragment,
   focusedOpenActionModuleName?: string // in case a post has multiple action modules
   useToast?: Toast // ex: react-hot-toast to render notifs
-  rpcURLs?: { [chainId: number]: string }
+  rpcURLs?: { [chainId: number]: string },
+  appDomainWhitelistedGasless?: boolean,
 }) {
   let [publication, setPublication] = useState<any>(publicationData)
   let [showFullText, setShowFullText] = useState(false)
@@ -94,7 +96,7 @@ export function Publication({
     authenticatedProfile?.id,
     walletClient,
     rpcURLs,
-    focusedOpenActionModuleName,
+    focusedOpenActionModuleName
   );
 
   const actHandledExternally = !isActionModuleSupported && renderActButtonWithCTA && onActButtonClick;
@@ -290,7 +292,7 @@ export function Publication({
         onClick={onPublicationPress}
       >
         <div
-          className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated, operations?.hasUpvoted)}
+          className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onLikeButtonClick, operations?.hasUpvoted)}
           onClick={onLikeButtonClick}
         >
           <HeartIcon color={!operations?.hasUpvoted ? reactionTextColor : ThemeColor.red} />
@@ -298,7 +300,7 @@ export function Publication({
         </div>
         {!hideCommentButton && (
           <div
-            className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated, false)}
+            className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onCommentButtonClick, false)}
             onClick={onCommentButtonClick}
           >
             <MessageIcon color={reactionTextColor} />
@@ -307,7 +309,7 @@ export function Publication({
         )}
         {!hideQuoteButton && (
           <div
-            className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated, operations?.hasMirrored)}
+            className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onMirrorButtonClick, operations?.hasMirrored)}
             onClick={onMirrorButtonClick}
           >
             <MirrorIcon color={!operations?.hasMirrored ? reactionTextColor : ThemeColor.lightGreen} />
@@ -347,6 +349,7 @@ export function Publication({
           isDarkTheme={isDarkTheme}
           countOpenActions={publication.stats.countOpenActions}
           toast={useToast}
+          appDomainWhitelistedGasless={appDomainWhitelistedGasless}
         />
       )}
     </div>
@@ -473,10 +476,10 @@ const mirroredByContainerStyle = css`
   }
 `
 
-const reactionContainerStyle = (color, backgroundColor, isAuthenticated, hasReacted) => css`
+const reactionContainerStyle = (color, backgroundColor, isAuthenticatedAndWithHandler, hasReacted) => css`
   background-color: transparent;
   &:hover {
-    background-color: ${isAuthenticated && !hasReacted ? backgroundColor : 'transparent'};
+    background-color: ${isAuthenticatedAndWithHandler && !hasReacted ? backgroundColor : 'transparent'};
   }
   display: flex;
   border-radius: 24px;
@@ -489,7 +492,7 @@ const reactionContainerStyle = (color, backgroundColor, isAuthenticated, hasReac
     margin: 0;
     margin-left: 4px;
   }
-  cursor: ${isAuthenticated && !hasReacted ? 'pointer' : 'default'};
+  cursor: ${isAuthenticatedAndWithHandler && !hasReacted ? 'pointer' : 'default'};
 `
 
 const shareContainerStyle = (color, backgroundColor) => css`

@@ -7,7 +7,7 @@ import IERC20Abi from "./../abis/IERC20.json";
 import useTokenBalance from "../../hooks/useTokenBalance";
 import useTokenAllowance from "../../hooks/useTokenAllowance";
 import { Toast } from "../../types";
-import { actOnchain } from "../utils/lens";
+import { actOnchain, actWithSignedTypedata } from "../utils/lens";
 import { OpenseaLogo } from "../../icons/logos/Opensea";
 import { LayerZeroLogo } from "../../icons/logos/LayerZero";
 
@@ -18,13 +18,15 @@ const ZoraLzMintActionModal = ({
   isDarkTheme,
   countOpenActions,
   toast,
+  appDomainWhitelistedGasless,
 }: {
   handler: ZoraLzMintAction,
   publicationBy: ProfileFragment,
   walletClient: WalletClient,
   isDarkTheme: boolean,
-  countOpenActions: number
-  toast?: Toast
+  countOpenActions: number,
+  toast?: Toast,
+  appDomainWhitelistedGasless?: boolean,
 }) => {
   const [currency, setCurrency] = useState({ address: handler.weth, symbol: "WETH"});
   const [isLoadingQuoteData, setIsLoadingQuoteData] = useState(false);
@@ -33,6 +35,7 @@ const ZoraLzMintActionModal = ({
   const [quoteData, setQuoteData] = useState<QuoteData | undefined>();
   const [txHash, setTxHash] = useState("");
   const totalMinted = countOpenActions; // TODO: need to query zora instead of this proxy stat
+  const estimatedRelayTime = handler.isPolygon ? '20 minutes' : '30 seconds'; // TODO: use lz relay api when released
 
   const {
     isLoading: isLoadingBalance,
@@ -86,7 +89,7 @@ const ZoraLzMintActionModal = ({
   }, [handler]);
 
   const getRelayScanURL = (txHash: string): string => (
-    `https://${handler.isPolygon ? '' : 'testnet'}.layerzeroscan.com/tx/${txHash}`
+    `https://${handler.isPolygon ? '' : 'testnet.'}layerzeroscan.com/tx/${txHash}`
   );
 
   const handleAct = async () => {
@@ -99,13 +102,32 @@ const ZoraLzMintActionModal = ({
         quantity: 1,
         quotedAmountIn: quoteData!.quotedAmountIn.toString()
       });
-      const txReceipt: TransactionReceipt = await actOnchain(
-        walletClient,
-        handler,
-        encodedActionModuleData,
-        { gasLimit: 750_000 }
-      );
-      setTxHash(txReceipt.transactionHash);
+
+      const useGasless = appDomainWhitelistedGasless && handler.getActionModuleConfig().metadata?.sponsoredApproved;
+
+      let txHash: string;
+      // TODO: pass in referrers (lens clients?)
+      if (useGasless) {
+        txHash = await actWithSignedTypedata(
+          handler.lensClient,
+          walletClient,
+          handler.publicationId!,
+          handler.address,
+          encodedActionModuleData
+        );
+      } else {
+        const txReceipt: TransactionReceipt = await actOnchain(
+          walletClient,
+          handler,
+          encodedActionModuleData,
+          { gasLimit: 750_000 }
+        );
+        txHash = txReceipt.transactionHash;
+      }
+
+      if (!txHash) throw new Error('no tx hash');
+
+      setTxHash(txHash);
       if (toast) toastId = toast.success('Sent!', { id: toastId });
     } catch (error) {
       console.log(error);
@@ -254,7 +276,7 @@ const ZoraLzMintActionModal = ({
         {txHash && (
           <div className="flex flex-col justify-center items-center">
             <h2 className="text-lg text-center font-owners font-light mt-2">
-              You will receive your NFT in your wallet in ~30 seconds;
+              You will receive your NFT in your wallet in ~{`${estimatedRelayTime} (check LayerZero Scan)`}
               <br/>
               View the collection or track your transaction
             </h2>

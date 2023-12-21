@@ -97,7 +97,7 @@ class SimpleCollectionMintAction extends HandlerBase {
       address: this.address,
       abi: SimpleCollectionMintActionAbi as unknown as Abi,
       functionName: "activeCollections",
-      args: [this.profileId, this.publicationId],
+      args: [this.profileId, this.pubId],
     }) as BigInt;
 
     const [hasMinted, publicationCollectConfig, collectionData, collectionMetadata] = await Promise.all([
@@ -111,7 +111,7 @@ class SimpleCollectionMintAction extends HandlerBase {
         address: this.address,
         abi: SimpleCollectionMintActionAbi as unknown as Abi,
         functionName: "getBasePublicationData",
-        args: [this.profileId, this.publicationId],
+        args: [this.profileId, this.pubId],
       }),
       (this.publicClient.readContract({
         address: this.madSBTAddress,
