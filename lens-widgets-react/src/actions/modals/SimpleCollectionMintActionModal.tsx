@@ -7,7 +7,7 @@ import useTokenBalance from "../../hooks/useTokenBalance";
 import useTokenAllowance from "../../hooks/useTokenAllowance";
 import useToken from "../../hooks/useToken";
 import { Toast } from "../../types";
-import { actOnchain } from "../utils/lens";
+import { actOnchain, actWithSignedTypedata } from "../utils/lens";
 import { OpenseaLogo } from "../../icons/logos/Opensea";
 
 const SimpleCollectionMintActionModal = ({
@@ -17,13 +17,15 @@ const SimpleCollectionMintActionModal = ({
   isDarkTheme,
   countOpenActions,
   toast,
+  appDomainWhitelistedGasless,
 }: {
   handler: SimpleCollectionMintAction,
   publicationBy: ProfileFragment,
   walletClient: WalletClient,
   isDarkTheme: boolean,
-  countOpenActions: number
-  toast?: Toast
+  countOpenActions: number,
+  toast?: Toast,
+  appDomainWhitelistedGasless?: boolean
 }) => {
   const [isApproving, setIsApproving] = useState(false);
   const [isMinting, setIsMinting] = useState(false);
@@ -86,12 +88,26 @@ const SimpleCollectionMintActionModal = ({
         currency: currency!,
         amount: handler.publicationCollectConfig!.amount.toString(),
       });
-      const txReceipt = await actOnchain(
-        walletClient,
-        handler,
-        encodedActionModuleData,
-        { gasLimit: 500_000 }
-      );
+      const useGasless = appDomainWhitelistedGasless && handler.getActionModuleConfig().metadata?.sponsoredApproved;
+      let txReceipt;
+      if (useGasless) {
+        const txHash = await actWithSignedTypedata(
+          handler.lensClient,
+          walletClient,
+          handler.publicationId!,
+          handler.address,
+          encodedActionModuleData
+        );
+        txReceipt = await handler.publicClient.waitForTransactionReceipt({ hash: txHash });
+      } else {
+        txReceipt = await actOnchain(
+          walletClient,
+          handler,
+          encodedActionModuleData,
+          { gasLimit: 500_000 }
+        );
+      }
+
       if (txReceipt.status !== "success") throw new Error("tx reverted");
       setFreshTokenId(handler.getResultingTokenId(txReceipt));
       setHasMinted(true);
