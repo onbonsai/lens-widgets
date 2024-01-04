@@ -1,6 +1,6 @@
 {
   "name": "@madfi/widgets-react",
-  "version": "2.1.8",
+  "version": "2.1.9",
   "description": "React widgets to render Lens components, with support for Smart Posts",
   "main": "dist/index.js",
   "scripts": {
@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@emotion/css": "^11.10.5",
-    "@lens-protocol/client": "2.0.0-alpha.26",
+    "@lens-protocol/client": "2.0.0-alpha.27",
     "@types/react": "^18.0.28",
     "date-fns": "^2.29.3",
     "ethers": "^5.7.2",

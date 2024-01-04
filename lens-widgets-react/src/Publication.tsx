@@ -296,7 +296,7 @@ export function Publication({
           onClick={(e) => { if (onLikeButtonClick) onLikeButtonClick(e, publication) }}
         >
           <HeartIcon color={!operations?.hasUpvoted ? reactionTextColor : ThemeColor.red} />
-          <p>{publication.stats.upvoteReactions > 0 ? publication.stats.upvoteReactions : null}</p>
+          <p>{publication.stats.upvotes > 0 ? publication.stats.upvotes : null}</p>
         </div>
         {!hideCommentButton && (
           <div
