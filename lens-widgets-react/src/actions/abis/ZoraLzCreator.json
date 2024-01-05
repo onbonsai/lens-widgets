@@ -495,52 +495,6 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getSalesConfig",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint64",
-            "name": "saleStart",
-            "type": "uint64"
-          },
-          {
-            "internalType": "uint64",
-            "name": "saleEnd",
-            "type": "uint64"
-          },
-          {
-            "internalType": "uint64",
-            "name": "maxTokensPerAddress",
-            "type": "uint64"
-          },
-          {
-            "internalType": "uint96",
-            "name": "pricePerToken",
-            "type": "uint96"
-          },
-          {
-            "internalType": "address",
-            "name": "fundsRecipient",
-            "type": "address"
-          }
-        ],
-        "internalType": "struct IZoraCreatorFixedPriceSaleStrategy.SalesConfig",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
         "name": "creator1155",
         "type": "address"

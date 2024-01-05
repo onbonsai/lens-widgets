@@ -102,89 +102,94 @@ class ZoraLzMintAction extends HandlerBase {
     // @ts-expect-error: type
     this.metadata = await this.lensClient.modules.fetchMetadata({ implementation: this.address });
 
-    // fetch data from the contract
-    const _remoteMintData = await this.publicClient.readContract({
-      address: this.address! as `0x${string}`,
-      abi: ZoraLzMintActionAbi as unknown as Abi,
-      functionName: "remoteMints",
-      args: [this.profileId, this.pubId],
-    }) as RemoteMintData;
-    const remoteMintData = {
-      zoraCreator: _remoteMintData[0],
-      remoteContract1155: _remoteMintData[1],
-      remoteTokenId: _remoteMintData[2],
-      salePrice: _remoteMintData[3],
-      maxTokensPerAddress: _remoteMintData[4],
-      lzChainId: _remoteMintData[5],
-      uri: _remoteMintData[6]
-    };
+    try {
+      // fetch data from the contract
+      const _remoteMintData = await this.publicClient.readContract({
+        address: this.address! as `0x${string}`,
+        abi: ZoraLzMintActionAbi as unknown as Abi,
+        functionName: "remoteMints",
+        args: [this.profileId, this.pubId],
+      }) as RemoteMintData;
+      const remoteMintData = {
+        zoraCreator: _remoteMintData[0],
+        remoteContract1155: _remoteMintData[1],
+        remoteTokenId: _remoteMintData[2],
+        salePrice: _remoteMintData[3],
+        maxTokensPerAddress: _remoteMintData[4],
+        lzChainId: _remoteMintData[5],
+        uri: _remoteMintData[6]
+      };
 
-    // fetch data on remote chain zora creator
-    const remoteChain = LZ_CHAIN_ID_TO_CHAIN[remoteMintData.lzChainId];
-    const remoteRpcUrl = this.rpcURLs && this.rpcURLs[remoteChain.id]
-      ? this.rpcURLs[this.chain.id]
-      : remoteChain.rpcUrls.default.http[0];
-    const remoteClient = createPublicClient({ chain: remoteChain, transport: http(remoteRpcUrl) });
+      // fetch data on remote chain zora creator
+      const remoteChain = LZ_CHAIN_ID_TO_CHAIN[remoteMintData.lzChainId];
+      const remoteRpcUrl = this.rpcURLs && this.rpcURLs[remoteChain.id]
+        ? this.rpcURLs[remoteChain.id]
+        : remoteChain.rpcUrls.default.http[0];
+      const remoteClient = createPublicClient({ chain: remoteChain, transport: http(remoteRpcUrl) });
 
-    let remoteContract;
-    let remoteTokenId;
-    if (remoteMintData.remoteContract1155 == zeroAddress) {
-      const [_remoteTokenId, madContract1155] = await Promise.all([
-        remoteClient.readContract({
+      let remoteContract;
+      let remoteTokenId;
+      if (remoteMintData.remoteContract1155 == zeroAddress) {
+        const [_remoteTokenId, madContract1155] = await Promise.all([
+          remoteClient.readContract({
+            address: remoteMintData.zoraCreator as `0x${string}`,
+            abi: ZoraLzCreatorAbi as unknown as Abi,
+            functionName: "publicationTokens",
+            args: [this.profileId, this.pubId],
+          }),
+          remoteClient.readContract({
+            address: remoteMintData.zoraCreator as `0x${string}`,
+            abi: ZoraLzCreatorAbi as unknown as Abi,
+            functionName: "madContract1155"
+          }),
+        ]);
+        remoteContract = madContract1155 as string;
+        remoteTokenId = _remoteTokenId;
+      } else {
+        remoteContract = remoteMintData.remoteContract1155;
+        remoteTokenId = remoteMintData.remoteTokenId;
+        // get the latest sale price
+        const salesConfig = await remoteClient.readContract({
           address: remoteMintData.zoraCreator as `0x${string}`,
           abi: ZoraLzCreatorAbi as unknown as Abi,
-          functionName: "publicationTokens",
-          args: [this.profileId, this.pubId],
-        }),
-        remoteClient.readContract({
-          address: remoteMintData.zoraCreator as `0x${string}`,
-          abi: ZoraLzCreatorAbi as unknown as Abi,
-          functionName: "madContract1155"
-        }),
-      ]);
-      remoteContract = madContract1155 as string;
-      remoteTokenId = _remoteTokenId;
-    } else {
-      remoteContract = remoteMintData.remoteContract1155;
-      remoteTokenId = remoteMintData.remoteTokenId;
-      // get the latest sale price
-      const salesConfig = await remoteClient.readContract({
-        address: remoteMintData.zoraCreator as `0x${string}`,
-        abi: ZoraLzCreatorAbi as unknown as Abi,
-        functionName: "getSalesConfig",
-        args: [remoteContract, remoteTokenId],
-      }) as unknown[];
-      const latestSalePrice = salesConfig[3] as BigInt;
-      if (remoteMintData.salePrice < latestSalePrice) {
-        console.log(`sales price changed for: ${remoteContract}/${remoteTokenId}; no longer mintable from here`);
-        this.panicked = true;
-        return; // not setting the mintable nft
+          functionName: "getSalesConfig",
+          args: [remoteContract, remoteTokenId],
+        }) as unknown[];
+        const latestSalePrice = salesConfig[3] as BigInt;
+        if (remoteMintData.salePrice < latestSalePrice) {
+          console.log(`sales price changed for: ${remoteContract}/${remoteTokenId}; no longer mintable from here`);
+          this.panicked = true;
+          return; // not setting the mintable nft
+        }
       }
+
+      const remoteBalanceOf = await remoteClient.readContract({
+        address: remoteContract as `0x${string}`,
+        abi: IERC1155Abi as unknown as Abi,
+        functionName: "balanceOf",
+        args: [data.connectedWalletAddress, remoteTokenId],
+      }) as BigInt;
+
+      this.remoteMintData = remoteMintData;
+      this.remoteChain = remoteChain;
+      this.remoteBalanceOf = remoteBalanceOf;
+      this.hasMinted = BigInt(this.remoteBalanceOf.toString()) > BigInt(0);
+      this.remoteTokenAddress = remoteContract as string;
+      this.remoteTokenId = (remoteTokenId as BigInt).toString();
+      const metadata = await fetchTokenWithMetadata(
+        this.remoteTokenAddress,
+        this.remoteTokenId,
+        remoteChain.id
+      );
+      this.mintableNFTMetadata = { ...metadata, chainId: remoteChain.id };
+
+      this._setURLs(this.remoteChain!, this.remoteTokenAddress, this.remoteTokenId);
+
+      return { remoteMintData, remoteTokenId, remoteBalanceOf };
+    } catch (error) {
+      console.log(error);
+      this.panicked = true;
     }
-
-    const remoteBalanceOf = await remoteClient.readContract({
-      address: remoteContract as `0x${string}`,
-      abi: IERC1155Abi as unknown as Abi,
-      functionName: "balanceOf",
-      args: [data.connectedWalletAddress, remoteTokenId],
-    }) as BigInt;
-
-    this.remoteMintData = remoteMintData;
-    this.remoteChain = remoteChain;
-    this.remoteBalanceOf = remoteBalanceOf;
-    this.hasMinted = BigInt(this.remoteBalanceOf.toString()) > BigInt(0);
-    this.remoteTokenAddress = remoteContract as string;
-    this.remoteTokenId = (remoteTokenId as BigInt).toString();
-    const metadata = await fetchTokenWithMetadata(
-      this.remoteTokenAddress,
-      this.remoteTokenId,
-      remoteChain.id
-    );
-    this.mintableNFTMetadata = { ...metadata, chainId: remoteChain.id };
-
-    this._setURLs(this.remoteChain!, this.remoteTokenAddress, this.remoteTokenId);
-
-    return { remoteMintData, remoteTokenId, remoteBalanceOf };
   }
 
   getActionModuleConfig(): ActionModuleConfig {
