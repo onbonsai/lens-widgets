@@ -123,7 +123,7 @@ class ZoraLzMintAction extends HandlerBase {
       // fetch data on remote chain zora creator
       const remoteChain = LZ_CHAIN_ID_TO_CHAIN[remoteMintData.lzChainId];
       const remoteRpcUrl = this.rpcURLs && this.rpcURLs[remoteChain.id]
-        ? this.rpcURLs[this.chain.id]
+        ? this.rpcURLs[remoteChain.id]
         : remoteChain.rpcUrls.default.http[0];
       const remoteClient = createPublicClient({ chain: remoteChain, transport: http(remoteRpcUrl) });
 
@@ -188,6 +188,7 @@ class ZoraLzMintAction extends HandlerBase {
       return { remoteMintData, remoteTokenId, remoteBalanceOf };
     } catch (error) {
       console.log(error);
+      this.panicked = true;
     }
   }
 
