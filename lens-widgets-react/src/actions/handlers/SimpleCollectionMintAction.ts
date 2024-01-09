@@ -14,7 +14,7 @@ import {
 } from "./../utils/madfi";
 import { getEventFromReceipt } from "../utils/viem";
 
-const SIMPLE_COLLECTION_MINT_TESTNET_ADDRESS = "0x0C7b672F1F895EF47Eb8c77A4b8387846289F5B3";
+const SIMPLE_COLLECTION_MINT_TESTNET_ADDRESS = "0x34e1071e319fe512c052a92a2ceFaF2589a0E098";
 const SIMPLE_COLLECTION_MINT_MAINNET_ADDRESS = "";
 
 const DEFAULT_COLLECTION_METADATA = {
@@ -127,7 +127,7 @@ class SimpleCollectionMintAction extends HandlerBase {
       }) as Promise<[string, string]>),
     ]);
 
-    const imagePath = collectionData[7]! as string;
+    const imagePath = collectionData[6]! as string;
     this.mintableNFTMetadata = {
       name: collectionMetadata[0] || DEFAULT_COLLECTION_METADATA.name,
       description: collectionMetadata[1] || DEFAULT_COLLECTION_METADATA.description,
