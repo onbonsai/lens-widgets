@@ -1,5 +1,5 @@
 import LensIcon from './LensIcon'
-import { Theme, Size } from './types' 
+import { Theme, Size } from './types'
 import { getContainerStyle, getTextStyle } from './utils'
 
 export function FollowOnLens({
@@ -33,7 +33,6 @@ export function FollowOnLens({
     } else {
       URI = `https://share.lens.xyz/u/${handle.toLowerCase()}.lens`
     }
-    console.log('URI: ', URI)
     window.open(URI, '_newtab')
   }
 

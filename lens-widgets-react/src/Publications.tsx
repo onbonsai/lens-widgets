@@ -1,13 +1,8 @@
-import {
-  useEffect, useState
-} from 'react'
+import { useEffect, useState } from 'react'
 import { css } from '@emotion/css'
 import { client, profileByHandle, getPublications } from './graphql'
 import { Publication as PublicationComponent } from './Publication'
-import { ProfileFragment, PublicationOperationsFragment } from '@lens-protocol/client'
-import {
-  PublicationsDocument
-} from './graphql/generated'
+import { ProfileFragment, PublicationOperationsFragment, Environment, production } from '@lens-protocol/client'
 import { Theme } from './types'
 
 enum LimitType {
@@ -22,6 +17,7 @@ export function Publications({
   theme,
   numberOfPublications,
   publications,
+  environment = production,
   authenticatedProfile,
   hideCommentButton = false,
   hideQuoteButton = false,
@@ -29,19 +25,22 @@ export function Publications({
   onLikeButtonClick,
   hasUpvotedComment,
   getOperationsFor,
+  renderMadFiBadge = false,
 } : {
   profileId?: string,
   handle?: string,
   theme?: Theme,
   numberOfPublications?: number,
   publications?: any[],
+  environment?: Environment,
   authenticatedProfile?: ProfileFragment | null,
   hideCommentButton?: boolean,
   hideQuoteButton?: boolean,
   hideShareButton?: boolean,
   onLikeButtonClick?: (e, publicationId: string) => void,
   hasUpvotedComment: (publicationId: string) => boolean,
-  getOperationsFor: (publicationId: string) => PublicationOperationsFragment | undefined
+  getOperationsFor: (publicationId: string) => PublicationOperationsFragment | undefined,
+  renderMadFiBadge?: boolean,
 }) {
   const [_publications, setPublications] = useState<any[] | undefined>([])
 
@@ -96,6 +95,7 @@ export function Publications({
               <PublicationComponent
                 publicationData={publication}
                 publicationId={publication.id}
+                environment={environment}
                 theme={theme}
                 authenticatedProfile={authenticatedProfile}
                 hideCommentButton={hideCommentButton}
@@ -106,6 +106,7 @@ export function Publications({
                   : undefined
                 }
                 operations={getOperationsFor(publication.id)}
+                renderMadFiBadge={renderMadFiBadge}
               />
             </div>
           )

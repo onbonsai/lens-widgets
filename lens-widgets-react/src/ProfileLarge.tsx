@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { css } from '@emotion/css'
-import { Profile, ThemeColor, ProfileHandle, Theme } from './types'
+import { ThemeColor, ProfileHandle, Theme } from './types'
 import { LensClient, ProfileFragment, development, production } from "@lens-protocol/client";
 import {
   formatProfilePicture,
@@ -12,6 +12,8 @@ import {
   getDisplayName,
 } from './utils'
 import { getButtonStyle } from "./Profile"
+import { VerifiedBadgeIcon } from "./icons"
+import { useGetOwnedMadFiBadge } from './hooks/useGetOwnedBadge';
 
 export function ProfileLarge({
   profileId,
@@ -31,6 +33,7 @@ export function ProfileLarge({
   environment = production,
   followButtonDisabled = false,
   isFollowed = false,
+  renderMadFiBadge = false,
 }: {
   profileId?: string,
   profileData?: any,
@@ -48,14 +51,23 @@ export function ProfileLarge({
   onFollowPress?: (event) => void,
   environment?: (typeof development | typeof production),
   followButtonDisabled: boolean,
-  isFollowed?: boolean
+  isFollowed?: boolean,
+  renderMadFiBadge?: boolean,
 }) {
   const [profile, setProfile] = useState<any | undefined>()
   const [followers, setFollowers] = useState<ProfileHandle[]>([])
+  const {
+    ownsBadge,
+    verified
+  } = useGetOwnedMadFiBadge(environment.name === 'production', profile?.sponsor, profile?.ownedBy?.address)
 
   useEffect(() => {
     fetchProfile()
   }, [profileId, handle, ethereumAddress])
+
+  const shouldRenderBadge = useMemo(() => {
+    return renderMadFiBadge && ownsBadge && verified;
+  }, [renderMadFiBadge, ownsBadge, verified]);
 
   function onProfilePress() {
     if (onClick) {
@@ -160,7 +172,11 @@ export function ProfileLarge({
       </div>
       <div className={getProfileInfoContainerStyle(theme)}>
         <div className={profileNameAndBioContainerStyle} onClick={onProfilePress}>
-          <p className={profileNameStyle}>{getDisplayName(profile)}</p>
+          <div className="flex gap-x-2">
+            <p className={profileNameStyle}>{getDisplayName(profile)}</p>
+            {shouldRenderBadge && <span className="mt-2"><VerifiedBadgeIcon /></span>}
+          </div>
+          <p className={getProfileHandleStyle(theme)}>{profile.handle?.suggestedFormatted?.localName}</p>
           {
             profile.metadata?.bio && (
               <p className={bioStyle} dangerouslySetInnerHTML={{
@@ -257,9 +273,24 @@ const profileNameStyle = css`
   margin: 0;
 `
 
+function getProfileHandleStyle(theme: Theme) {
+  let color = ThemeColor.darkGray
+  if (theme === Theme.dark) {
+    color = ThemeColor.white
+  }
+
+  return css`
+  font-size: 16px;
+  font-weight: 400;
+  margin: 0;
+  opacity: 0.8;
+  color: ${color}
+`
+}
+
 const bioStyle = css`
   font-weight: 500;
-  margin-top: 9px;
+  margin-top: 20px;
   margin-bottom: 0;
   line-height: 24px;
 `

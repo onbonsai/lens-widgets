@@ -7,6 +7,10 @@ export const SBT_LEVELS_MAINNET_ADDRESS = "";
 export const MADFI_API_BASE_URL = "https://api.madfi.xyz/prod";
 export const DEFAULT_MADFI_API_KEY = process.env.NEXT_PUBLIC_MADFI_API_KEY;
 export const STORJ_API_URL = "https://www.storj-ipfs.com";
+export const MADFI_GENESIS_BADGE_ID = "1";
+
+export const MADFI_SUBGRPAH_URL_TESTNET = "https://api.thegraph.com/subgraphs/name/mad-finance/testnet-madfi-subgraph";
+export const MADFI_SUBGRAPH_URL = "https://api.thegraph.com/subgraphs/name/mad-finance/madfi-subgraph";
 
 const _hash = (uriOrHash: string): string => (
   typeof uriOrHash === "string" && uriOrHash.startsWith("ipfs://") ? uriOrHash.split("ipfs://")[1] : uriOrHash
