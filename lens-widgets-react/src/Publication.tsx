@@ -1,6 +1,4 @@
-import {
-  useEffect, useState
-} from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { css } from '@emotion/css'
 import {
   Environment,
@@ -32,6 +30,8 @@ import ActModal from './components/ActModal';
 import { MintNFTCard } from './components/MintNFTCard';
 import { WalletClient } from 'viem';
 import { Toast } from './types';
+import { VerifiedBadgeIcon } from "./icons"
+import { useGetOwnedMadFiBadge } from './hooks/useGetOwnedBadge';
 
 export function Publication({
   publicationId,
@@ -57,6 +57,7 @@ export function Publication({
   useToast,
   rpcURLs,
   appDomainWhitelistedGasless,
+  renderMadFiBadge = false,
 }: {
   publicationId?: string,
   publicationData?: any,
@@ -81,6 +82,7 @@ export function Publication({
   useToast?: Toast // ex: react-hot-toast to render notifs
   rpcURLs?: { [chainId: number]: string },
   appDomainWhitelistedGasless?: boolean,
+  renderMadFiBadge?: boolean,
 }) {
   let [publication, setPublication] = useState<any>(publicationData)
   let [showFullText, setShowFullText] = useState(false)
@@ -99,7 +101,20 @@ export function Publication({
     focusedOpenActionModuleName
   );
 
+  const {
+    ownsBadge,
+    verified
+  } = useGetOwnedMadFiBadge(
+    environment.name === 'production',
+    publication?.by?.sponsor,
+    publication?.by?.ownedBy?.address
+  );
+
   const actHandledExternally = !isActionModuleSupported && renderActButtonWithCTA && onActButtonClick;
+
+  const shouldRenderBadge = useMemo(() => {
+    return renderMadFiBadge && ownsBadge && verified;
+  }, [renderMadFiBadge, ownsBadge, verified]);
 
   useEffect(() => {
     if (!publicationData) {
@@ -217,7 +232,10 @@ export function Publication({
             }
           </div>
           <div className={profileDetailsContainerStyle(color)}>
-            <p className={profileNameStyle}>{getDisplayName(profile)}</p>
+            <div className="flex gap-x-2">
+              <p className={profileNameStyle}>{getDisplayName(profile)}</p>
+              {shouldRenderBadge && <span className="mt-1"><VerifiedBadgeIcon height={20} /></span>}
+            </div>
             <p className={dateStyle}> {formatDistance(new Date(publication.createdAt), new Date())} ago</p>
           </div>
         </div>

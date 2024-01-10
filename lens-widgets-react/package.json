@@ -1,6 +1,6 @@
 {
   "name": "@madfi/widgets-react",
-  "version": "2.1.12",
+  "version": "2.1.13",
   "description": "React widgets to render Lens components, with support for Smart Posts",
   "main": "dist/index.js",
   "scripts": {
@@ -37,5 +37,8 @@
     "@graphql-codegen/typed-document-node": "^4.0.1",
     "@graphql-codegen/typescript": "^3.0.4",
     "@graphql-codegen/typescript-operations": "^3.0.4"
+  },
+  "peerDependencies": {
+    "@tanstack/react-query": "^4.22.0"
   }
 }

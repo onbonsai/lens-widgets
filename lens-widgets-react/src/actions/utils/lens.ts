@@ -66,7 +66,6 @@ export const actWithSignedTypedata = async (
     const { id, typedData } = typedDataResult.unwrap();
 
     const [account] = await walletClient.getAddresses();
-    console.log(typedData);
     const signedTypedData = await walletClient.signTypedData({
       account,
       domain: omit(typedData.domain, "__typename"),

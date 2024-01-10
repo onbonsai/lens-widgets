@@ -24,6 +24,7 @@ export enum ThemeColor {
   black = 'black',
   transparent = 'none',
   red = 'red',
+  madfiGradient = 'linear-gradient(to right, red, orange)',
 }
 
 export enum Size {

@@ -3,7 +3,11 @@
 ### Dependencies
 These packages must be installed in the root React app
 - react
+- react-dom
 - tailwindcss
+- @tanstack/react-query@^4.22.0
+
+With `@tanstack/react-query` you have to follow their [setup docs](https://github.com/TanStack/query/issues/3595#issuecomment-1353601727) - and if using Next.js check this [github issue](https://github.com/TanStack/query/issues/3595#issuecomment-1353601727) for webpack setup
 
 ### Installation
 

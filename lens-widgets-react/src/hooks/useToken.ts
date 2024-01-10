@@ -22,7 +22,6 @@ export default (
         functionName: "decimals"
       })
     ]);
-    console.log(`symbol: ${symbol}, decimals:${decimals}`);
 
     setToken({
       symbol: symbol as string,
