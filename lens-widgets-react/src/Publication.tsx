@@ -36,6 +36,7 @@ import { useGetOwnedMadFiBadge } from './hooks/useGetOwnedBadge';
 export function Publication({
   publicationId,
   onClick,
+  onProfileClick,
   publicationData,
   theme = Theme.default,
   ipfsGateway,
@@ -62,6 +63,7 @@ export function Publication({
   publicationId?: string,
   publicationData?: any,
   onClick?: (e) => void,
+  onProfileClick?: (e) => void,
   theme?: Theme,
   ipfsGateway?: string,
   fontSize?: string,
@@ -142,6 +144,19 @@ export function Publication({
       // window.open(URI, '_blank')
     }
   }
+
+  function onProfilePress(e) {
+    if (onProfileClick) {
+      onProfileClick(e)
+    } else {
+      // if (profile) {
+      //   const { localName, namespace } = profile.handle
+      //   const URI = `https://share.lens.xyz/u/${localName}.${namespace}`
+      //   window.open(URI, '_blank')
+      // }
+    }
+  }
+
   function _onActButtonClick(e) {
     if (isActionModuleSupported) {
       e.preventDefault();
@@ -212,7 +227,7 @@ export function Publication({
               </div>
             )
           } */}
-        <div className={profileContainerStyle(isMirror)}>
+        <div className={profileContainerStyle(isMirror, !!onProfileClick)} onClick={onProfilePress}>
           <div>
             {
              publication.by?.metadata?.picture?.optimized?.uri ||
@@ -446,10 +461,11 @@ const markdownStyle = (color, fontSize) => css`
   }
 `
 
-const profileContainerStyle = isMirror => css`
+const profileContainerStyle = (isMirror, profileClickable) => css`
   display: flex;
   align-items: center;
   padding-top: ${isMirror ? '2px' : '6px'};
+  cursor: ${profileClickable ? 'pointer' : 'default'}
 `
 const system = css`
   font-family: ${systemFonts} !important
