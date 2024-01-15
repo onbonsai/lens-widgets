@@ -1,4 +1,4 @@
-import { Environment, production } from "@lens-protocol/client";
+import { Environment } from "@lens-protocol/client";
 import { getAddress } from "ethers/lib/utils";
 
 // 1. import your handler class
@@ -16,12 +16,13 @@ import {
 // 2. add the entry for MAINNET, where `handler` is the exported handler class
 const MAINNET = [
   { address: ZORA_LZ_MINT_MAINNET_ADDRESS, handler: ZoraLzMintAction, name: "ZoraLzMintAction" },
+  { address: SIMPLE_COLLECTION_MINT_MAINNET_ADDRESS, handler: SimpleCollectionMintAction, name: "SimpleCollectionMintAction" }
 ];
 
 // 2. add the entry for TESTNET
 const TESTNET = [
-  { address: SIMPLE_COLLECTION_MINT_TESTNET_ADDRESS, handler: SimpleCollectionMintAction, name: "SimpleCollectionMintAction" },
   { address: ZORA_LZ_MINT_TESTNET_ADDRESS, handler: ZoraLzMintAction, name: "ZoraLzMintAction" },
+  { address: SIMPLE_COLLECTION_MINT_TESTNET_ADDRESS, handler: SimpleCollectionMintAction, name: "SimpleCollectionMintAction" }
 ];
 
 // 3. you are gucci
