@@ -76,9 +76,7 @@ class SimpleCollectionMintAction extends HandlerBase {
     super(_environment, profileId, publicationId, authenticatedProfileId, rpcURLs);
 
     if (this.isPolygon) {
-      // @ts-expect-error: TODO mainnet
       this.madSBTAddress = MAD_SBT_MAINNET_ADDRESS;
-      // @ts-expect-error: TODO mainnet
       this.sbtLevelsAddress = SBT_LEVELS_MAINNET_ADDRESS;
     } else {
       this.madSBTAddress = MAD_SBT_TESTNET_ADDRESS;
