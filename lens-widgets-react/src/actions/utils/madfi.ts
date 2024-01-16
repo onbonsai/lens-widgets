@@ -1,11 +1,10 @@
 export const MAD_SBT_TESTNET_ADDRESS = "0x37aB71116E2A89dA7d27c918aBE6B9Bb8bEE5d12";
-export const MAD_SBT_MAINNET_ADDRESS = "";
+export const MAD_SBT_MAINNET_ADDRESS = "0x22209D6eAe6cEBA2d059ebfE67b67837BCC1b428";
 
 export const SBT_LEVELS_TESTNET_ADDRESS = "0x214955A9Ab649A17a14999A0afdC9F2c422084b1";
-export const SBT_LEVELS_MAINNET_ADDRESS = "";
+export const SBT_LEVELS_MAINNET_ADDRESS = "0x9bE0E2B6B6AeDf2c4E594D2474824846fdE5e770";
 
 export const MADFI_API_BASE_URL = "https://api.madfi.xyz/prod";
-export const DEFAULT_MADFI_API_KEY = process.env.NEXT_PUBLIC_MADFI_API_KEY;
 export const STORJ_API_URL = "https://www.storj-ipfs.com";
 export const MADFI_GENESIS_BADGE_ID = "1";
 
