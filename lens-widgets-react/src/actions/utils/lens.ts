@@ -7,6 +7,9 @@ import ILensHubAbi from './../abis/ILensHub.json'; // NOTE: only has `#act` and 
 const TESTNET_LENS_HUB_PROXY = "0x4fbffF20302F3326B20052ab9C217C44F6480900";
 const MAINNET_LENS_HUB_PROXY = "0xDb46d1Dc155634FbC732f92E853b10B288AD5a1d";
 
+export const TESTNET_API_URL = "https://api-v2-mumbai-live.lens.dev";
+export const MAINNET_API_URL = "https://api-v2.lens.dev";
+
 // sends the `#act` tx onchain to the LensHub
 export const actOnchain = async (
   walletClient: WalletClient,

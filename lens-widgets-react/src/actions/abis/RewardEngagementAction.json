@@ -1,0 +1,338 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "hub",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_madSBT",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [],
+    "name": "InitParamsInvalid",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidPointedPublication",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NoZeroAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotHub",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "OnlyActiveCollectionCreator",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "pubId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "resultingPubId",
+        "type": "uint256"
+      }
+    ],
+    "name": "ActionRewarded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "pubId",
+        "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "internalType": "enum RewardEngagementAction.ActionType",
+            "name": "actionType",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "collectionId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint8",
+            "name": "rewardEnum",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint16",
+            "name": "limit",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "claimed",
+            "type": "uint16"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct RewardEngagementAction.RewardsData",
+        "name": "data",
+        "type": "tuple"
+      }
+    ],
+    "name": "InitAction",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "HUB",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pubId",
+        "type": "uint256"
+      }
+    ],
+    "name": "activeRewards",
+    "outputs": [
+      {
+        "internalType": "enum RewardEngagementAction.ActionType",
+        "name": "actionType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "collectionId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "rewardEnum",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint16",
+        "name": "limit",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "claimed",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pubId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "actorProfileId",
+        "type": "uint256"
+      }
+    ],
+    "name": "hasClaimedRewards",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pubId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "name": "initializePublicationAction",
+    "outputs": [
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "madSBT",
+    "outputs": [
+      {
+        "internalType": "contract IMadSBT",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      }
+    ],
+    "name": "moduleIsExecutor",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "publicationActedProfileId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "publicationActedId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "actorProfileId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "actorProfileOwner",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "transactionExecutor",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "referrerProfileIds",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "referrerPubIds",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "enum Types.PublicationType[]",
+            "name": "referrerPubTypes",
+            "type": "uint8[]"
+          },
+          {
+            "internalType": "bytes",
+            "name": "actionModuleData",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct Types.ProcessActionParams",
+        "name": "processActionParams",
+        "type": "tuple"
+      }
+    ],
+    "name": "processPublicationAction",
+    "outputs": [
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
