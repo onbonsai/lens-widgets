@@ -5,6 +5,7 @@ import Modal from "./Modal";
 import HandlerBase from "../actions/handlers/HandlerBase";
 import ZoraLzMintActionModal from "./../actions/modals/ZoraLzMintActionModal";
 import SimpleCollectionMintActionModal from "../actions/modals/SimpleCollectionMintActionModal";
+import RewardEngagementActionModal from "../actions/modals/RewardEngagementModal";
 import { Toast } from "../types";
 
 interface ActModalProps {
@@ -53,6 +54,19 @@ const ActModal = ({
     } else if (metadata?.metadata?.name === "SimpleCollectionMintAction") {
       return (
         <SimpleCollectionMintActionModal
+          // @ts-expect-error: casted correctly in the modal
+          handler={handler}
+          publicationBy={publicationBy}
+          walletClient={walletClient}
+          isDarkTheme={isDarkTheme}
+          countOpenActions={countOpenActions}
+          toast={toast}
+          appDomainWhitelistedGasless={appDomainWhitelistedGasless}
+        />
+      );
+    } else if (metadata?.metadata?.name === "RewardEngagementAction") {
+      return (
+        <RewardEngagementActionModal
           // @ts-expect-error: casted correctly in the modal
           handler={handler}
           publicationBy={publicationBy}

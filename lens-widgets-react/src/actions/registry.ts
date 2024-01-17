@@ -12,17 +12,24 @@ import {
   ZORA_LZ_MINT_MAINNET_ADDRESS,
   ZoraLzMintAction
 } from "./handlers/ZoraLzMintAction";
+import {
+  REWARD_ENGAGEMENT_TESTNET_ADDRESS,
+  REWARD_ENGAGEMENT_MAINNET_ADDRESS,
+  RewardEngagementAction
+} from "./handlers/RewardEngagementAction"
 
 // 2. add the entry for MAINNET, where `handler` is the exported handler class
 const MAINNET = [
   { address: ZORA_LZ_MINT_MAINNET_ADDRESS, handler: ZoraLzMintAction, name: "ZoraLzMintAction" },
-  { address: SIMPLE_COLLECTION_MINT_MAINNET_ADDRESS, handler: SimpleCollectionMintAction, name: "SimpleCollectionMintAction" }
+  { address: SIMPLE_COLLECTION_MINT_MAINNET_ADDRESS, handler: SimpleCollectionMintAction, name: "SimpleCollectionMintAction" },
+  { address: REWARD_ENGAGEMENT_MAINNET_ADDRESS, handler: RewardEngagementAction, name: "RewardEngagementAction" }
 ];
 
 // 2. add the entry for TESTNET
 const TESTNET = [
   { address: ZORA_LZ_MINT_TESTNET_ADDRESS, handler: ZoraLzMintAction, name: "ZoraLzMintAction" },
-  { address: SIMPLE_COLLECTION_MINT_TESTNET_ADDRESS, handler: SimpleCollectionMintAction, name: "SimpleCollectionMintAction" }
+  { address: SIMPLE_COLLECTION_MINT_TESTNET_ADDRESS, handler: SimpleCollectionMintAction, name: "SimpleCollectionMintAction" },
+  { address: REWARD_ENGAGEMENT_TESTNET_ADDRESS, handler: RewardEngagementAction, name: "RewardEngagementAction" }
 ];
 
 // 3. you are gucci

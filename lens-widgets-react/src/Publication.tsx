@@ -32,6 +32,7 @@ import { WalletClient } from 'viem';
 import { Toast } from './types';
 import { VerifiedBadgeIcon } from "./icons"
 import { useGetOwnedMadFiBadge } from './hooks/useGetOwnedBadge';
+import HandlerBase from './actions/handlers/HandlerBase';
 
 export function Publication({
   publicationId,
@@ -71,9 +72,9 @@ export function Publication({
   authenticatedProfile?: ProfileFragment | null,
   walletClient?: WalletClient,
   renderActButtonWithCTA?: string,
-  onActButtonClick?: (e) => void,
-  onCommentButtonClick?: (e) => void,
-  onMirrorButtonClick?: (e) => void,
+  onActButtonClick?: (e, actionModuleHandler?: HandlerBase) => void,
+  onCommentButtonClick?: (e, actionModuleHandler?: HandlerBase) => void,
+  onMirrorButtonClick?: (e, actionModuleHandler?: HandlerBase) => void,
   onLikeButtonClick?: (e, p) => void,
   onShareButtonClick?: (e) => void,
   hideCommentButton?: boolean,
@@ -112,7 +113,7 @@ export function Publication({
     publication?.by?.ownedBy?.address
   );
 
-  const actHandledExternally = !isActionModuleSupported && renderActButtonWithCTA && onActButtonClick;
+  const actHandledExternally = renderActButtonWithCTA && onActButtonClick;
 
   const shouldRenderBadge = useMemo(() => {
     return renderMadFiBadge && ownsBadge && verified;
@@ -158,12 +159,24 @@ export function Publication({
   }
 
   function _onActButtonClick(e) {
-    if (isActionModuleSupported) {
+    if (isActionModuleSupported && !actHandledExternally) {
       e.preventDefault();
       e.stopPropagation();
       setOpenActModal(true);
     } else if (actHandledExternally) {
-      onActButtonClick(e);
+      onActButtonClick(e, actionModuleHandler);
+    }
+  }
+
+  function onCommentPress(e) {
+    if (onCommentButtonClick) {
+      onCommentButtonClick(e, actionModuleHandler);
+    }
+  }
+
+  function onMirrorPress(e) {
+    if (onMirrorButtonClick) {
+      onMirrorButtonClick(e, actionModuleHandler);
     }
   }
 
@@ -334,7 +347,7 @@ export function Publication({
         {!hideCommentButton && (
           <div
             className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onCommentButtonClick, false)}
-            onClick={onCommentButtonClick}
+            onClick={onCommentPress}
           >
             <MessageIcon color={reactionTextColor} />
             <p>{publication.stats.comments > 0 ? publication.stats.comments : null}</p>
@@ -343,7 +356,7 @@ export function Publication({
         {!hideQuoteButton && (
           <div
             className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onMirrorButtonClick, operations?.hasMirrored)}
-            onClick={onMirrorButtonClick}
+            onClick={onMirrorPress}
           >
             <MirrorIcon color={!operations?.hasMirrored ? reactionTextColor : ThemeColor.lightGreen} />
             <p>{publication.stats.mirrors + publication.stats.quotes > 0 ? publication.stats.mirrors + publication.stats.quotes : null}</p>

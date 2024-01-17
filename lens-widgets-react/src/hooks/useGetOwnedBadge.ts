@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from 'urql';
 import { MADFI_GENESIS_BADGE_ID, MADFI_SUBGRPAH_URL_TESTNET, MADFI_SUBGRAPH_URL } from './../actions/utils/madfi';
@@ -41,5 +40,18 @@ export const useGetOwnedMadFiBadge = (isProduction: boolean, sponsor?: any, addr
     badge: result?.data,
     ownsBadge: !!result?.data,
     verified: sponsor,
+  };
+}
+
+export const useGetOwnedBadge = (isProduction: boolean, collectionId?: string, address?: string) => {
+  const result = useQuery({
+    queryKey: ['owned-badge', collectionId],
+    queryFn: () => fetchMadSbtTokenByCollectionIdAndOwner(isProduction, collectionId!, address!),
+    enabled: !!address && !!collectionId
+  });
+
+  return {
+    isLoading: result?.isLoading,
+    badge: result?.data,
   };
 }
