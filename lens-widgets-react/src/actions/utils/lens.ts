@@ -82,7 +82,7 @@ export const actWithSignedTypedata = async (
 
     if (broadcastResultValue.__typename === "RelayError") throw new Error("RelayError");
 
-    return (broadcastResultValue as RelaySuccessFragment).txId;
+    return (broadcastResultValue as RelaySuccessFragment).txHash;
   } catch (error) {
     console.log(error);
   }
