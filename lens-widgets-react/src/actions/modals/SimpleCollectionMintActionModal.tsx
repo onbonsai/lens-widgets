@@ -84,6 +84,7 @@ const SimpleCollectionMintActionModal = ({
     let toastId;
     try {
       if (toast) toastId = toast.loading('Minting');
+      await walletClient.switchChain({ id: handler.chain.id });
       const encodedActionModuleData = handler.encodeModuleActData({
         currency: currency!,
         amount: handler.publicationCollectConfig!.amount.toString(),
@@ -124,6 +125,7 @@ const SimpleCollectionMintActionModal = ({
     let toastId;
     try {
       if (toast) toastId = toast.loading('Approving token transfer');
+      await walletClient.switchChain({ id: handler.chain.id });
 
       const [address] = await walletClient.getAddresses();
       const hash = await walletClient.writeContract({
