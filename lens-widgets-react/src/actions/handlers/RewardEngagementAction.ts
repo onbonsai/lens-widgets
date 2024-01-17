@@ -36,8 +36,7 @@ type PublicationRewarded = {
 };
 
 class RewardEngagementAction extends HandlerBase {
-  private isProfileAdmin?: boolean;
-
+  public isProfileAdmin?: boolean;
   public connectedWalletAddress?: string;
   public publicationRewarded?: PublicationRewarded;
   public hasClaimed?: boolean;

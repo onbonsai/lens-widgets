@@ -3,7 +3,6 @@ import { ProfileFragment } from "@lens-protocol/client";
 import {  WalletClient } from "viem";
 import { RewardEngagementAction } from "../handlers/RewardEngagementAction";
 import { Toast } from "../../types";
-import { useGetOwnedBadge } from "../../hooks/useGetOwnedBadge";
 import { useIsProfileManager, enableProfileManagerGasless } from "../utils/profileManagers";
 
 const RewardEngagementModal = ({
@@ -25,10 +24,6 @@ const RewardEngagementModal = ({
 }) => {
   const [enablingRewards, setEnablingRewards] = useState(false);
   const [hasClaimed, _] = useState(handler.hasClaimed || false);
-  const {
-    badge,
-    isLoading: isLoadingBadge
-  } = useGetOwnedBadge(handler.isPolygon!, handler.publicationRewarded?.collectionId?.toString(), handler.connectedWalletAddress);
   const { data: isProfileManager, refetch: fetchIsProfileManager } = useIsProfileManager(
     handler.lensClient,
     handler.authenticatedProfileId,
@@ -82,7 +77,7 @@ const RewardEngagementModal = ({
       </h2>
       <div className="flex flex-col w-full items-center justify-center md:pb-4">
         <div className="flex flex-col space-y-2 justify-center mt-8">
-          {!isProfileManager && handler.authenticatedProfileId && (
+          {!isProfileManager && handler.authenticatedProfileId && !handler.isProfileAdmin && (
             <>
               <div className="flex justify-center">
                 <div className="text-lg text-center font-medium">
@@ -106,6 +101,13 @@ const RewardEngagementModal = ({
             </>
           )}
         </div>
+        {handler.isProfileAdmin && (
+          <div className="flex flex-col justify-center items-center">
+            <h2 className="text-lg text-center justify-center items-center font-owners font-light mt-2">
+              Engagement is being rewarded 🎉
+            </h2>
+          </div>
+        )}
         {hasClaimed && (
           <div className="flex flex-col justify-center items-center">
             <h2 className="text-lg text-center justify-center items-center font-owners font-light mt-2">
