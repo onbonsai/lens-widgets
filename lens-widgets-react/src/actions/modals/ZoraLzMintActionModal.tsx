@@ -97,6 +97,7 @@ const ZoraLzMintActionModal = ({
     let toastId;
     try {
       if (toast) toastId = toast.loading('Sending');
+      await walletClient.switchChain({ id: handler.chain.id });
       const encodedActionModuleData = handler.encodeModuleActData({
         currency: currency.address,
         quantity: 1,
@@ -141,6 +142,7 @@ const ZoraLzMintActionModal = ({
     let toastId;
     try {
       if (toast) toastId = toast.loading('Approving token transfer');
+      await walletClient.switchChain({ id: handler.chain.id });
 
       const [address] = await walletClient.getAddresses();
       const hash = await walletClient.writeContract({
