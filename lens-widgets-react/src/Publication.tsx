@@ -313,7 +313,7 @@ export function Publication({
               <div className={videoContainerStyle}>
                 <ReactPlayer
                   className={videoStyle}
-                  url={publication.metadata.asset.video.optimized?.uri}
+                  url={media.original.url}
                   controls
                 />
               </div>
@@ -323,9 +323,9 @@ export function Publication({
             publication.metadata?.__typename === "AudioMetadataV3" && (
               <div className={audioContainerStyle}>
                 <AudioPlayer
-                  url={publication.metadata.asset.audio.optimized?.uri}
+                  url={media.original.url}
                   theme={theme}
-                  cover={publication.metadata.asset.cover?.optimized?.uri}
+                  cover={cover}
                   profile={publication.by}
                 />
               </div>
