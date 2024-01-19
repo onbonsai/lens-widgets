@@ -302,7 +302,7 @@ export function Publication({
               <div className={imageContainerStyle}>
                 <img
                   className={mediaImageStyle}
-                  src={publication.metadata.asset.image.optimized.uri}
+                  src={publication.metadata.asset.image.optimized?.uri || returnIpfsPathOrUrl(publication.metadata.asset.image.raw.uri)}
                   onClick={onPublicationPress}
                 />
               </div>
