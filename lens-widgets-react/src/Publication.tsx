@@ -11,6 +11,7 @@ import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 import { ThemeColor, Theme } from './types'
 import { formatDistance } from 'date-fns'
+import { isEmpty } from 'lodash/lang';
 import {
   MessageIcon, MirrorIcon, HeartIcon, ShareIcon
 } from './icons'
@@ -28,6 +29,7 @@ import { useSupportedActionModule } from './hooks/useSupportedActionModule';
 import Spinner from './components/Spinner';
 import ActModal from './components/ActModal';
 import { MintNFTCard } from './components/MintNFTCard';
+import { BountyInfo } from './components/BountyInfo';
 import { WalletClient } from 'viem';
 import { Toast } from './types';
 import { VerifiedBadgeIcon } from "./icons"
@@ -60,6 +62,7 @@ export function Publication({
   rpcURLs,
   appDomainWhitelistedGasless,
   renderMadFiBadge = false,
+  handlePinMetadata,
 }: {
   publicationId?: string,
   publicationData?: any,
@@ -86,6 +89,7 @@ export function Publication({
   rpcURLs?: { [chainId: number]: string },
   appDomainWhitelistedGasless?: boolean,
   renderMadFiBadge?: boolean,
+  handlePinMetadata?: (content: string, files: any[]) => Promise<string> // to upload post content on bounties
 }) {
   let [publication, setPublication] = useState<any>(publicationData)
   let [showFullText, setShowFullText] = useState(false)
@@ -159,6 +163,8 @@ export function Publication({
   }
 
   function _onActButtonClick(e) {
+    if (actionModuleHandler?.disabled) return;
+
     if (isActionModuleSupported && !actHandledExternally) {
       e.preventDefault();
       e.stopPropagation();
@@ -195,8 +201,8 @@ export function Publication({
   const isDarkTheme = theme === Theme.dark
   const color = isDarkTheme ? ThemeColor.white : ThemeColor.darkGray
   const backgroundColor = isDarkTheme ? ThemeColor.lightBlack : ThemeColor.white
-  const reactionBgColor = isDarkTheme ? ThemeColor.darkGray : ThemeColor.lightGray;
-  const actButttonBgColor = isDarkTheme ? ThemeColor.darkGray : ThemeColor.lightGray;
+  const reactionBgColor = isDarkTheme ? ThemeColor.darkGray : ThemeColor.lightGray
+  const actButttonBgColor = isDarkTheme ? ThemeColor.darkGray : ThemeColor.lightGray
   const reactionTextColor = isDarkTheme ? ThemeColor.lightGray : ThemeColor.darkGray
 
   // misc
@@ -264,7 +270,10 @@ export function Publication({
               <p className={profileNameStyle}>{getDisplayName(profile)}</p>
               {shouldRenderBadge && <span className="mt-1"><VerifiedBadgeIcon height={20} /></span>}
             </div>
-            <p className={dateStyle}> {formatDistance(new Date(publication.createdAt), new Date())} ago</p>
+            {/* conditional due to bounties */}
+            {publication.createdAt && (
+              <p className={dateStyle}> {formatDistance(new Date(publication.createdAt), new Date())} ago</p>
+            )}
           </div>
         </div>
         <div className={textContainerStyle}>
@@ -333,55 +342,72 @@ export function Publication({
           }
         </>
       )}
+      {/* Render Bounty info */}
+      {/* @ts-expect-error */}
+      {!isLoadingActionModuleState && !!actionModuleHandler?.publicationBounty && (
+        <div className={bountyInfoContainerStyle}>
+          <BountyInfo
+            isDarkTheme={isDarkTheme}
+            // @ts-expect-error
+            bounty={actionModuleHandler!.publicationBounty?.bounty}
+            // @ts-expect-error
+            paymentToken={actionModuleHandler!.paymentToken}
+          />
+        </div>
+      )}
       <div
         className={reactionsContainerStyle}
         onClick={onPublicationPress}
       >
-        <div
-          className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onLikeButtonClick, operations?.hasUpvoted)}
-          onClick={(e) => { if (onLikeButtonClick) onLikeButtonClick(e, publication) }}
-        >
-          <HeartIcon color={!operations?.hasUpvoted ? reactionTextColor : ThemeColor.red} />
-          <p>{publication.stats.upvotes > 0 ? publication.stats.upvotes : null}</p>
-        </div>
-        {!hideCommentButton && (
-          <div
-            className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onCommentButtonClick, false)}
-            onClick={onCommentPress}
-          >
-            <MessageIcon color={reactionTextColor} />
-            <p>{publication.stats.comments > 0 ? publication.stats.comments : null}</p>
-          </div>
-        )}
-        {!hideQuoteButton && (
-          <div
-            className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onMirrorButtonClick, operations?.hasMirrored)}
-            onClick={onMirrorPress}
-          >
-            <MirrorIcon color={!operations?.hasMirrored ? reactionTextColor : ThemeColor.lightGreen} />
-            <p>{publication.stats.mirrors + publication.stats.quotes > 0 ? publication.stats.mirrors + publication.stats.quotes : null}</p>
-          </div>
-        )}
-        {renderActButton && (
+        {!isEmpty(publication.stats) && (
+          <>
             <div
-              className={actButtonContainerStyle(reactionTextColor, actButttonBgColor)}
-              onClick={_onActButtonClick}
+              className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onLikeButtonClick, operations?.hasUpvoted)}
+              onClick={(e) => { if (onLikeButtonClick) onLikeButtonClick(e, publication) }}
             >
-              <p>{actHandledExternally ? renderActButtonWithCTA : actionModuleHandler?.getActButtonLabel()}</p>
+              <HeartIcon color={!operations?.hasUpvoted ? reactionTextColor : ThemeColor.red} />
+              <p>{publication.stats.upvotes > 0 ? publication.stats.upvotes : null}</p>
             </div>
-        )}
-        {renderActLoading && (
-          <div className={shareContainerStyle(reactionTextColor, reactionBgColor)}>
-            <Spinner customClasses="h-6 w-6" color={color} />
-          </div>
-        )}
-        {!(renderActButton || renderActLoading) && !hideShareButton && (
-          <div
-            className={shareContainerStyle(reactionTextColor, reactionBgColor)}
-            onClick={onShareButtonClick}
-          >
-            <ShareIcon color={reactionTextColor} />
-          </div>
+            {!hideCommentButton && (
+              <div
+                className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onCommentButtonClick, false)}
+                onClick={onCommentPress}
+              >
+                <MessageIcon color={reactionTextColor} />
+                <p>{publication.stats.comments > 0 ? publication.stats.comments : null}</p>
+              </div>
+            )}
+            {!hideQuoteButton && (
+              <div
+                className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onMirrorButtonClick, operations?.hasMirrored)}
+                onClick={onMirrorPress}
+              >
+                <MirrorIcon color={!operations?.hasMirrored ? reactionTextColor : ThemeColor.lightGreen} />
+                <p>{publication.stats.mirrors + publication.stats.quotes > 0 ? publication.stats.mirrors + publication.stats.quotes : null}</p>
+              </div>
+            )}
+            {renderActButton && (
+              <div
+                className={actButtonContainerStyle(reactionTextColor, actButttonBgColor, actionModuleHandler?.disabled)}
+                onClick={_onActButtonClick}
+              >
+                <p>{actHandledExternally ? renderActButtonWithCTA : actionModuleHandler?.getActButtonLabel()}</p>
+              </div>
+            )}
+            {renderActLoading && (
+              <div className={shareContainerStyle(reactionTextColor, reactionBgColor)}>
+                <Spinner customClasses="h-6 w-6" color={color} />
+              </div>
+            )}
+            {!(renderActButton || renderActLoading) && !hideShareButton && (
+              <div
+                className={shareContainerStyle(reactionTextColor, reactionBgColor)}
+                onClick={onShareButtonClick}
+              >
+                <ShareIcon color={reactionTextColor} />
+              </div>
+            )}
+          </>
         )}
       </div>
       {renderActButton && actionModuleHandler && (
@@ -396,6 +422,9 @@ export function Publication({
           countOpenActions={publication.stats.countOpenActions}
           toast={useToast}
           appDomainWhitelistedGasless={appDomainWhitelistedGasless}
+          onActButtonClick={onActButtonClick}
+          handlePinMetadata={handlePinMetadata}
+          signless={authenticatedProfile?.signless}
         />
       )}
     </div>
@@ -435,6 +464,13 @@ const nftContainerStyle = css`
   overflow: hidden;
   max-height: 600px;
   margin-top: 14px;
+`
+
+const bountyInfoContainerStyle = css`
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  max-height: 200px;
 `
 
 const videoContainerStyle = css`
@@ -564,7 +600,7 @@ const shareContainerStyle = (color, backgroundColor) => css`
   cursor: pointer;
 `
 
-const actButtonContainerStyle = (color, backgroundColor) => css`
+const actButtonContainerStyle = (color, backgroundColor, disabled?: boolean) => css`
   background-color: ${backgroundColor};
   display: flex;
   border-radius: 16px;
@@ -580,11 +616,12 @@ const actButtonContainerStyle = (color, backgroundColor) => css`
     opacity: 1;
     margin: 0;
   }
-  cursor: pointer;
+  cursor: ${!disabled ? 'pointer' : 'default'};
 `
 
 const publicationContainerStyle = (color, onClick: boolean) => css`
-  width: 510px;
+  max-width: 510px;
+  width: 100%;
   background-color: ${color};
   cursor: ${onClick ? 'pointer': 'default'};
   border-radius: 18px;

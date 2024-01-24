@@ -240,3 +240,9 @@ export const defaultIpfsGatewayURL = (uriOrHash: string): string => `https://gw.
 
 export const ipfsOrNotWithDefaultGateway = (uriOrHash?: string) =>
   uriOrHash?.startsWith("ipfs://") ? defaultIpfsGatewayURL(getHashFromUri(uriOrHash)) : uriOrHash;
+
+export function polygonScanUrl({ isPolygon, address, tx }: { address?: string, isPolygon: boolean, tx?: string }) {
+  return address
+    ? `https://${!isPolygon ? "mumbai." : ""}polygonscan.com/address/${address}`
+    : `https://${!isPolygon ? "mumbai." : ""}polygonscan.com/tx/${tx}`
+}

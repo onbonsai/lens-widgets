@@ -6,6 +6,7 @@ import HandlerBase from "../actions/handlers/HandlerBase";
 import ZoraLzMintActionModal from "./../actions/modals/ZoraLzMintActionModal";
 import SimpleCollectionMintActionModal from "../actions/modals/SimpleCollectionMintActionModal";
 import RewardEngagementActionModal from "../actions/modals/RewardEngagementModal";
+import PublicationBountyActionModal from "../actions/modals/PublicationBountyActionModal";
 import { Toast } from "../types";
 
 interface ActModalProps {
@@ -19,6 +20,9 @@ interface ActModalProps {
   countOpenActions: number;
   toast?: Toast;
   appDomainWhitelistedGasless?: boolean;
+  onActButtonClick?: (e, actionModuleHandler?: HandlerBase) => void,
+  handlePinMetadata?: (content: string, files: any[]) => Promise<string> // to upload post content on bounties
+  signless?: boolean; // whether the authenticated profile has enabled signless
 };
 
 const ActModal = ({
@@ -32,6 +36,9 @@ const ActModal = ({
   countOpenActions,
   toast,
   appDomainWhitelistedGasless,
+  onActButtonClick,
+  handlePinMetadata,
+  signless,
 }: ActModalProps) => {
   const handlerModal = useMemo(() => {
     const { metadata } = handler.getActionModuleConfig();
@@ -75,6 +82,22 @@ const ActModal = ({
           countOpenActions={countOpenActions}
           toast={toast}
           appDomainWhitelistedGasless={appDomainWhitelistedGasless}
+        />
+      );
+    } else if (metadata?.metadata?.name === "PublicationBountyAction") {
+      return (
+        <PublicationBountyActionModal
+          // @ts-expect-error: casted correctly in the modal
+          handler={handler}
+          publicationBy={publicationBy}
+          walletClient={walletClient}
+          isDarkTheme={isDarkTheme}
+          countOpenActions={countOpenActions}
+          toast={toast}
+          appDomainWhitelistedGasless={appDomainWhitelistedGasless}
+          onActButtonClick={onActButtonClick}
+          handlePinMetadata={handlePinMetadata}
+          signless={signless}
         />
       );
     }

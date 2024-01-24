@@ -4,6 +4,7 @@ import {  WalletClient } from "viem";
 import { RewardEngagementAction } from "../handlers/RewardEngagementAction";
 import { Toast } from "../../types";
 import { useIsProfileManager, enableProfileManagerGasless } from "../utils/profileManagers";
+import { polygonScanUrl } from "../../utils";
 
 const RewardEngagementModal = ({
   handler,
@@ -81,12 +82,21 @@ const RewardEngagementModal = ({
             <>
               <div className="flex justify-center">
                 <div className="text-lg text-center font-medium">
-                  You must enable this Open Action as a
+                  You must enable the
+                  <a
+                    href={polygonScanUrl({ isPolygon: handler.isPolygon!, address: handler.address })}
+                    className="link link-hover ml-1"
+                    target="_blank"
+                  >
+                    Rewards Open Action
+                  </a>
+                  {" "}as a
                   <a
                     href="https://docs.lens.xyz/v2/docs/profile-manager"
                     className="link link-hover ml-1"
+                    target="_blank"
                   >
-                    profile manager.
+                    profile manager. This allows the action module to post your comment/mirror/quote in the same transaction you get points.
                   </a>
                 </div>
               </div>
@@ -95,7 +105,7 @@ const RewardEngagementModal = ({
                   className={`md:px-12 px-12 py-2 ${isDarkTheme ? 'bg-white text-black' : 'bg-black text-white'} disabled:opacity-50 disabled:cursor-not-allowed`}
                   onClick={enableProfileManager}
                   disabled={enablingRewards}>
-                  Enable profile manager
+                  Enable
                 </button>
               </div>
             </>

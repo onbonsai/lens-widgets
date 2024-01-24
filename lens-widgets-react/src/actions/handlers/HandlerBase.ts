@@ -85,6 +85,7 @@ abstract class HandlerBase {
   public mintableNFT?: boolean;
   public mintableNFTMetadata?: MintableNFT;
   public mintableNFTURLs?: { opensea?: string; zora?: string };
+  public disabled?: boolean; // to prevent acting twice or acting on invalid state
 
   constructor(
     _environment: Environment,

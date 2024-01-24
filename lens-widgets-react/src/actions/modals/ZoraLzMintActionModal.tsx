@@ -104,7 +104,8 @@ const ZoraLzMintActionModal = ({
         quotedAmountIn: quoteData!.quotedAmountIn.toString()
       });
 
-      const useGasless = appDomainWhitelistedGasless && handler.getActionModuleConfig().metadata?.sponsoredApproved;
+      const metadata = handler.getActionModuleConfig().metadata;
+      const useGasless = appDomainWhitelistedGasless && (!handler.isPolygon || metadata?.sponsoredApproved);
 
       let txHash: string;
       // TODO: pass in referrers (lens clients?)

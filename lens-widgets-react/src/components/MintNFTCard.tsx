@@ -35,7 +35,7 @@ export const MintNFTCard = ({ metadata, isDarkTheme, imageHeight, priceWei }: { 
         <div className="flex justify-end">
           <div className="w-48">
             {/* TODO: the only way `textAlign` was applied, bad root config? */}
-            <p style={{ textAlign: "right"}} className="overflow-hidden whitespace-nowrap text-ellipsis">
+            <p style={{ textAlign: "right" }} className="overflow-hidden whitespace-nowrap text-ellipsis mr-2">
               {descriptionOrPrice}
             </p>
           </div>
