@@ -1,6 +1,6 @@
 {
   "name": "@madfi/widgets-react",
-  "version": "2.1.23",
+  "version": "2.1.24",
   "description": "React widgets to render Lens components, with support for Smart Posts",
   "main": "dist/index.js",
   "scripts": {
@@ -23,6 +23,7 @@
     "ethers": "^5.7.2",
     "graphql": "^16.6.0",
     "lodash": "^4.17.21",
+    "react-dropzone-esm": "^15.0.1",
     "react-markdown": "^8.0.6",
     "react-player": "^2.12.0",
     "rehype-raw": "^6.1.1",

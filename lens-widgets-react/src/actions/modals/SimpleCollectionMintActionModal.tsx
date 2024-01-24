@@ -89,7 +89,8 @@ const SimpleCollectionMintActionModal = ({
         currency: currency!,
         amount: handler.publicationCollectConfig!.amount.toString(),
       });
-      const useGasless = appDomainWhitelistedGasless && handler.getActionModuleConfig().metadata?.sponsoredApproved;
+      const metadata = handler.getActionModuleConfig().metadata;
+      const useGasless = appDomainWhitelistedGasless && (!handler.isPolygon || metadata?.sponsoredApproved);
       let txReceipt;
       if (useGasless) {
         const txHash = await actWithSignedTypedata(

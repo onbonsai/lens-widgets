@@ -87,3 +87,28 @@ export const actWithSignedTypedata = async (
     console.log(error);
   }
 }
+
+export const actSignless = async (
+  lensClient: LensClient,
+  publicationId: string,
+  actionModule: `0x${string}`,
+  actionModuleData: string
+) => {
+  try {
+    const broadcastResult = await lensClient.publication.actions.actOn({
+      actOn: {
+        unknownOpenAction: { address: actionModule, data: actionModuleData }
+      },
+      for: publicationId
+    });
+
+    const broadcastResultValue = broadcastResult.unwrap();
+
+    // @ts-expect-error: type
+    if (broadcastResultValue.__typename === "RelayError") throw new Error("RelayError");
+
+    return (broadcastResultValue as RelaySuccessFragment).txHash as `0x${string}`;
+  } catch (error) {
+    console.log(error);
+  }
+}

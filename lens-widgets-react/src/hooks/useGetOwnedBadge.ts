@@ -12,6 +12,17 @@ const FETCH_MADFI_TOKEN = `
   }
 `;
 
+// id: addressLowercase-profileIdDecimal
+const FETCH_MADFI_CREATOR = `
+  query getCreatedMadCollection($id: String!) {
+    madCreator(id: $id) {
+      activeMadSBT {
+        collectionId
+      }
+    }
+  }
+`;
+
 // MadFi Social Club Badges: https://docs.madfi.xyz/what-is-madfi/onchain-loyalty
 export const fetchMadSbtTokenByCollectionIdAndOwner = async (
   isProduction: boolean,
@@ -23,6 +34,20 @@ export const fetchMadSbtTokenByCollectionIdAndOwner = async (
   const { data } = await client.query(FETCH_MADFI_TOKEN, { collectionId, owner }).toPromise();
 
   return data?.madSbtTokens?.length ? data.madSbtTokens[0] : null;
+}
+
+export const fetchMadCreator = async (
+  isProduction: boolean,
+  owner: string,
+  profileId: string,
+): Promise<{ activeMadSBT: { collectionId: string } }> => {
+  const url = isProduction ? MADFI_SUBGRAPH_URL : MADFI_SUBGRPAH_URL_TESTNET;
+  const client = createClient({ url });
+  let profileIdDecimal = profileId.includes("0x") ? parseInt(profileId, 16).toString() : profileId;
+  const id = `${owner.toLocaleLowerCase()}-${profileIdDecimal}`;
+  const { data } = await client.query(FETCH_MADFI_CREATOR, { id }).toPromise();
+
+  return data?.madCreator;
 }
 
 export const useGetOwnedMadFiBadge = (isProduction: boolean, sponsor?: any, address?: string) => {
@@ -54,4 +79,12 @@ export const useGetOwnedBadge = (isProduction: boolean, collectionId?: string, a
     isLoading: result?.isLoading,
     badge: result?.data,
   };
+}
+
+export const useGetMadCreator = (isProduction: boolean, address?:string, profileId?: string) => {
+  return useQuery({
+    queryKey: ['mad-creator', address, profileId],
+    queryFn: () => fetchMadCreator(isProduction, address!, profileId!),
+    enabled: !!address && !!profileId
+  });
 }

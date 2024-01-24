@@ -17,19 +17,26 @@ import {
   REWARD_ENGAGEMENT_MAINNET_ADDRESS,
   RewardEngagementAction
 } from "./handlers/RewardEngagementAction"
+import {
+  BOUNTY_ACTION_TESTNET_ADDRESS,
+  BOUNTY_ACTION_MAINNET_ADDRESS,
+  PublicationBountyAction
+} from "./handlers/PublicationBountyAction"
 
 // 2. add the entry for MAINNET, where `handler` is the exported handler class
 const MAINNET = [
   { address: ZORA_LZ_MINT_MAINNET_ADDRESS, handler: ZoraLzMintAction, name: "ZoraLzMintAction" },
   { address: SIMPLE_COLLECTION_MINT_MAINNET_ADDRESS, handler: SimpleCollectionMintAction, name: "SimpleCollectionMintAction" },
-  { address: REWARD_ENGAGEMENT_MAINNET_ADDRESS, handler: RewardEngagementAction, name: "RewardEngagementAction" }
+  { address: REWARD_ENGAGEMENT_MAINNET_ADDRESS, handler: RewardEngagementAction, name: "RewardEngagementAction" },
+  { address: BOUNTY_ACTION_MAINNET_ADDRESS, handler: PublicationBountyAction, name: "PublicationBountyAction" }
 ];
 
 // 2. add the entry for TESTNET
 const TESTNET = [
   { address: ZORA_LZ_MINT_TESTNET_ADDRESS, handler: ZoraLzMintAction, name: "ZoraLzMintAction" },
   { address: SIMPLE_COLLECTION_MINT_TESTNET_ADDRESS, handler: SimpleCollectionMintAction, name: "SimpleCollectionMintAction" },
-  { address: REWARD_ENGAGEMENT_TESTNET_ADDRESS, handler: RewardEngagementAction, name: "RewardEngagementAction" }
+  { address: REWARD_ENGAGEMENT_TESTNET_ADDRESS, handler: RewardEngagementAction, name: "RewardEngagementAction" },
+  { address: BOUNTY_ACTION_TESTNET_ADDRESS, handler: PublicationBountyAction, name: "PublicationBountyAction" }
 ];
 
 // 3. you are gucci
