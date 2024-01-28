@@ -16,6 +16,7 @@ import { VerifiedBadgeIcon } from "./icons"
 import { useGetOwnedMadFiBadge } from './hooks/useGetOwnedBadge';
 import { LensLogo } from './icons/logos/Lens';
 import { FarcasterLogo } from './icons/logos/Farcaster';
+import { ENSLogo } from './icons/logos/ENS';
 
 export function ProfileLarge({
   profileId,
@@ -112,7 +113,7 @@ export function ProfileLarge({
         formatProfileFarcaster(profileData)
         return;
       } else if (profileType === 'ens') {
-        // TODO: fetch/format ENS profile
+        formatProfileEns(profileData)
         return
       }
     }
@@ -162,6 +163,22 @@ export function ProfileLarge({
       stats: {
         following: profile.following_count,
         followers: profile.follower_count,
+      }
+    })
+  }
+
+  function formatProfileEns(profile: any) {
+    setProfile({
+      metadata: {
+        coverPicture: null,
+        picture: {
+          uri: profile.avatar
+        },
+        bio: profile.name,
+      },
+      stats: {
+        following: 0,
+        followers: 0,
       }
     })
   }
@@ -249,6 +266,7 @@ export function ProfileLarge({
         `}>
           { profileType === "lens" && <LensLogo isDarkTheme={false} /> }
           { profileType === "farcaster" && <FarcasterLogo isDarkTheme={false} /> }
+          { profileType === "ens" && <ENSLogo isDarkTheme={false} /> }
         </div>
         <div onClick={onProfilePress} className={getFollowedByContainerStyle(theme)}>
           <div className={miniAvatarContainerStyle}>

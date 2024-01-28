@@ -23,4 +23,5 @@ export function LensLogo({ isDarkTheme }: { isDarkTheme: boolean }) {
 const iconStyle = {
   height: 52,
   marginTop: "-3px",
+  marginLeft: "-14px",
 };

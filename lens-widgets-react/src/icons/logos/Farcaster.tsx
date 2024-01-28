@@ -17,4 +17,5 @@ export function FarcasterLogo({ isDarkTheme }: { isDarkTheme: boolean }) {
 
 const iconStyle = {
   height: 42,
+  width: 52,
 };
