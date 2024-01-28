@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { css } from '@emotion/css'
-import { ThemeColor, ProfileHandle, Theme, FarcasterProfile } from './types'
+import { ThemeColor, ProfileHandle, Theme, FarcasterProfile, ENSProfile } from './types'
 import { LensClient, ProfileFragment, development, production } from "@lens-protocol/client";
 import {
   formatProfilePicture,
@@ -167,7 +167,7 @@ export function ProfileLarge({
     })
   }
 
-  function formatProfileEns(profile: any) {
+  function formatProfileEns(profile: ENSProfile) {
     setProfile({
       metadata: {
         coverPicture: null,

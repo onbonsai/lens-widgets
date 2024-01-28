@@ -354,3 +354,9 @@ export interface FarcasterProfile {
   active_status: "active" | "inactive";
   pfp: { url: string };
 }
+
+export interface ENSProfile {
+  name: string;
+  address: string;
+  avatar: string;
+}
