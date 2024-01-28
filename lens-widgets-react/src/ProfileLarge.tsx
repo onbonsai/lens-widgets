@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { css } from '@emotion/css'
-import { ThemeColor, ProfileHandle, Theme } from './types'
+import { ThemeColor, ProfileHandle, Theme, FarcasterProfile } from './types'
 import { LensClient, ProfileFragment, development, production } from "@lens-protocol/client";
 import {
   formatProfilePicture,
@@ -14,10 +14,13 @@ import {
 import { getButtonStyle } from "./Profile"
 import { VerifiedBadgeIcon } from "./icons"
 import { useGetOwnedMadFiBadge } from './hooks/useGetOwnedBadge';
+import { LensLogo } from './icons/logos/Lens';
+import { FarcasterLogo } from './icons/logos/Farcaster';
 
 export function ProfileLarge({
   profileId,
   profileData,
+  profileType = "lens",
   ethereumAddress,
   handle, // ex: lens/madfinance
   onClick,
@@ -37,6 +40,7 @@ export function ProfileLarge({
 }: {
   profileId?: string,
   profileData?: any,
+  profileType?: "lens" | "farcaster" | "ens";
   handle?: string,
   ethereumAddress?: string,
   onClick?: () => void,
@@ -100,9 +104,17 @@ export function ProfileLarge({
 
   async function fetchProfile() {
     if (profileData) {
-      formatProfile(profileData)
-      fetchFollowers(profileData.id)
-      return;
+      if (profileType === 'lens') {
+        formatProfile(profileData)
+        fetchFollowers(profileData.id)
+        return;
+      } else if (profileType === 'farcaster') {
+        formatProfileFarcaster(profileData)
+        return;
+      } else if (profileType === 'ens') {
+        // TODO: fetch/format ENS profile
+        return
+      }
     }
     if (!profileId && !ethereumAddress && !handle) {
       return console.log('please pass in either a Lens profile ID or an Ethereum address')
@@ -132,10 +144,28 @@ export function ProfileLarge({
       throw new Error('not supporting address yet');
     }
   }
+
   function formatProfile(profile: ProfileFragment) {
     let copy = formatProfilePicture(profile)
     setProfile(copy)
   }
+
+  function formatProfileFarcaster(profile: FarcasterProfile) {
+    setProfile({
+      metadata: {
+        coverPicture: null,
+        picture: {
+          uri: profile.pfp_url
+        },
+        bio: profile.profile.bio.text,
+      },
+      stats: {
+        following: profile.following_count,
+        followers: profile.follower_count,
+      }
+    })
+  }
+
   if (!profile) return null
 
   return (
@@ -194,23 +224,31 @@ export function ProfileLarge({
               {profile.stats.followers.toLocaleString('en-US')} <span>Followers</span>
             </p>
           </div>
-          <div
-            style={followButtonContainerStyle || getButtonContainerStyle(hideFollowButton)}
-          >
-            <button
-              disabled={followButtonDisabled || isFollowed}
-              onClick={onFollowPress}
-              style={
-                followButtonStyle ||
-                getButtonStyle(
-                  theme,
-                  !followButtonDisabled ? followButtonBackgroundColor : ThemeColor.darkGray,
-                  followButtonTextColor,
-                  followButtonDisabled || isFollowed
-                )
-              }
-            >{!isFollowed ? "Follow" : "Following"}</button>
-          </div>
+          {
+            profileType !== "ens" && 
+              <div style={followButtonContainerStyle || getButtonContainerStyle(hideFollowButton)}>
+                <button
+                  disabled={followButtonDisabled || isFollowed}
+                  onClick={onFollowPress}
+                  style={
+                    followButtonStyle ||
+                    getButtonStyle(
+                      theme,
+                      !followButtonDisabled ? followButtonBackgroundColor : ThemeColor.darkGray,
+                      followButtonTextColor,
+                      followButtonDisabled || isFollowed
+                    )
+                  }
+                  >{!isFollowed ? "Follow" : "Following"}</button>
+              </div>
+          }
+        </div>
+        <div className={css`
+          display: flex;
+          align-items: flex-start;
+        `}>
+          { profileType === "lens" && <LensLogo isDarkTheme={false} /> }
+          { profileType === "farcaster" && <FarcasterLogo isDarkTheme={false} /> }
         </div>
         <div onClick={onProfilePress} className={getFollowedByContainerStyle(theme)}>
           <div className={miniAvatarContainerStyle}>
@@ -315,6 +353,7 @@ const profilePictureStyle = css`
   width: 128px;
   height: 128px;
   border-radius: 70px;
+  object-fit: cover;
 `
 
 function getFollowedByContainerStyle(theme: Theme) {

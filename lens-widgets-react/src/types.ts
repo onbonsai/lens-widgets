@@ -336,3 +336,21 @@ export type Toast = {
   success: (s: string, o?: any) => void,
   error: (s: string, o?: any) => void,
 }
+
+export interface FarcasterProfile {
+  object: string;
+  fid: number;
+  username: string;
+  display_name: string;
+  pfp_url: string;
+  profile: {
+    bio: {
+      text: string;
+    };
+  };
+  follower_count: number;
+  following_count: number;
+  verifications: `0x${string}`[];
+  active_status: "active" | "inactive";
+  pfp: { url: string };
+}
