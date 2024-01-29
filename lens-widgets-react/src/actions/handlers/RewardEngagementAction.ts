@@ -65,12 +65,18 @@ class RewardEngagementAction extends HandlerBase {
         functionName: "activeRewards",
         args: [this.profileId, this.pubId],
       }) as Promise<any[]>),
-      this.publicClient.readContract({
-        address: this.address,
-        abi: RewardEngagementActionAbi as unknown as Abi,
-        functionName: 'hasClaimedRewards',
-        args: [this.profileId, this.pubId, data.authenticatedProfileId]
-      }),
+      (async () => {
+        if (this.authenticatedProfileId) {
+          return await this.publicClient.readContract({
+            address: this.address,
+            abi: RewardEngagementActionAbi as unknown as Abi,
+            functionName: 'hasClaimedRewards',
+            args: [this.profileId, this.pubId, data.authenticatedProfileId]
+          });
+        } else {
+          return false;
+        }
+      })(),
     ]);
 
     this.connectedWalletAddress = data.connectedWalletAddress;
