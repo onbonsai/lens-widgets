@@ -10,6 +10,7 @@ export { MintNFTCard } from './components/MintNFTCard'
 
 export { useZoraTokenMetadata } from './hooks/useZoraTokenMetadata'
 export { useSupportedActionModule } from './hooks/useSupportedActionModule'
+export { fetchActionModuleHandlers } from './actions'
 
 // to be used by clients that want more control over the flow
 export { RewardEngagementAction } from './actions/handlers/RewardEngagementAction';
