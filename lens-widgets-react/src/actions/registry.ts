@@ -1,4 +1,4 @@
-import { Environment } from "@lens-protocol/client";
+import { Environment, production } from "@lens-protocol/client";
 import { getAddress } from "ethers/lib/utils";
 
 // 1. import your handler class
@@ -49,9 +49,9 @@ export const fetchActionModuleHandler = (_environment: Environment, contract: st
   return supportedActionModules(_environment)[contract];
 };
 
-export const fetchActionModuleHandlers = (_environment: Environment, actionModules?: [any]) => {
+export const fetchActionModuleHandlers = (_environment?: Environment, actionModules?: [any]) => {
   if (!actionModules?.length) return [];
-  const data = supportedActionModules(_environment);
+  const data = supportedActionModules(_environment || production);
 
   return actionModules.map(({ contract }) => data[getAddress(contract.address)]).filter((a) => a);
 };
