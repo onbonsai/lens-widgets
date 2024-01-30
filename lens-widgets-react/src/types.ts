@@ -338,21 +338,20 @@ export type Toast = {
 }
 
 export interface FarcasterProfile {
-  object: string;
-  fid: number;
-  username: string;
-  display_name: string;
-  pfp_url: string;
-  profile: {
-    bio: {
-      text: string;
-    };
+  dappName: "farcaster";
+  followerCount: number;
+  followingCount: number;
+  userAddressDetails?: {
+    primaryDomain: string | null;
   };
-  follower_count: number;
-  following_count: number;
-  verifications: `0x${string}`[];
-  active_status: "active" | "inactive";
-  pfp: { url: string };
+  coverImageURI: string;
+  profileBio: string;
+  profileImage: string;
+  userAssociatedAddresses: string[];
+  profileDisplayName: string;
+  location: string;
+  profileHandle: string;
+  profileTokenId: number | string;
 }
 
 export interface ENSProfile {
