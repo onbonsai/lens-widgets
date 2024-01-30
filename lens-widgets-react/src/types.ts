@@ -336,3 +336,26 @@ export type Toast = {
   success: (s: string, o?: any) => void,
   error: (s: string, o?: any) => void,
 }
+
+export interface FarcasterProfile {
+  dappName: "farcaster";
+  followerCount: number;
+  followingCount: number;
+  userAddressDetails?: {
+    primaryDomain: string | null;
+  };
+  coverImageURI: string;
+  profileBio: string;
+  profileImage: string;
+  userAssociatedAddresses: string[];
+  profileDisplayName: string;
+  location: string;
+  profileHandle: string;
+  profileTokenId: number | string;
+}
+
+export interface ENSProfile {
+  name: string;
+  address: string;
+  avatar: string;
+}

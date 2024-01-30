@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { css } from '@emotion/css'
-import { ThemeColor, ProfileHandle, Theme } from './types'
+import { ThemeColor, ProfileHandle, Theme, FarcasterProfile, ENSProfile } from './types'
 import { LensClient, ProfileFragment, development, production } from "@lens-protocol/client";
 import {
   formatProfilePicture,
@@ -14,10 +14,14 @@ import {
 import { getButtonStyle } from "./Profile"
 import { VerifiedBadgeIcon } from "./icons"
 import { useGetOwnedMadFiBadge } from './hooks/useGetOwnedBadge';
+import { LensLogo } from './icons/logos/Lens';
+import { FarcasterLogo } from './icons/logos/Farcaster';
+import { ENSLogo } from './icons/logos/ENS';
 
 export function ProfileLarge({
   profileId,
   profileData,
+  profileType = "lens",
   ethereumAddress,
   handle, // ex: lens/madfinance
   onClick,
@@ -34,9 +38,11 @@ export function ProfileLarge({
   followButtonDisabled = false,
   isFollowed = false,
   renderMadFiBadge = false,
+  allSocials = []
 }: {
   profileId?: string,
   profileData?: any,
+  profileType?: "lens" | "farcaster" | "ens";
   handle?: string,
   ethereumAddress?: string,
   onClick?: () => void,
@@ -53,13 +59,14 @@ export function ProfileLarge({
   followButtonDisabled: boolean,
   isFollowed?: boolean,
   renderMadFiBadge?: boolean,
+  allSocials?: any[]
 }) {
   const [profile, setProfile] = useState<any | undefined>()
   const [followers, setFollowers] = useState<ProfileHandle[]>([])
   const {
     ownsBadge,
     verified
-  } = useGetOwnedMadFiBadge(environment.name === 'production', profile?.sponsor, profile?.ownedBy?.address)
+  } = useGetOwnedMadFiBadge(environment.name === 'production', profileData?.sponsor || profile?.sponsor, ethereumAddress || profileData?.ownedBy?.address || profileData.userAssociatedAddresses[0] || profile?.ownedBy?.address)
 
   useEffect(() => {
     fetchProfile()
@@ -100,9 +107,17 @@ export function ProfileLarge({
 
   async function fetchProfile() {
     if (profileData) {
-      formatProfile(profileData)
-      fetchFollowers(profileData.id)
-      return;
+      if (profileType === 'lens') {
+        formatProfile(profileData)
+        fetchFollowers(profileData.id)
+        return;
+      } else if (profileType === 'farcaster') {
+        formatProfileFarcaster(profileData)
+        return;
+      } else if (profileType === 'ens') {
+        formatProfileEns(profileData)
+        return
+      }
     }
     if (!profileId && !ethereumAddress && !handle) {
       return console.log('please pass in either a Lens profile ID or an Ethereum address')
@@ -132,10 +147,50 @@ export function ProfileLarge({
       throw new Error('not supporting address yet');
     }
   }
+
   function formatProfile(profile: ProfileFragment) {
     let copy = formatProfilePicture(profile)
     setProfile(copy)
   }
+
+  function formatProfileFarcaster(profile: FarcasterProfile) {
+    setProfile({
+      metadata: {
+        coverPicture: null,
+        picture: {
+          uri: profile.profileImage
+        },
+        bio: profile.profileBio,
+        displayName: profile.profileDisplayName,
+      },
+      stats: {
+        following: profile.followingCount,
+        followers: profile.followerCount,
+      },
+      handle: {
+        suggestedFormatted: {
+          localName: profile.profileHandle
+        }
+      }
+    })
+  }
+
+  function formatProfileEns(profile: ENSProfile) {
+    setProfile({
+      metadata: {
+        coverPicture: null,
+        picture: {
+          uri: profile.avatar
+        },
+        bio: profile.name,
+      },
+      stats: {
+        following: 0,
+        followers: 0,
+      }
+    })
+  }
+
   if (!profile) return null
 
   return (
@@ -176,7 +231,7 @@ export function ProfileLarge({
             <p className={profileNameStyle}>{getDisplayName(profile)}</p>
             {shouldRenderBadge && <span className="mt-2"><VerifiedBadgeIcon /></span>}
           </div>
-          <p className={getProfileHandleStyle(theme)}>{profile.handle?.suggestedFormatted?.localName}</p>
+          <p className={getProfileHandleStyle(theme)}>@{profile.handle?.suggestedFormatted?.localName.replace('@', '')}</p>
           {
             profile.metadata?.bio && (
               <p className={bioStyle} dangerouslySetInnerHTML={{
@@ -194,23 +249,24 @@ export function ProfileLarge({
               {profile.stats.followers.toLocaleString('en-US')} <span>Followers</span>
             </p>
           </div>
-          <div
-            style={followButtonContainerStyle || getButtonContainerStyle(hideFollowButton)}
-          >
-            <button
-              disabled={followButtonDisabled || isFollowed}
-              onClick={onFollowPress}
-              style={
-                followButtonStyle ||
-                getButtonStyle(
-                  theme,
-                  !followButtonDisabled ? followButtonBackgroundColor : ThemeColor.darkGray,
-                  followButtonTextColor,
-                  followButtonDisabled || isFollowed
-                )
-              }
-            >{!isFollowed ? "Follow" : "Following"}</button>
-          </div>
+          {
+            profileType !== "ens" && 
+              <div style={followButtonContainerStyle || getButtonContainerStyle(hideFollowButton)}>
+                <button
+                  disabled={followButtonDisabled || isFollowed}
+                  onClick={onFollowPress}
+                  style={
+                    followButtonStyle ||
+                    getButtonStyle(
+                      theme,
+                      !followButtonDisabled ? followButtonBackgroundColor : ThemeColor.darkGray,
+                      followButtonTextColor,
+                      followButtonDisabled || isFollowed
+                    )
+                  }
+                  >{!isFollowed ? "Follow" : "Following"}</button>
+              </div>
+          }
         </div>
         <div onClick={onProfilePress} className={getFollowedByContainerStyle(theme)}>
           <div className={miniAvatarContainerStyle}>
@@ -229,6 +285,18 @@ export function ProfileLarge({
             {
               formatHandleList(followers.map(follower => follower.handle))
             }</p>
+        </div>
+        <div className={css`
+          display: flex;
+          align-items: flex-start;
+          margin-top: 20px;
+        `}>
+          {
+            allSocials.map(social => {
+              if (social.dappName === "lens") return <button className={hover()} onClick={() => formatProfile(profileData)}><LensLogo isDarkTheme={false} /></button>
+              if (social.dappName === "farcaster") return <button className={hover()} onClick={() => formatProfileFarcaster(social)}><FarcasterLogo isDarkTheme={false} /></button>
+            })
+          }
         </div>
       </div>
     </div>
@@ -315,6 +383,7 @@ const profilePictureStyle = css`
   width: 128px;
   height: 128px;
   border-radius: 70px;
+  object-fit: cover;
 `
 
 function getFollowedByContainerStyle(theme: Theme) {
@@ -405,6 +474,15 @@ function getMiniAvatarWrapper() {
     height: 36px;
     margin-left: -10px;
     borderRadius: 20px;
+  `
+}
+
+function hover() {
+  return css`
+    &:hover {
+      opacity: 70%;
+      transition: opacity .2s;
+    }
   `
 }
 
