@@ -198,7 +198,7 @@
       },
       {
         "internalType": "address",
-        "name": "transactionExecutor",
+        "name": "clientAddress",
         "type": "address"
       },
       {
@@ -237,12 +237,7 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "bidCount",
+        "name": "bountyId",
         "type": "uint256"
       }
     ],
@@ -280,6 +275,25 @@
         "internalType": "contract IBounty",
         "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "bountyId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getActiveBidCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -325,7 +339,7 @@
       },
       {
         "internalType": "address",
-        "name": "",
+        "name": "transactionExecutor",
         "type": "address"
       },
       {

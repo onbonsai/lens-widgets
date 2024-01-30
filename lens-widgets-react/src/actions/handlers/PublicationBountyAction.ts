@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { Abi } from 'viem';
+import { Abi, zeroAddress } from 'viem';
 import { Environment, encodeData } from "@lens-protocol/client";
 import HandlerBase, { ActionModuleConfig, DefaultFetchActionModuleDataParams } from "./HandlerBase";
 import { fetchPublicationBounty } from "../../services/madfi/getPublicationBounty";
 import IERC20Abi from "./../abis/IERC20.json";
 
-const BOUNTY_ACTION_TESTNET_ADDRESS = "0xb2A468791821200cfaea309433A48E115FBf333A";
-const BOUNTY_ACTION_MAINNET_ADDRESS = "0x3E1af12A47bbfA1C659376fe26003A3A1689e2AF";
+const BOUNTY_ACTION_TESTNET_ADDRESS = "0x46F6e501BCE4784a82304C56388f871dCeB708AE";
+const BOUNTY_ACTION_MAINNET_ADDRESS = "0x6587ee890bd85426ED3509AbC5215311C5397D43";
 
 const MODULE_INIT_DATA_SCHEMA = z.object({
   paymentToken: z.string(),
@@ -15,6 +15,7 @@ const MODULE_INIT_DATA_SCHEMA = z.object({
 });
 
 const MODULE_ACT_DATA_SCHEMA = z.object({
+  clientAddress: z.string().optional().nullable(),
   bidAmount: z.string(),
   contentURI: z.string(),
   revShare: z.number().optional().nullable(),
@@ -115,13 +116,14 @@ class PublicationBountyAction extends HandlerBase {
   }
 
   encodeModuleActData(data: ModuleActDataSchema): string {
+    const clientAddress = data.clientAddress || zeroAddress;
     const revShare = data.revShare?.toString() || '0';
     const bidderCollectionId = data.bidderCollectionId || '0';
     const rewardActionModuleInitData = data.rewardActionModuleInitData || [];
     return encodeData(
       JSON.parse(this.metadata!.metadata.processCalldataABI),
       [
-        this.publicationBounty!.bounty.bountyId,
+        clientAddress,
         data.bidAmount,
         revShare,
         bidderCollectionId,
