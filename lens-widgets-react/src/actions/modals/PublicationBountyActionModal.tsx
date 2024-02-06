@@ -46,7 +46,6 @@ const PublicationBountyActionModal = ({
   const [revShare, setRevShare] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [files, setFiles] = useState<any[]>([]);
-  const [parsedBidCount, setParsedBidCount] = useState<number|undefined>();
   const bountiesAddress = handler.isPolygon ? BOUNTIES_MAINNET_ADDRESS : BOUNTIES_TESTNET_ADDRESS;
   const {
     data: isProfileManager,
