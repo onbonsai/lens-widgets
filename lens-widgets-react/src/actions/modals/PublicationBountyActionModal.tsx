@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { ProfileFragment } from "@lens-protocol/client";
 import { WalletClient, formatUnits, parseUnits } from "viem";
 import { PublicationBountyAction } from "../handlers/PublicationBountyAction";
