@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { ProfileFragment } from "@lens-protocol/client";
+import { PostFragment } from "@lens-protocol/client";
 import { WalletClient } from "viem";
 import Modal from "./Modal";
 import HandlerBase from "../actions/handlers/HandlerBase";
@@ -14,7 +14,7 @@ interface ActModalProps {
   openActModal: boolean;
   setOpenActModal: (b: boolean) => void;
   style: { backgroundColor: string; color: string }
-  publicationBy: ProfileFragment;
+  publication: PostFragment;
   walletClient: WalletClient;
   isDarkTheme: boolean;
   countOpenActions: number;
@@ -30,7 +30,7 @@ const ActModal = ({
   openActModal,
   setOpenActModal,
   style,
-  publicationBy,
+  publication,
   walletClient,
   isDarkTheme,
   countOpenActions,
@@ -50,7 +50,7 @@ const ActModal = ({
         <ZoraLzMintActionModal
           // @ts-expect-error: casted correctly in the modal
           handler={handler}
-          publicationBy={publicationBy}
+          publicationBy={publication.by}
           walletClient={walletClient}
           isDarkTheme={isDarkTheme}
           countOpenActions={countOpenActions}
@@ -63,7 +63,7 @@ const ActModal = ({
         <SimpleCollectionMintActionModal
           // @ts-expect-error: casted correctly in the modal
           handler={handler}
-          publicationBy={publicationBy}
+          publicationBy={publication.by}
           walletClient={walletClient}
           isDarkTheme={isDarkTheme}
           countOpenActions={countOpenActions}
@@ -76,7 +76,7 @@ const ActModal = ({
         <RewardEngagementActionModal
           // @ts-expect-error: casted correctly in the modal
           handler={handler}
-          publicationBy={publicationBy}
+          publicationBy={publication.by}
           walletClient={walletClient}
           isDarkTheme={isDarkTheme}
           countOpenActions={countOpenActions}
@@ -89,7 +89,9 @@ const ActModal = ({
         <PublicationBountyActionModal
           // @ts-expect-error: casted correctly in the modal
           handler={handler}
-          publicationBy={publicationBy}
+          publicationBy={publication.by}
+          // @ts-expect-error: publication
+          publicationContent={publication.metadata.content}
           walletClient={walletClient}
           isDarkTheme={isDarkTheme}
           countOpenActions={countOpenActions}
