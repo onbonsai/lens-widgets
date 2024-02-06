@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { ProfileFragment } from "@lens-protocol/client";
 import { WalletClient, formatUnits, parseUnits } from "viem";
 import { PublicationBountyAction } from "../handlers/PublicationBountyAction";
@@ -13,6 +13,7 @@ import { actOnchain, actWithSignedTypedata, actSignless } from "../utils/lens";
 const PublicationBountyActionModal = ({
   handler,
   publicationBy,
+  publicationContent,
   walletClient,
   isDarkTheme,
   countOpenActions,
@@ -24,6 +25,7 @@ const PublicationBountyActionModal = ({
 }: {
   handler: PublicationBountyAction,
   publicationBy: ProfileFragment,
+  publicationContent: string,
   walletClient: WalletClient,
   isDarkTheme: boolean,
   countOpenActions: number,
@@ -44,6 +46,7 @@ const PublicationBountyActionModal = ({
   const [revShare, setRevShare] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [files, setFiles] = useState<any[]>([]);
+  const [parsedBidCount, setParsedBidCount] = useState<number|undefined>();
   const bountiesAddress = handler.isPolygon ? BOUNTIES_MAINNET_ADDRESS : BOUNTIES_TESTNET_ADDRESS;
   const {
     data: isProfileManager,
@@ -53,6 +56,31 @@ const PublicationBountyActionModal = ({
   const {
     data: madCreator
   } = useGetMadCreator(handler.isPolygon!, handler.connectedWalletAddress, handler.authenticatedProfileId);
+
+  const getParsedBidCount = () => {
+    let bidCount = 0;
+    if (!!publicationContent) {
+      const matches = publicationContent.match(/(\b(?:one|two|three|four|five|six|seven|eight|nine|ten|\d+)\b)\s*(?:posts|bids|creators|profiles)/i);
+      if (matches) {
+        const numberWord = matches[1].toLowerCase();
+        const wordToNumber = {
+          "one": 1,
+          "two": 2,
+          "three": 3,
+          "four": 4,
+          "five": 5,
+          "six": 6,
+          "seven": 7,
+          "eight": 8,
+          "nine": 9,
+          "ten": 10
+        };
+        bidCount = wordToNumber[numberWord] || parseInt(numberWord);
+      }
+    }
+
+    return bidCount;
+  };
 
   const actionModuleMetadata: { displayName?: string, description?: string } = useMemo(() => {
     const { displayName, description } = handler.getActionModuleConfig();
@@ -72,16 +100,24 @@ const PublicationBountyActionModal = ({
   }, [bounty, paymentToken]);
 
   const suggestedBidAmount = useMemo(() => {
-    const amount = parseFloat(bountyAmount)
+    const parsedBidCount = getParsedBidCount();
+
     let suggestedAmount = 0;
+    const amount = parseFloat(bountyAmount);
 
     if (amount > 20) {
       suggestedAmount = amount * 0.2; // 20% of the bountyAmount
     }
 
     const approvedBids = handler.publicationBounty?.bids.filter(bid => bid.approved);
-    if (approvedBids && approvedBids.length > 0) {
+
+    // best estimate here if we can parse out the bid count and know how many were approved
+    if (parsedBidCount) {
+      const approvedBidCount = approvedBids?.length || 0;
+      suggestedAmount = amount / (parsedBidCount - approvedBidCount);
+    } else if (approvedBids && approvedBids.length > 0) {
       const totalApprovedBidAmount = approvedBids.reduce((total, bid) => total + parseFloat(formatUnits(BigInt(bid.bidAmount), paymentToken!.decimals)), 0);
+
       const averageApprovedBidAmount = totalApprovedBidAmount / approvedBids.length;
 
       // If the average approved bid amount is greater than the suggested amount, use the average instead
@@ -91,7 +127,7 @@ const PublicationBountyActionModal = ({
     }
 
     return suggestedAmount.toFixed(2);
-  }, [bountyAmount, handler.publicationBounty?.bids]);
+  }, [bountyAmount, handler.publicationBounty?.bids, publicationContent]);
 
   const enableProfileManager = async () => {
     setEnablingRewards(true);
@@ -288,7 +324,7 @@ const PublicationBountyActionModal = ({
                       onChange: (e) => setContent(e.target.value)
                     },
                     bid: {
-                      label: `Bid Amount (up to ${bountyAmount} ${paymentToken?.symbol})`,
+                      label: `Bid Amount (up to ${suggestedBidAmount} ${paymentToken?.symbol})`,
                       placeholder: suggestedBidAmount,
                       type: "number",
                       colSpan: "3",
@@ -312,7 +348,7 @@ const PublicationBountyActionModal = ({
                       {fields[field].type === "textarea" ? (
                         <textarea
                           rows={3}
-                          placeholder={fields[field].placeholder}
+                          placeholder={fields[field].placeholder as string}
                           className="block w-full rounded-md text-secondary placeholder:text-secondary/70 border-dark-grey bg-transparent pr-12 shadow-sm focus:border-dark-grey focus:ring-dark-grey sm:text-sm mt-2"
                           disabled={isSubmitting}
                           value={fields[field].value}
@@ -321,7 +357,7 @@ const PublicationBountyActionModal = ({
                       ) : (
                         <input
                           type={fields[field].type}
-                          placeholder={fields[field].placeholder}
+                          placeholder={fields[field].placeholder as string}
                             className="block w-full rounded-md text-secondary placeholder:text-secondary/70 border-dark-grey bg-transparent pr-12 shadow-sm focus:border-dark-grey focus:ring-dark-grey sm:text-sm mt-2"
                           disabled={isSubmitting || (item == "revShare" && !madCreator?.activeMadSBT?.collectionId)}
                           value={fields[field].value}

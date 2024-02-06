@@ -416,7 +416,7 @@ export function Publication({
           openActModal={openActModal}
           setOpenActModal={setOpenActModal}
           style={{ backgroundColor, color }}
-          publicationBy={publication.by}
+          publication={publication}
           walletClient={walletClient}
           isDarkTheme={isDarkTheme}
           countOpenActions={publication.stats.countOpenActions}
