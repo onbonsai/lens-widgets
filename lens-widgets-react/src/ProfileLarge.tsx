@@ -464,8 +464,8 @@ function getProfileInfoContainerStyle(theme: Theme) {
     }
     border-bottom-left-radius: 18px;
     border-bottom-right-radius: 18px;
-    display: flex; // Add this
-    flex-direction: column; // Add this
+    display: flex;
+    flex-direction: column;
   `
 }
 
