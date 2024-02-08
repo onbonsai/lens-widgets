@@ -246,3 +246,5 @@ export function polygonScanUrl({ isPolygon, address, tx }: { address?: string, i
     ? `https://${!isPolygon ? "mumbai." : ""}polygonscan.com/address/${address}`
     : `https://${!isPolygon ? "mumbai." : ""}polygonscan.com/tx/${tx}`
 }
+
+export const FARCASTER_BANNER_URL = "https://link.storjshare.io/raw/jxz2u2rv37niuhe6d5xpf2kvu7eq/misc%2Ffarcaster.png";
