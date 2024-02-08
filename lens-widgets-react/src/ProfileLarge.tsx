@@ -10,6 +10,7 @@ import {
   formatHandleList,
   getSubstring,
   getDisplayName,
+  FARCASTER_BANNER_URL,
 } from './utils'
 import { getButtonStyle } from "./Profile"
 import { VerifiedBadgeIcon } from "./icons"
@@ -150,11 +151,13 @@ export function ProfileLarge({
 
   function formatProfile(profile: ProfileFragment) {
     let copy = formatProfilePicture(profile)
+    copy.dappName = "lens";
     setProfile(copy)
   }
 
   function formatProfileFarcaster(profile: FarcasterProfile) {
     setProfile({
+      dappName: "farcaster",
       metadata: {
         coverPicture: null,
         picture: {
@@ -177,6 +180,7 @@ export function ProfileLarge({
 
   function formatProfileEns(profile: ENSProfile) {
     setProfile({
+      dappName: "ens",
       metadata: {
         coverPicture: null,
         picture: {
@@ -202,7 +206,7 @@ export function ProfileLarge({
               <div
                 style={getHeaderImageStyle(profile.metadata.coverPicture.url)}
               />
-            ) : <div style={getHeaderImageStyle()} />
+            ) : <div style={getHeaderImageStyle(profile.dappName === "farcaster" ? FARCASTER_BANNER_URL : undefined)} />
           }
           <div>
             {
@@ -250,7 +254,7 @@ export function ProfileLarge({
             </p>
           </div>
           {
-            profileType !== "ens" && 
+            profileType !== "ens" &&
               <div style={followButtonContainerStyle || getButtonContainerStyle(hideFollowButton)}>
                 <button
                   disabled={followButtonDisabled || isFollowed}
@@ -269,32 +273,39 @@ export function ProfileLarge({
           }
         </div>
         <div onClick={onProfilePress} className={getFollowedByContainerStyle(theme)}>
-          <div className={miniAvatarContainerStyle}>
-            {
-              followers.map(follower => (
-                <div key={follower.handle} className={getMiniAvatarWrapper()}>
-                  <img src={follower.picture} className={getMiniAvatarStyle(theme)} />
-                </div>
-              ))
-            }
-          </div>
-          <p>
-            {
-              Boolean(followers.length) && <span>Followed by</span>
-            }
-            {
-              formatHandleList(followers.map(follower => follower.handle))
-            }</p>
+          {profile.dappName === "lens" && (
+            <>
+              <div className={miniAvatarContainerStyle}>
+                {
+                  followers.map(follower => (
+                    <div key={follower.handle} className={getMiniAvatarWrapper()}>
+                      <img src={follower.picture} className={getMiniAvatarStyle(theme)} />
+                    </div>
+                  ))
+                }
+              </div>
+              <p>
+                {
+                  Boolean(followers.length) && <span>Followed by</span>
+                }
+                {
+                  formatHandleList(followers.map(follower => follower.handle))
+                }
+              </p>
+            </>
+          )}
         </div>
         <div className={css`
           display: flex;
           align-items: flex-start;
           margin-top: 20px;
+          margin-left: auto;
+          gap: 8px;
         `}>
           {
-            allSocials.map(social => {
-              if (social.dappName === "lens") return <button className={hover()} onClick={() => formatProfile(profileData)}><LensLogo isDarkTheme={false} /></button>
-              if (social.dappName === "farcaster") return <button className={hover()} onClick={() => formatProfileFarcaster(social)}><FarcasterLogo isDarkTheme={false} /></button>
+            allSocials.map((social, idx) => {
+              if (social.dappName === "lens") return <button key={`s-${idx}`} className={hover()} onClick={() => formatProfile(profileData)}><LensLogo isDarkTheme={false} /></button>
+              if (social.dappName === "farcaster") return <button key={`s-${idx}`} className={hover()} onClick={() => formatProfileFarcaster(social)}><FarcasterLogo isDarkTheme={false} /></button>
             })
           }
         </div>
@@ -453,6 +464,8 @@ function getProfileInfoContainerStyle(theme: Theme) {
     }
     border-bottom-left-radius: 18px;
     border-bottom-right-radius: 18px;
+    display: flex; // Add this
+    flex-direction: column; // Add this
   `
 }
 
