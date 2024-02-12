@@ -337,8 +337,8 @@ export type Toast = {
   error: (s: string, o?: any) => void,
 }
 
-export interface FarcasterProfile {
-  dappName: "farcaster";
+export interface AirstackProfile {
+  dappName: string;
   followerCount: number;
   followingCount: number;
   userAddressDetails?: {
