@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { css } from '@emotion/css'
-import { ThemeColor, ProfileHandle, Theme, FarcasterProfile, ENSProfile } from './types'
+import { ThemeColor, ProfileHandle, Theme, AirstackProfile, ENSProfile } from './types'
 import { LensClient, ProfileFragment, development, production } from "@lens-protocol/client";
 import {
   formatProfilePicture,
@@ -10,7 +10,9 @@ import {
   formatHandleList,
   getSubstring,
   getDisplayName,
+  ipfsOrNotWithDefaultGateway,
   FARCASTER_BANNER_URL,
+  LENS_BANNER_URL,
 } from './utils'
 import { getButtonStyle } from "./Profile"
 import { VerifiedBadgeIcon } from "./icons"
@@ -113,7 +115,7 @@ export function ProfileLarge({
         fetchFollowers(profileData.id)
         return;
       } else if (profileType === 'farcaster') {
-        formatProfileFarcaster(profileData)
+        formatProfileAirstack(profileData)
         return;
       } else if (profileType === 'ens') {
         formatProfileEns(profileData)
@@ -151,15 +153,14 @@ export function ProfileLarge({
 
   function formatProfile(profile: ProfileFragment) {
     let copy = formatProfilePicture(profile)
-    copy.dappName = "lens";
     setProfile(copy)
   }
 
-  function formatProfileFarcaster(profile: FarcasterProfile) {
+  function formatProfileAirstack(profile: AirstackProfile) {
     setProfile({
-      dappName: "farcaster",
+      dappName: profile.dappName,
       metadata: {
-        coverPicture: null,
+        coverPicture: !!profile.coverImageURI ? ipfsOrNotWithDefaultGateway(profile.coverImageURI) : null,
         picture: {
           uri: profile.profileImage
         },
@@ -171,6 +172,7 @@ export function ProfileLarge({
         followers: profile.followerCount,
       },
       handle: {
+        localName: profile.profileHandle,
         suggestedFormatted: {
           localName: profile.profileHandle
         }
@@ -206,7 +208,7 @@ export function ProfileLarge({
               <div
                 style={getHeaderImageStyle(profile.metadata.coverPicture.url)}
               />
-            ) : <div style={getHeaderImageStyle(profile.dappName === "farcaster" ? FARCASTER_BANNER_URL : undefined)} />
+            ) : <div style={getHeaderImageStyle(profile.dappName === "farcaster" ? FARCASTER_BANNER_URL : undefined )} />
           }
           <div>
             {
@@ -247,10 +249,10 @@ export function ProfileLarge({
         <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '10px' }}>
           <div onClick={onProfilePress} className={getStatsContainerStyle(theme)}>
             <p>
-              {profile.stats.following.toLocaleString('en-US')} <span>Following</span>
+              {profile.stats?.following.toLocaleString('en-US') || 0} <span>Following</span>
             </p>
             <p>
-              {profile.stats.followers.toLocaleString('en-US')} <span>Followers</span>
+              {profile.stats?.followers.toLocaleString('en-US') || 0} <span>Followers</span>
             </p>
           </div>
           {
@@ -304,8 +306,9 @@ export function ProfileLarge({
         `}>
           {
             allSocials.map((social, idx) => {
-              if (social.dappName === "lens") return <button key={`s-${idx}`} className={hover()} onClick={() => formatProfile(profileData)}><LensLogo isDarkTheme={false} /></button>
-              if (social.dappName === "farcaster") return <button key={`s-${idx}`} className={hover()} onClick={() => formatProfileFarcaster(social)}><FarcasterLogo isDarkTheme={false} /></button>
+              if (social.id) return <button key={`s-${idx}`} className={hover()} onClick={() => formatProfile(profileData)}><LensLogo isDarkTheme={false} /></button>
+              if (social.dappName === "lens") return <button key={`s-${idx}`} className={hover()} onClick={() => formatProfileAirstack(social)}><LensLogo isDarkTheme={false} /></button>
+              if (social.dappName === "farcaster") return <button key={`s-${idx}`} className={hover()} onClick={() => formatProfileAirstack(social)}><FarcasterLogo isDarkTheme={false} /></button>
             })
           }
         </div>

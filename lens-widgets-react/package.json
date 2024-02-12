@@ -1,6 +1,6 @@
 {
   "name": "@madfi/widgets-react",
-  "version": "2.1.29",
+  "version": "2.1.30",
   "description": "React widgets to render Lens components, with support for Smart Posts",
   "main": "dist/index.js",
   "scripts": {
