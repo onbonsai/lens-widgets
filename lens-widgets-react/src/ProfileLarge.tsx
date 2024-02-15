@@ -12,14 +12,12 @@ import {
   getDisplayName,
   ipfsOrNotWithDefaultGateway,
   FARCASTER_BANNER_URL,
-  LENS_BANNER_URL,
 } from './utils'
 import { getButtonStyle } from "./Profile"
 import { VerifiedBadgeIcon } from "./icons"
 import { useGetOwnedMadFiBadge } from './hooks/useGetOwnedBadge';
 import { LensLogo } from './icons/logos/Lens';
 import { FarcasterLogo } from './icons/logos/Farcaster';
-import { ENSLogo } from './icons/logos/ENS';
 
 export function ProfileLarge({
   profileId,
@@ -66,6 +64,7 @@ export function ProfileLarge({
 }) {
   const [profile, setProfile] = useState<any | undefined>()
   const [followers, setFollowers] = useState<ProfileHandle[]>([])
+  const [hasError, setHasError] = useState(false);
   const {
     ownsBadge,
     verified
@@ -78,6 +77,40 @@ export function ProfileLarge({
   const shouldRenderBadge = useMemo(() => {
     return renderMadFiBadge && ownsBadge && verified;
   }, [renderMadFiBadge, ownsBadge, verified]);
+
+  // TO GET VALID URL ON BAD IMG.SRC
+  const checkURL = async (url: string) => {
+    try {
+      const response = await fetch(url, { method: 'HEAD' });
+      return response.ok ? url : "";
+    } catch (error) {
+      return "";
+    }
+  };
+
+  const getLensURL = (profile) => (
+    profile?.metadata?.picture?.optimized?.uri || profile?.metadata?.picture?.raw?.uri || profile?.metadata?.picture?.url
+  )
+
+  const getValidURL = async () => {
+    let validURL = "";
+
+    if (profileType === "lens" && (profile?.metadata?.picture?.optimized?.uri || profile?.metadata?.picture?.raw?.uri || profile?.metadata?.picture?.url)) {
+      validURL = await checkURL(getLensURL(profile));
+    }
+
+    if (!validURL && profileType === "farcaster" && profile?.profileImage) {
+      validURL = await checkURL(profile.profileImage);
+    }
+
+    if (!validURL) {
+      const checkURLPromises = allSocials?.map((d) => checkURL(getLensURL(d) || d.profileImage || ""));
+      const urlResults = await Promise.all(checkURLPromises || []);
+      validURL = urlResults.find((url) => url !== "") || "";
+    }
+
+    return validURL;
+  };
 
   function onProfilePress() {
     if (onClick) {
@@ -154,6 +187,7 @@ export function ProfileLarge({
   function formatProfile(profile: ProfileFragment) {
     let copy = formatProfilePicture(profile)
     setProfile(copy)
+    setHasError(false);
   }
 
   function formatProfileAirstack(profile: AirstackProfile) {
@@ -178,6 +212,7 @@ export function ProfileLarge({
         }
       }
     })
+    setHasError(false);
   }
 
   function formatProfileEns(profile: ENSProfile) {
@@ -219,6 +254,17 @@ export function ProfileLarge({
                   <img
                     src={profile.metadata.picture.uri || profile.metadata.picture.url}
                     className={profilePictureStyle}
+                    onError={async (e) => {
+                      if (!hasError) {
+                        const target = e.target as HTMLImageElement;
+                        target.onerror = null;
+                        const validURL = await getValidURL();
+                        if (validURL) {
+                          target.src = validURL;
+                        }
+                        setHasError(true);
+                      }
+                    }}
                   />
                 </div>
               ) : null
