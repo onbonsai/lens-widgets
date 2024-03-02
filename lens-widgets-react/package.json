@@ -1,6 +1,6 @@
 {
   "name": "@madfi/widgets-react",
-  "version": "2.1.31",
+  "version": "2.1.32",
   "description": "React widgets to render Lens components, with support for Smart Posts",
   "main": "dist/index.js",
   "scripts": {
@@ -17,8 +17,12 @@
   },
   "dependencies": {
     "@emotion/css": "^11.10.5",
+    "@ethersproject/providers": "^5.7.2",
     "@lens-protocol/client": "2.0.0-alpha.27",
     "@types/react": "^18.0.28",
+    "@uniswap/sdk-core": "^4.1.4",
+    "@uniswap/smart-order-router": "^3.24.6",
+    "@uniswap/v3-sdk": "^3.10.2",
     "date-fns": "^2.29.3",
     "ethers": "^5.7.2",
     "graphql": "^16.6.0",
