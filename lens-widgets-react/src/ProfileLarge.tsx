@@ -43,7 +43,7 @@ export function ProfileLarge({
 }: {
   profileId?: string,
   profileData?: any,
-  profileType?: "lens" | "farcaster" | "ens";
+  profileType?: "lens" | "farcaster" | "ens",
   handle?: string,
   ethereumAddress?: string,
   onClick?: () => void,
