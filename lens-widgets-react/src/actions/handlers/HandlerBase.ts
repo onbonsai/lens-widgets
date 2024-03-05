@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { polygon, polygonMumbai } from 'viem/chains'
 import { PublicClient, createPublicClient, http } from "viem";
-import { Environment, production, LensClient } from "@lens-protocol/client";
+import { Environment, LensClient } from "@lens-protocol/client";
 import {
   MUMBAI_CURRENCY_WMATIC,
   POLYGON_CURRENCY_WMATIC,

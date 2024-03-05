@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { css } from '@emotion/css'
-import { Profile, ThemeColor, ProfileHandle, Theme } from './types'
+import { ThemeColor, ProfileHandle, Theme, AirstackProfile, ENSProfile } from './types'
 import { LensClient, ProfileFragment, development, production } from "@lens-protocol/client";
 import { client } from './graphql/client'
 import {
@@ -16,13 +16,18 @@ import {
   formatHandleList,
   getSubstring,
   getDisplayName,
+  ipfsOrNotWithDefaultGateway,
+  FARCASTER_BANNER_URL,
 } from './utils'
 import { VerifiedBadgeIcon } from "./icons"
 import { useGetOwnedMadFiBadge } from './hooks/useGetOwnedBadge';
+import { LensLogo } from './icons/logos/Lens';
+import { FarcasterLogo } from './icons/logos/Farcaster';
 
 export function Profile({
   profileId,
   profileData,
+  profileType = "lens",
   ethereumAddress,
   handle, // ex: lens/madfinance
   onClick,
@@ -41,9 +46,11 @@ export function Profile({
   followButtonDisabled = false,
   isFollowed = false,
   renderMadFiBadge = false,
+  allSocials = [],
 } : {
   profileId?: string,
   profileData?: any,
+  profileType?: "lens" | "farcaster" | "ens",
   handle?: string,
   ethereumAddress?: string,
   onClick?: () => void,
@@ -62,9 +69,11 @@ export function Profile({
   followButtonDisabled: boolean,
   isFollowed?: boolean,
   renderMadFiBadge?: boolean,
+  allSocials?: any[],
 }) {
   const [profile, setProfile] = useState<any | undefined>()
   const [followers, setFollowers] = useState<ProfileHandle[]>([])
+  const [hasError, setHasError] = useState(false);
   const {
     ownsBadge,
     verified
@@ -77,6 +86,40 @@ export function Profile({
   const shouldRenderBadge = useMemo(() => {
     return renderMadFiBadge && ownsBadge && verified;
   }, [renderMadFiBadge, ownsBadge, verified]);
+
+  // TO GET VALID URL ON BAD IMG.SRC
+  const checkURL = async (url: string) => {
+    try {
+      const response = await fetch(url, { method: 'HEAD' });
+      return response.ok ? url : "";
+    } catch (error) {
+      return "";
+    }
+  };
+
+  const getLensURL = (profile) => (
+    profile?.metadata?.picture?.optimized?.uri || profile?.metadata?.picture?.raw?.uri || profile?.metadata?.picture?.url
+  )
+
+  const getValidURL = async () => {
+    let validURL = "";
+
+    if (profileType === "lens" && (profile?.metadata?.picture?.optimized?.uri || profile?.metadata?.picture?.raw?.uri || profile?.metadata?.picture?.url)) {
+      validURL = await checkURL(getLensURL(profile));
+    }
+
+    if (!validURL && profileType === "farcaster" && profile?.profileImage) {
+      validURL = await checkURL(profile.profileImage);
+    }
+
+    if (!validURL) {
+      const checkURLPromises = allSocials?.map((d) => checkURL(getLensURL(d) || d.profileImage || ""));
+      const urlResults = await Promise.all(checkURLPromises || []);
+      validURL = urlResults.find((url) => url !== "") || "";
+    }
+
+    return validURL;
+  };
 
   function onProfilePress() {
     if (onClick) {
@@ -151,10 +194,55 @@ export function Profile({
       throw new Error('not supporting address yet');
     }
   }
+
   function formatProfile(profile: ProfileFragment) {
     let copy = formatProfilePicture(profile)
     setProfile(copy)
+    setHasError(false);
   }
+
+  function formatProfileAirstack(profile: AirstackProfile) {
+    setProfile({
+      dappName: profile.dappName,
+      metadata: {
+        coverPicture: !!profile.coverImageURI ? ipfsOrNotWithDefaultGateway(profile.coverImageURI) : null,
+        picture: {
+          uri: profile.profileImage
+        },
+        bio: profile.profileBio,
+        displayName: profile.profileDisplayName,
+      },
+      stats: {
+        following: profile.followingCount,
+        followers: profile.followerCount,
+      },
+      handle: {
+        localName: profile.profileHandle,
+        suggestedFormatted: {
+          localName: profile.profileHandle
+        }
+      }
+    })
+    setHasError(false);
+  }
+
+  function formatProfileEns(profile: ENSProfile) {
+    setProfile({
+      dappName: "ens",
+      metadata: {
+        coverPicture: null,
+        picture: {
+          uri: profile.avatar
+        },
+        bio: profile.name,
+      },
+      stats: {
+        following: 0,
+        followers: 0,
+      }
+    })
+  }
+
   if (!profile) return null
 
   return (
@@ -166,29 +254,37 @@ export function Profile({
               <div
                 style={getHeaderImageStyle(profile?.metadata.coverPicture?.optimized?.uri)}
               />
-              ) : <div style={getHeaderImageStyle()} />
+            ) : <div style={getHeaderImageStyle(profile.dappName === "farcaster" ? FARCASTER_BANNER_URL : undefined)} />
           }
           <div>
-          {
-            profile.metadata.picture && (
-              <div
-                className={getProfilePictureContainerStyle(theme)}
-              >
-                <img
-                  src={profile.metadata.picture.__typename === "ImageSet" ?
-                  profile.metadata.picture.optimized.uri :
-                  profile.metadata.picture.image.optimized.uri
-                  }
-                  className={profilePictureStyle}
-                />
-              </div>
+            {
+              profile.metadata.picture ? (
+                <div
+                  className={getProfilePictureContainerStyle(theme)}
+                >
+                  <img
+                    src={profile.metadata.picture.uri || profile.metadata.picture.url}
+                    className={profilePictureStyle}
+                    onError={async (e) => {
+                      if (!hasError) {
+                        const target = e.target as HTMLImageElement;
+                        target.onerror = null;
+                        const validURL = await getValidURL();
+                        if (validURL) {
+                          target.src = validURL;
+                        }
+                        setHasError(true);
+                      }
+                    }}
+                  />
+                </div>
+              ) : null
+            }
+            {
+              profile.picture === null && (
+                <div className={emptyProfilePictureStyle} />
               )
-          }
-          {
-            profile.picture === null && (
-              <div className={emptyProfilePictureStyle} />
-            )
-          }
+            }
           </div>
         </div>
       </div>
@@ -198,7 +294,7 @@ export function Profile({
             <p className={profileNameStyle}>{getDisplayName(profile)}</p>
             {shouldRenderBadge && <span className="mt-2"><VerifiedBadgeIcon /></span>}
           </div>
-          <p className={getProfileHandleStyle(theme)}>{profile.handle?.suggestedFormatted?.localName}</p>
+          <p className={getProfileHandleStyle(theme)}>@{profile.handle?.suggestedFormatted?.localName.replace('@', '')}</p>
           {
             profile.metadata?.bio && (
               <p className={bioStyle} dangerouslySetInnerHTML={{
@@ -254,6 +350,21 @@ export function Profile({
               }</p>
           </div>
         )}
+        <div className={css`
+          display: flex;
+          align-items: flex-start;
+          margin-top: 20px;
+          margin-left: auto;
+          gap: 8px;
+        `}>
+          {
+            allSocials.map((social, idx) => {
+              if (social.id) return <button key={`s-${idx}`} className={hover()} onClick={() => formatProfile(profileData)}><LensLogo isDarkTheme={false} /></button>
+              if (social.dappName === "lens") return <button key={`s-${idx}`} className={hover()} onClick={() => formatProfileAirstack(social)}><LensLogo isDarkTheme={false} /></button>
+              if (social.dappName === "farcaster") return <button key={`s-${idx}`} className={hover()} onClick={() => formatProfileAirstack(social)}><FarcasterLogo isDarkTheme={false} /></button>
+            })
+          }
+        </div>
       </div>
     </div>
   )
@@ -438,6 +549,8 @@ function getProfileInfoContainerStyle(theme: Theme) {
     }
     border-bottom-left-radius: 18px;
     border-bottom-right-radius: 18px;
+    display: flex;
+    flex-direction: column;
   `
 }
 
@@ -473,6 +586,15 @@ function getMiniAvatarStyle(theme: Theme) {
     border-radius: 20px;
     outline: 2px solid ${color};
     background-color: ${color};
+  `
+}
+
+function hover() {
+  return css`
+    &:hover {
+      opacity: 70%;
+      transition: opacity .2s;
+    }
   `
 }
 
