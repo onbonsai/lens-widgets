@@ -23,6 +23,9 @@ import {
   PublicationBountyAction
 } from "./handlers/PublicationBountyAction";
 import {
+  REWARDS_SWAP_TESTNET_ADDRESS, REWARDS_SWAP_MAINNET_ADDRESS, RewardsSwapAction
+} from "./handlers/RewardsSwapAction"
+import {
   RENTABLE_SPACE_ACTION_TESTNET_ADDRESS,
   RENTABLE_SPACE_ACTION_MAINNET_ADDRESS,
   RentableSpaceAction,
@@ -33,7 +36,8 @@ const MAINNET = [
   { address: ZORA_LZ_MINT_MAINNET_ADDRESS, handler: ZoraLzMintAction, name: "ZoraLzMintAction" },
   { address: SIMPLE_COLLECTION_MINT_MAINNET_ADDRESS, handler: SimpleCollectionMintAction, name: "SimpleCollectionMintAction" },
   { address: REWARD_ENGAGEMENT_MAINNET_ADDRESS, handler: RewardEngagementAction, name: "RewardEngagementAction" },
-  { address: BOUNTY_ACTION_MAINNET_ADDRESS, handler: PublicationBountyAction, name: "PublicationBountyAction" }
+  { address: BOUNTY_ACTION_MAINNET_ADDRESS, handler: PublicationBountyAction, name: "PublicationBountyAction" },
+  { address: REWARDS_SWAP_MAINNET_ADDRESS, handler: RewardsSwapAction, name: "RewardsSwap" }
 ];
 
 // 2. add the entry for TESTNET
@@ -42,6 +46,7 @@ const TESTNET = [
   { address: SIMPLE_COLLECTION_MINT_TESTNET_ADDRESS, handler: SimpleCollectionMintAction, name: "SimpleCollectionMintAction" },
   { address: REWARD_ENGAGEMENT_TESTNET_ADDRESS, handler: RewardEngagementAction, name: "RewardEngagementAction" },
   { address: BOUNTY_ACTION_TESTNET_ADDRESS, handler: PublicationBountyAction, name: "PublicationBountyAction" },
+  { address: REWARDS_SWAP_TESTNET_ADDRESS, handler: RewardsSwapAction, name: "RewardsSwap" },
   { address: RENTABLE_SPACE_ACTION_TESTNET_ADDRESS, handler: RentableSpaceAction, name: "RentableSpaceAction" }
 ];
 
