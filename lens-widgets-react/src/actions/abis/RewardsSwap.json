@@ -1,0 +1,254 @@
+[
+  {
+    "type": "constructor",
+    "inputs": [
+      { "name": "_uniswapV3Router", "type": "address", "internalType": "address" },
+      { "name": "_madSBT", "type": "address", "internalType": "address" },
+      { "name": "_hub", "type": "address", "internalType": "address" }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "DIRECT_PROMOTION_SPLIT",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint8", "internalType": "uint8" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "PROTOCOL_FEE",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint8", "internalType": "uint8" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "createRewardsPool",
+    "inputs": [
+      { "name": "token", "type": "address", "internalType": "address" },
+      { "name": "rewardsAmount", "type": "uint256", "internalType": "uint256" },
+      { "name": "percentReward", "type": "uint16", "internalType": "uint16" },
+      { "name": "percentCap", "type": "uint16", "internalType": "uint16" },
+      { "name": "profileId", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "extractFinalTokenAddress",
+    "inputs": [{ "name": "path", "type": "bytes", "internalType": "bytes" }],
+    "outputs": [{ "name": "finalToken", "type": "address", "internalType": "address" }],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "feesCollected",
+    "inputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "hub",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "contract ILensHub" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "initializePublicationAction",
+    "inputs": [
+      { "name": "profileId", "type": "uint256", "internalType": "uint256" },
+      { "name": "pubId", "type": "uint256", "internalType": "uint256" },
+      { "name": "", "type": "address", "internalType": "address" },
+      { "name": "data", "type": "bytes", "internalType": "bytes" }
+    ],
+    "outputs": [{ "name": "", "type": "bytes", "internalType": "bytes" }],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "madSBT",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "contract IMadSBT" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "owner",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "poolCount",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "posts",
+    "inputs": [
+      { "name": "", "type": "uint256", "internalType": "uint256" },
+      { "name": "", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [
+      { "name": "recipient", "type": "address", "internalType": "address" },
+      { "name": "rewardsPoolId", "type": "uint256", "internalType": "uint256" },
+      { "name": "sharedRewardPercent", "type": "uint16", "internalType": "uint16" },
+      { "name": "sharedClientPercent", "type": "uint16", "internalType": "uint16" },
+      { "name": "token", "type": "address", "internalType": "address" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "processPublicationAction",
+    "inputs": [
+      {
+        "name": "processActionParams",
+        "type": "tuple",
+        "internalType": "struct Types.ProcessActionParams",
+        "components": [
+          { "name": "publicationActedProfileId", "type": "uint256", "internalType": "uint256" },
+          { "name": "publicationActedId", "type": "uint256", "internalType": "uint256" },
+          { "name": "actorProfileId", "type": "uint256", "internalType": "uint256" },
+          { "name": "actorProfileOwner", "type": "address", "internalType": "address" },
+          { "name": "transactionExecutor", "type": "address", "internalType": "address" },
+          { "name": "referrerProfileIds", "type": "uint256[]", "internalType": "uint256[]" },
+          { "name": "referrerPubIds", "type": "uint256[]", "internalType": "uint256[]" },
+          {
+            "name": "referrerPubTypes",
+            "type": "uint8[]",
+            "internalType": "enum Types.PublicationType[]"
+          },
+          { "name": "actionModuleData", "type": "bytes", "internalType": "bytes" }
+        ]
+      }
+    ],
+    "outputs": [{ "name": "", "type": "bytes", "internalType": "bytes" }],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "rewardsPools",
+    "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "outputs": [
+      { "name": "rewardsAmount", "type": "uint256", "internalType": "uint256" },
+      { "name": "percentReward", "type": "uint16", "internalType": "uint16" },
+      { "name": "token", "type": "address", "internalType": "address" },
+      { "name": "cap", "type": "uint256", "internalType": "uint256" },
+      { "name": "collectionId", "type": "uint256", "internalType": "uint256" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "transferOwnership",
+    "inputs": [{ "name": "newOwner", "type": "address", "internalType": "address" }],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "uniswapV3Router",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "contract ISwapRouter" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "withdrawProtocolFees",
+    "inputs": [{ "name": "token", "type": "address", "internalType": "address" }],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "FeesWithdrawn",
+    "inputs": [
+      { "name": "token", "type": "address", "indexed": true, "internalType": "address" },
+      { "name": "to", "type": "address", "indexed": true, "internalType": "address" }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "OwnershipTransferred",
+    "inputs": [
+      { "name": "user", "type": "address", "indexed": true, "internalType": "address" },
+      { "name": "newOwner", "type": "address", "indexed": true, "internalType": "address" }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PublicationActionInitialized",
+    "inputs": [
+      { "name": "profileId", "type": "uint256", "indexed": true, "internalType": "uint256" },
+      { "name": "pubId", "type": "uint256", "indexed": true, "internalType": "uint256" },
+      { "name": "rewardsPoolId", "type": "uint256", "indexed": false, "internalType": "uint256" }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "RewardsPaid",
+    "inputs": [
+      { "name": "rewardsPoolId", "type": "uint256", "indexed": false, "internalType": "uint256" },
+      { "name": "amountOut", "type": "uint256", "indexed": false, "internalType": "uint256" },
+      { "name": "sharedReward", "type": "uint256", "indexed": false, "internalType": "uint256" },
+      { "name": "posterReward", "type": "uint256", "indexed": false, "internalType": "uint256" },
+      {
+        "name": "referrerReward",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "sharedClientDonation",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "RewardsPoolCreated",
+    "inputs": [
+      { "name": "rewardsPoolId", "type": "uint256", "indexed": true, "internalType": "uint256" },
+      { "name": "token", "type": "address", "indexed": true, "internalType": "address" },
+      { "name": "rewardsAmount", "type": "uint256", "indexed": false, "internalType": "uint256" },
+      { "name": "percentReward", "type": "uint16", "indexed": false, "internalType": "uint16" },
+      { "name": "cap", "type": "uint256", "indexed": false, "internalType": "uint256" },
+      { "name": "collectionId", "type": "uint256", "indexed": false, "internalType": "uint256" }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "BadOutputToken",
+    "inputs": [{ "name": "token", "type": "address", "internalType": "address" }]
+  },
+  {
+    "type": "error",
+    "name": "InvalidPercentCap",
+    "inputs": [{ "name": "percentCap", "type": "uint16", "internalType": "uint16" }]
+  },
+  {
+    "type": "error",
+    "name": "InvalidPercentReward",
+    "inputs": [{ "name": "percentReward", "type": "uint16", "internalType": "uint16" }]
+  },
+  {
+    "type": "error",
+    "name": "InvalidRewardsPoolId",
+    "inputs": [{ "name": "rewardsPoolId", "type": "uint256", "internalType": "uint256" }]
+  }
+]
