@@ -1,5 +1,5 @@
 import { createClient } from 'urql';
-import { MADFI_SUBGRPAH_URL_TESTNET, MADFI_SUBGRAPH_URL } from './../../actions/utils/madfi';
+import { MADFI_SUBGRPAH_URL_TESTNET, MADFI_SUBGRAPH_URL } from '../utils/madfi';
 
 const FETCH_PUBLICATION_BOUNTY = `
   query getPublicationBounty($profileId: String!, $pubId: String!) {

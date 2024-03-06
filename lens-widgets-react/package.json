@@ -1,7 +1,7 @@
 {
   "name": "@madfi/widgets-react",
   "version": "2.1.32",
-  "description": "React widgets to render Lens components, with support for Smart Posts",
+  "description": "React widgets to render Lens components, with support for Open Actions",
   "main": "dist/index.js",
   "scripts": {
     "build": "npx tsc",

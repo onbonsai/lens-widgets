@@ -2,11 +2,11 @@ import { useMemo } from "react";
 import { PostFragment } from "@lens-protocol/client";
 import { WalletClient } from "viem";
 import Modal from "./Modal";
-import HandlerBase from "../actions/handlers/HandlerBase";
-import ZoraLzMintActionModal from "./../actions/modals/ZoraLzMintActionModal";
-import SimpleCollectionMintActionModal from "../actions/modals/SimpleCollectionMintActionModal";
-import RewardEngagementActionModal from "../actions/modals/RewardEngagementModal";
-import PublicationBountyActionModal from "../actions/modals/PublicationBountyActionModal";
+import HandlerBase from "../../packages/lens-oa-client/actions/handlers/HandlerBase";
+import ZoraLzMintActionModal from "../../packages/lens-oa-client/actions/modals/ZoraLzMintActionModal";
+import SimpleCollectionMintActionModal from "../../packages/lens-oa-client/actions/modals/SimpleCollectionMintActionModal";
+import RewardEngagementActionModal from "../../packages/lens-oa-client/actions/modals/RewardEngagementModal";
+import PublicationBountyActionModal from "../../packages/lens-oa-client/actions/modals/PublicationBountyActionModal";
 import { Toast } from "../types";
 
 interface ActModalProps {

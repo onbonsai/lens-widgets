@@ -34,7 +34,7 @@ import { WalletClient } from 'viem';
 import { Toast } from './types';
 import { VerifiedBadgeIcon } from "./icons"
 import { useGetOwnedMadFiBadge } from './hooks/useGetOwnedBadge';
-import HandlerBase from './actions/handlers/HandlerBase';
+import HandlerBase from '../packages/lens-oa-client/actions/handlers/HandlerBase';
 
 export function Publication({
   publicationId,

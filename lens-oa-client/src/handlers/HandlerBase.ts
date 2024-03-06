@@ -9,7 +9,7 @@ import {
   POLYGON_CURRENCY_WETH,
   MUMBAI_WHITELISTED_CURRENCIES,
   POLYGON_WHITELISTED_CURRENCIES,
-} from "./../utils/constants";
+} from "../utils/constants";
 
 export type ActionModuleConfig = {
   metadata?: ModuleMetadataResultFragment | null;

@@ -2,12 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { ProfileFragment } from "@lens-protocol/client";
 import { Abi, TransactionReceipt, WalletClient, formatEther } from "viem";
 import Spinner from "../../components/Spinner";
-import { ZoraLzMintAction, QuoteData } from "../handlers/ZoraLzMintAction";
-import IERC20Abi from "./../abis/IERC20.json";
+import { ZoraLzMintAction, QuoteData } from "../../../packages/lens-oa-client/src/handlers/ZoraLzMintAction";
+import IERC20Abi from "../../../packages/lens-oa-client/src/abis/IERC20.json";
 import useTokenBalance from "../../hooks/useTokenBalance";
 import useTokenAllowance from "../../hooks/useTokenAllowance";
 import { Toast } from "../../types";
-import { actOnchain, actWithSignedTypedata } from "../utils/lens";
+import { actOnchain, actWithSignedTypedata } from "../../../packages/lens-oa-client/src/utils/lens";
 import { OpenseaLogo } from "../../icons/logos/Opensea";
 import { LayerZeroLogo } from "../../icons/logos/LayerZero";
 

@@ -2,8 +2,8 @@ import { z } from "zod";
 import { Abi, TransactionReceipt, WalletClient, encodeAbiParameters, zeroAddress } from 'viem';
 import { Environment, encodeData } from "@lens-protocol/client";
 import HandlerBase, { ActionModuleConfig, DefaultFetchActionModuleDataParams } from "./HandlerBase";
-import RentableSpaceActionAbi from "./../abis/RentableSpaceAction.json";
-import IERC20Abi from "./../abis/IERC20.json";
+import RentableSpaceActionAbi from "../abis/RentableSpaceAction.json";
+import IERC20Abi from "../abis/IERC20.json";
 
 const RENTABLE_SPACE_ACTION_TESTNET_ADDRESS = "0xDE54905696C8f05505209A610aa91B63f9f44d4C";
 const RENTABLE_SPACE_ACTION_MAINNET_ADDRESS = "";

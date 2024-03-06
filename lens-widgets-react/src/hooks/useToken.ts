@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Abi, PublicClient, zeroAddress } from 'viem';
-import IERC20Abi from "../actions/abis/IERC20.json";
+import IERC20Abi from "../../packages/lens-oa-client/actions/abis/IERC20.json";
 
 export default (
   publicClient: PublicClient,

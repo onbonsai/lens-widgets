@@ -10,11 +10,11 @@ export { MintNFTCard } from "./components/MintNFTCard"
 
 export { useZoraTokenMetadata } from "./hooks/useZoraTokenMetadata"
 export { useSupportedActionModule } from "./hooks/useSupportedActionModule"
-export { fetchActionModuleHandlers } from "./actions"
+export { fetchActionModuleHandlers } from "../packages/lens-oa-client/actions"
 
 // to be used by clients that want more control over the flow
-export { RewardEngagementAction } from "./actions/handlers/RewardEngagementAction"
-export { RewardsSwapAction } from "./actions/handlers/RewardsSwapAction"
+export { RewardEngagementAction } from "../packages/lens-oa-client/actions/handlers/RewardEngagementAction"
+export { RewardsSwapAction } from "../packages/lens-oa-client/actions/handlers/RewardsSwapAction"
 
 export * from "./types"
 export * from "./utils"

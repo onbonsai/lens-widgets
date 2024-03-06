@@ -1,6 +1,6 @@
 import { Token, CurrencyAmount, TradeType, Percent } from "@uniswap/sdk-core"
 import { AlphaRouter, SwapType } from "@uniswap/smart-order-router"
-import { ethers } from "ethers"
+import { providers } from "ethers"
 
 export async function getUniV3Route(
   chainId,
@@ -11,7 +11,7 @@ export async function getUniV3Route(
   recipient: string
 ): Promise<any> {
   // Create a provider (using ethers.js)
-  const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
+  const provider = new providers.JsonRpcProvider(rpcUrl)
 
   // Create instances of the input and output tokens
   const inputToken = new Token(chainId, inputTokenAddress, 18) // Assuming 18 decimals, replace accordingly

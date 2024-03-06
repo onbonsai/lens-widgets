@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { formatEther } from 'viem';
-import { MintableNFT } from '../actions';
-import { getChainInfo } from '../actions/utils/zora';
+import { MintableNFT } from '../../packages/lens-oa-client/actions';
+import { getChainInfo } from '../../packages/lens-oa-client/actions/utils/zora';
 import { ipfsOrNotWithDefaultGateway } from '../utils';
 
 export const MintNFTCard = ({ metadata, isDarkTheme, imageHeight, priceWei }: { metadata?: MintableNFT, isDarkTheme: boolean, imageHeight?: `${string}px`, priceWei?: string }) => {

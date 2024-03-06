@@ -3,7 +3,7 @@ import { parseUnits, zeroAddress, Abi, TransactionReceipt } from "viem"
 import { Environment, encodeData } from "@lens-protocol/client"
 import HandlerBase, { ActionModuleConfig, DefaultFetchActionModuleDataParams } from "./HandlerBase"
 import RewardsSwapAbi from "../abis/RewardsSwap.json"
-import IERC20Abi from "./../abis/IERC20.json"
+import IERC20Abi from "../abis/IERC20.json"
 import { MADFI_SUBGRAPH_URL, MADFI_SUBGRPAH_URL_TESTNET } from "../utils/madfi"
 import { getUniV3Route } from "../utils/uniswap"
 

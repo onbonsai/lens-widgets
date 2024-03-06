@@ -1,5 +1,5 @@
 import { Environment, production } from "@lens-protocol/client";
-import { getAddress } from "ethers/lib/utils";
+import { getAddress } from "viem";
 
 // 1. import your handler class
 import {

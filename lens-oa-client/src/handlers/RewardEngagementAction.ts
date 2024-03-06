@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { Abi, zeroAddress } from 'viem';
-import { encodeAbi } from "./../utils/viem";
+import { encodeAbi } from "../utils/viem";
 import { Environment, encodeData } from "@lens-protocol/client";
 import HandlerBase, { ActionModuleConfig, DefaultFetchActionModuleDataParams } from "./HandlerBase";
-import RewardEngagementActionAbi from "./../abis/RewardEngagementAction.json";
+import RewardEngagementActionAbi from "../abis/RewardEngagementAction.json";
 
 const REWARD_ENGAGEMENT_TESTNET_ADDRESS = "0x55Cbc1f4353D8663cB3af6b9058397f1ef237E90";
 const REWARD_ENGAGEMENT_MAINNET_ADDRESS = "0xDA7F4679312Ab7Dc9B4A985564a391c14Ef45A72";

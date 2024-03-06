@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import { ProfileFragment } from "@lens-protocol/client";
 import {  WalletClient } from "viem";
-import { RewardEngagementAction } from "../handlers/RewardEngagementAction";
+import { RewardEngagementAction } from "../../../packages/lens-oa-client/src/handlers/RewardEngagementAction";
 import { Toast } from "../../types";
-import { useIsProfileManager, enableProfileManagerGasless } from "../utils/profileManagers";
+import { useIsProfileManager, enableProfileManagerGasless } from "../../../packages/lens-oa-client/src/utils/profileManagers";
 import { polygonScanUrl } from "../../utils";
 
 const RewardEngagementModal = ({

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { WalletClient } from 'viem';
 import { Environment, PostFragment, CommentBaseFragment } from "@lens-protocol/client";
-import { fetchActionModuleHandlers } from './../actions';
-import HandlerBase from "./../actions/handlers/HandlerBase";
+import { fetchActionModuleHandlers } from '../../packages/lens-oa-client/actions';
+import HandlerBase from "../../packages/lens-oa-client/actions/handlers/HandlerBase";
 
 type PubWithModules = PostFragment | CommentBaseFragment;
 

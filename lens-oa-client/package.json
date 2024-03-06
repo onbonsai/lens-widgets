@@ -1,0 +1,27 @@
+{
+  "name": "@madfi/lens-oa-client",
+  "version": "0.1.0",
+  "description": "Node package to handle Lens Open Actions",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npx tsc -p ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@lens-protocol/client": "2.0.0-alpha.27",
+    "@uniswap/sdk-core": "^4.1.4",
+    "@uniswap/smart-order-router": "^3.24.6",
+    "@uniswap/v3-sdk": "^3.10.2",
+    "ethers": "^5.7.2",
+    "lodash": "^4.17.21",
+    "typescript": "^5.2.2",
+    "urql": "^3.0.4",
+    "viem": "^1.19.9",
+    "zod": "^3.22.4"
+  }
+}

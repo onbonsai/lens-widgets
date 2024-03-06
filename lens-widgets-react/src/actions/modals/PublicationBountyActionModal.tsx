@@ -1,14 +1,14 @@
 import { useMemo, useState } from "react";
 import { ProfileFragment } from "@lens-protocol/client";
 import { WalletClient, formatUnits, parseUnits } from "viem";
-import { PublicationBountyAction } from "../handlers/PublicationBountyAction";
+import { PublicationBountyAction } from "../../../packages/lens-oa-client/src/handlers/PublicationBountyAction";
 import { Toast } from "../../types";
-import { useIsProfileManager, enableProfileManagerGasless } from "../utils/profileManagers";
-import { MADFI_URL, MADFI_URL_TESTNET, BOUNTIES_TESTNET_ADDRESS, BOUNTIES_MAINNET_ADDRESS } from "../utils/madfi";
+import { useIsProfileManager, enableProfileManagerGasless } from "../../../packages/lens-oa-client/src/utils/profileManagers";
+import { MADFI_URL, MADFI_URL_TESTNET, BOUNTIES_TESTNET_ADDRESS, BOUNTIES_MAINNET_ADDRESS } from "../../../packages/lens-oa-client/src/utils/madfi";
 import { useGetMadCreator } from "../../hooks/useGetOwnedBadge";
 import { GenericUploader } from "../../components/GenericUploader";
 import { polygonScanUrl } from "../../utils";
-import { actOnchain, actWithSignedTypedata, actSignless } from "../utils/lens";
+import { actOnchain, actWithSignedTypedata, actSignless } from "../../../packages/lens-oa-client/src/utils/lens";
 
 const PublicationBountyActionModal = ({
   handler,

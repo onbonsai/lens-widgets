@@ -8,15 +8,18 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "declaration": true,
-    "jsx": "react-jsx",
     "downlevelIteration": true,
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": false,
     "skipLibCheck": true,
-    "lib": ["ESNext", "DOM"],
+    "lib": [
+      "ESNext"
+    ],
     "strict": true,
     "outDir": "./dist",
     "resolveJsonModule": true
   },
-  "include": ["src/**/*", "packages/lens-oa-client/actions"]
+  "include": [
+    "src/**/*"
+, "../lens-widgets-react/src/services/profileManager.ts"  ]
 }
