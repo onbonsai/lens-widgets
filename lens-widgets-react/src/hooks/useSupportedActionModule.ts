@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
-import { WalletClient } from 'viem';
+import { useState, useEffect } from "react";
+import { WalletClient } from "viem";
 import { Environment, PostFragment, CommentBaseFragment } from "@lens-protocol/client";
-import { fetchActionModuleHandlers } from '../../packages/lens-oa-client/actions';
-import HandlerBase from "../../packages/lens-oa-client/actions/handlers/HandlerBase";
+import { fetchActionModuleHandlers, ActionHandler } from "@madfi/lens-oa-client";
 
 type PubWithModules = PostFragment | CommentBaseFragment;
 
@@ -14,7 +13,7 @@ export const useSupportedActionModule = (
   rpcURLs?: { [chainId: number]: string },
   focusedOpenActionModuleName?: string
 ) => {
-  const [handler, setHandler] = useState<HandlerBase | undefined>();
+  const [handler, setHandler] = useState<ActionHandler | undefined>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [actionModuleStateData, setActionModuleStateData] = useState({});
 

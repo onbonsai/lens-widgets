@@ -1,3 +1,8 @@
+// packages
+export { fetchActionModuleHandlers } from "@madfi/lens-oa-client"
+export { development, production } from "@lens-protocol/client"
+
+// components
 export { ShareToLens } from "./ShareToLens"
 export { FollowOnLens } from "./FollowOnLens"
 export { SignInWithLens } from "./SignInWithLens"
@@ -8,15 +13,9 @@ export { Publications } from "./Publications"
 export { ProfileListItem } from "./ProfileListItem"
 export { MintNFTCard } from "./components/MintNFTCard"
 
+// utils
 export { useZoraTokenMetadata } from "./hooks/useZoraTokenMetadata"
 export { useSupportedActionModule } from "./hooks/useSupportedActionModule"
-export { fetchActionModuleHandlers } from "../packages/lens-oa-client/actions"
-
-// to be used by clients that want more control over the flow
-export { RewardEngagementAction } from "../packages/lens-oa-client/actions/handlers/RewardEngagementAction"
-export { RewardsSwapAction } from "../packages/lens-oa-client/actions/handlers/RewardsSwapAction"
 
 export * from "./types"
 export * from "./utils"
-
-export { development, production } from "@lens-protocol/client"

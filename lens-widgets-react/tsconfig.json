@@ -18,5 +18,5 @@
     "outDir": "./dist",
     "resolveJsonModule": true
   },
-  "include": ["src/**/*", "packages/lens-oa-client/actions"]
+  "include": ["src/**/*"]
 }

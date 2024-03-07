@@ -19,7 +19,5 @@
     "outDir": "./dist",
     "resolveJsonModule": true
   },
-  "include": [
-    "src/**/*"
-, "../lens-widgets-react/src/services/profileManager.ts"  ]
+  "include": ["src/**/*"]
 }

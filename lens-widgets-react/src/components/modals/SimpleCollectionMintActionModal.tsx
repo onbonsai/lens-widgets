@@ -1,13 +1,12 @@
 import { useMemo, useState } from "react";
 import { ProfileFragment } from "@lens-protocol/client";
 import { Abi, WalletClient, formatUnits } from "viem";
-import { SimpleCollectionMintAction } from "../../../packages/lens-oa-client/src/handlers/SimpleCollectionMintAction";
-import IERC20Abi from "../../../packages/lens-oa-client/src/abis/IERC20.json";
+import { SimpleCollectionMintAction, actOnchain, actWithSignedTypedata } from "@madfi/lens-oa-client";
+import IERC20Abi from "@madfi/lens-oa-client/dist/abis/IERC20.json";
 import useTokenBalance from "../../hooks/useTokenBalance";
 import useTokenAllowance from "../../hooks/useTokenAllowance";
 import useToken from "../../hooks/useToken";
 import { Toast } from "../../types";
-import { actOnchain, actWithSignedTypedata } from "../../../packages/lens-oa-client/src/utils/lens";
 import { OpenseaLogo } from "../../icons/logos/Opensea";
 
 const SimpleCollectionMintActionModal = ({

@@ -3,32 +3,22 @@ import { getAddress } from "viem";
 
 // 1. import your handler class
 import {
-  SIMPLE_COLLECTION_MINT_TESTNET_ADDRESS,
-  SIMPLE_COLLECTION_MINT_MAINNET_ADDRESS,
-  SimpleCollectionMintAction
+  SIMPLE_COLLECTION_MINT_TESTNET_ADDRESS, SIMPLE_COLLECTION_MINT_MAINNET_ADDRESS, SimpleCollectionMintAction
 } from "./handlers/SimpleCollectionMintAction";
 import {
-  ZORA_LZ_MINT_TESTNET_ADDRESS,
-  ZORA_LZ_MINT_MAINNET_ADDRESS,
-  ZoraLzMintAction
+  ZORA_LZ_MINT_TESTNET_ADDRESS, ZORA_LZ_MINT_MAINNET_ADDRESS, ZoraLzMintAction
 } from "./handlers/ZoraLzMintAction";
 import {
-  REWARD_ENGAGEMENT_TESTNET_ADDRESS,
-  REWARD_ENGAGEMENT_MAINNET_ADDRESS,
-  RewardEngagementAction
+  REWARD_ENGAGEMENT_TESTNET_ADDRESS, REWARD_ENGAGEMENT_MAINNET_ADDRESS, RewardEngagementAction
 } from "./handlers/RewardEngagementAction";
 import {
-  BOUNTY_ACTION_TESTNET_ADDRESS,
-  BOUNTY_ACTION_MAINNET_ADDRESS,
-  PublicationBountyAction
+  BOUNTY_ACTION_TESTNET_ADDRESS, BOUNTY_ACTION_MAINNET_ADDRESS, PublicationBountyAction
 } from "./handlers/PublicationBountyAction";
 import {
   REWARDS_SWAP_TESTNET_ADDRESS, REWARDS_SWAP_MAINNET_ADDRESS, RewardsSwapAction
 } from "./handlers/RewardsSwapAction"
 import {
-  RENTABLE_SPACE_ACTION_TESTNET_ADDRESS,
-  RENTABLE_SPACE_ACTION_MAINNET_ADDRESS,
-  RentableSpaceAction,
+  RENTABLE_SPACE_ACTION_TESTNET_ADDRESS, RENTABLE_SPACE_ACTION_MAINNET_ADDRESS, RentableSpaceAction,
 } from "./handlers/RentableSpaceAction";
 
 // 2. add the entry for MAINNET, where `handler` is the exported handler class

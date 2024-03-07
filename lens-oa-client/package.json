@@ -1,10 +1,11 @@
 {
   "name": "@madfi/lens-oa-client",
-  "version": "0.1.0",
+  "version": "0.0.2",
   "description": "Node package to handle Lens Open Actions",
   "main": "dist/index.js",
   "scripts": {
-    "build": "npx tsc -p ."
+    "build": "npx tsc -p .",
+    "watch:ts": "npx tsc -p . --watch"
   },
   "keywords": [],
   "author": "",
