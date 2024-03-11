@@ -1,7 +1,7 @@
 import { createClient } from 'urql';
 import { omit } from "lodash/object";
 import { RelaySuccessFragment, LensClient } from "@lens-protocol/client";
-import { TESTNET_API_URL, MAINNET_API_URL } from "../../../lens-oa-client/src/utils/lens";
+import { TESTNET_API_URL, MAINNET_API_URL } from "@madfi/lens-oa-client";
 
 const GET_PROFILE_MANAGERS = `
   query profileManagers($profileId: ProfileId!) {

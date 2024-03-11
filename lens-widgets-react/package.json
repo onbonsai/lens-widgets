@@ -1,11 +1,11 @@
 {
   "name": "@madfi/widgets-react",
-  "version": "2.1.32",
+  "version": "2.2.1",
   "description": "React widgets to render Lens components, with support for Open Actions",
   "main": "dist/index.js",
   "scripts": {
-    "build": "npx tsc",
-    "watch:ts": "npx tsc --watch",
+    "build": "npx tsc -p .",
+    "watch:ts": "npx tsc -p . --watch",
     "generate": "graphql-codegen --config ./codegen.yaml"
   },
   "repository": "https://github.com/mad-finance/lens-widgets",
@@ -19,7 +19,7 @@
     "@emotion/css": "^11.10.5",
     "@ethersproject/providers": "^5.7.2",
     "@lens-protocol/client": "2.0.0-alpha.27",
-    "@madfi/lens-oa-client": "^0.0.2",
+    "@madfi/lens-oa-client": "^0.1.1",
     "@types/react": "^18.0.28",
     "date-fns": "^2.29.3",
     "ethers": "^5.7.2",

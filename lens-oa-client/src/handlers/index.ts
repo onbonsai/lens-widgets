@@ -1,5 +1,5 @@
 import HandlerBase, { MintableNFT } from "./HandlerBase";
-import { PublicationBountyAction } from "./PublicationBountyAction";
+import { PublicationBountyAction, Bounty } from "./PublicationBountyAction";
 import { RentableSpaceAction } from "./RentableSpaceAction";
 import { RewardEngagementAction } from "./RewardEngagementAction";
 import { RewardsSwapAction } from "./RewardsSwapAction";
@@ -18,5 +18,6 @@ export {
   RewardsSwapAction,
   SimpleCollectionMintAction,
   ZoraLzMintAction,
-  QuoteData as ZoraLzMintActionQuoteData
+  QuoteData as ZoraLzMintActionQuoteData,
+  Bounty,
 };

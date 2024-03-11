@@ -3,7 +3,7 @@ import { ProfileFragment } from "@lens-protocol/client";
 import { WalletClient, formatUnits, parseUnits } from "viem";
 import { PublicationBountyAction } from "@madfi/lens-oa-client/src/handlers/PublicationBountyAction";
 import { MADFI_URL, MADFI_URL_TESTNET, BOUNTIES_TESTNET_ADDRESS, BOUNTIES_MAINNET_ADDRESS } from "@madfi/lens-oa-client/src/utils/madfi";
-import { actOnchain, actWithSignedTypedata, actSignless } from "@madfi/lens-oa-client/src/utils/lens";
+import { actOnchain, actWithSignedTypedata, actSignless } from "@madfi/lens-oa-client";
 import { Toast } from "../../types";
 import useIsProfileManager from "../../hooks/useIsProfileManager";
 import { enableProfileManagerGasless } from "../../services/profileManager";
@@ -102,12 +102,16 @@ const PublicationBountyActionModal = ({
   const suggestedBidAmount = useMemo(() => {
     const parsedBidCount = getParsedBidCount();
 
-    let suggestedAmount = 0;
+    console.log(`bountyAmount: ${bountyAmount}`)
+
     const amount = parseFloat(bountyAmount);
+    let suggestedAmount = amount;
 
     if (amount > 20) {
       suggestedAmount = amount * 0.2; // 20% of the bountyAmount
     }
+
+    console.log(`suggestedAmount: ${suggestedAmount}`)
 
     const approvedBids = handler.publicationBounty?.bids.filter(bid => bid.approved);
 

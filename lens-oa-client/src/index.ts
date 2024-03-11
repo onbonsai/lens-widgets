@@ -28,6 +28,7 @@ export {
   ZoraLzMintAction,
   MintableNFT,
   ZoraLzMintActionQuoteData,
+  Bounty,
 } from "./handlers";
 
 export * from "./utils/madfi";
