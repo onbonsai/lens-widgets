@@ -27,7 +27,7 @@ export async function getUniV3Route(
 
   // Define the amount in
   const amountInCurrencyAmount = CurrencyAmount.fromRawAmount(inputToken, amountIn)
-console.log("amountInCurrencyAmount", amountInCurrencyAmount)
+
   // Find the best route
   const route = await router.route(amountInCurrencyAmount, outputToken, TradeType.EXACT_INPUT, {
     recipient,
@@ -35,11 +35,18 @@ console.log("amountInCurrencyAmount", amountInCurrencyAmount)
     deadline: Math.floor(Date.now() / 1000 + 1800), // Transaction deadline
     type: SwapType.SWAP_ROUTER_02,
   })
-console.log("route", route)
+
   if (!route || !route.methodParameters) {
     throw new Error("No route found")
   }
 
   // The route object contains the best route and the method parameters for executing the trade
   return route
+}
+
+export const getPairExists = (token1: string, token2: string, rpcUrl: string) => {
+  const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
+
+  // TODO: we can call `getPool` on the uniswap factory contract to check if the pair exists
+  return false
 }
