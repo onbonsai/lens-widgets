@@ -5,7 +5,7 @@ import HandlerBase, { ActionModuleConfig, DefaultFetchActionModuleDataParams } f
 import RewardsSwapAbi from "../abis/RewardsSwap.json"
 import IERC20Abi from "../abis/IERC20.json"
 import { MADFI_SUBGRAPH_URL, MADFI_SUBGRPAH_URL_TESTNET } from "../utils/madfi"
-import { getUniV3Route } from "../utils/uniswap"
+import { getPairExists, getUniV3Route } from "../utils/uniswap"
 
 const REWARDS_SWAP_TESTNET_ADDRESS = "0xFaa69aB20B6eA0b4aC819ae2B80FeF2863aeaFdf"
 const REWARDS_SWAP_MAINNET_ADDRESS = "0xFaa69aB20B6eA0b4aC819ae2B80FeF2863aeaFdf"
@@ -129,7 +129,7 @@ class RewardsSwapAction extends HandlerBase {
     }
 
     const { data } = await response.json()
-    return data.rewardPools
+    return data?.rewardPools || []
   }
 
   async getUserTokenBalances(address: string): Promise<any> {
@@ -175,13 +175,18 @@ class RewardsSwapAction extends HandlerBase {
   ): Promise<any> {
     if (!this.rpcURLs?.[this.chain.id]) throw new Error("No RPC URL for chain")
     return await getUniV3Route(
-      this.chain,
+      this.chain.id,
       this.rpcURLs[this.chain.id],
       inputToken,
       outputToken,
       amountIn,
       recipient
     )
+  }
+
+  async pairExists(inputToken: string, outputToken: string): Promise<boolean> {
+    if (!this.rpcURLs?.[this.chain.id]) throw new Error("No RPC URL for chain")
+    return await getPairExists(inputToken, outputToken, this.rpcURLs[this.chain.id])
   }
 
   getActionModuleConfig(): ActionModuleConfig {
