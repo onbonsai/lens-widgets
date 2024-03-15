@@ -1,6 +1,6 @@
 {
   "name": "@madfi/lens-oa-client",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Node package to handle Lens Open Actions",
   "main": "dist/index.js",
   "scripts": {
@@ -16,7 +16,6 @@
   "dependencies": {
     "@lens-protocol/client": "2.0.0-alpha.27",
     "@uniswap/sdk-core": "^4.1.4",
-    "@uniswap/smart-order-router": "^3.24.6",
     "@uniswap/v3-sdk": "^3.10.2",
     "ethers": "^5.7.2",
     "lodash": "^4.17.21",
