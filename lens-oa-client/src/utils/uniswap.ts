@@ -1,6 +1,6 @@
 import { Token, CurrencyAmount, TradeType, Percent } from "@uniswap/sdk-core"
 import { AlphaRouter, SwapType } from "@uniswap/smart-order-router"
-import { providers } from "ethers"
+import { providers, Contract } from "ethers"
 
 const erc20Abi = ["function decimals() view returns (uint8)"]
 
@@ -15,8 +15,8 @@ export async function getUniV3Route(
   // Create a provider (using ethers.js)
   const provider = new providers.JsonRpcProvider(rpcUrl)
 
-  const inputTokenContract = new ethers.Contract(inputTokenAddress, erc20Abi, provider)
-  const outputTokenContract = new ethers.Contract(outputTokenAddress, erc20Abi, provider)
+  const inputTokenContract = new Contract(inputTokenAddress, erc20Abi, provider)
+  const outputTokenContract = new Contract(outputTokenAddress, erc20Abi, provider)
 
   // Create instances of the input and output tokens
   const inputToken = new Token(chainId, inputTokenAddress, await inputTokenContract.decimals())
@@ -45,7 +45,7 @@ export async function getUniV3Route(
 }
 
 export const getPairExists = (token1: string, token2: string, rpcUrl: string) => {
-  const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
+  const provider = new providers.JsonRpcProvider(rpcUrl)
 
   // TODO: we can call `getPool` on the uniswap factory contract to check if the pair exists
   return false
