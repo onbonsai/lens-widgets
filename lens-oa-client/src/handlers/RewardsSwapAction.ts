@@ -129,7 +129,7 @@ class RewardsSwapAction extends HandlerBase {
     }
 
     const { data } = await response.json()
-    return data.rewardPools
+    return data?.rewardPools || []
   }
 
   async getUserTokenBalances(address: string): Promise<any> {
@@ -175,7 +175,7 @@ class RewardsSwapAction extends HandlerBase {
   ): Promise<any> {
     if (!this.rpcURLs?.[this.chain.id]) throw new Error("No RPC URL for chain")
     return await getUniV3Route(
-      this.chain,
+      this.chain.id,
       this.rpcURLs[this.chain.id],
       inputToken,
       outputToken,
