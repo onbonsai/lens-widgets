@@ -5,7 +5,7 @@ import HandlerBase, { ActionModuleConfig, DefaultFetchActionModuleDataParams } f
 import RewardsSwapAbi from "../abis/RewardsSwap.json"
 import IERC20Abi from "../abis/IERC20.json"
 import { MADFI_SUBGRAPH_URL, MADFI_SUBGRPAH_URL_TESTNET } from "../utils/madfi"
-import { getPairExists, getUniV3Route } from "../utils/uniswap"
+// import { getPairExists, getUniV3Route } from "../utils/uniswap"
 
 const REWARDS_SWAP_TESTNET_ADDRESS = "0xFaa69aB20B6eA0b4aC819ae2B80FeF2863aeaFdf"
 const REWARDS_SWAP_MAINNET_ADDRESS = "0xFaa69aB20B6eA0b4aC819ae2B80FeF2863aeaFdf"
@@ -55,6 +55,7 @@ const MODULE_INIT_DATA_SCHEMA = z.object({
 
 const MODULE_ACT_DATA_SCHEMA = z.object({
   path: z.array(z.string()),
+  deadline: z.string(),
   amountIn: z.string(),
   amountOutMinimum: z.string(),
   clientAddress: z.string(),
@@ -101,6 +102,10 @@ class RewardsSwapAction extends HandlerBase {
     }
   }
 
+  /**
+   * Fetches active rewards pools
+   * @returns A list of active reward pool data
+   */
   async getActiveRewardsPools(): Promise<any> {
     const query = `{
       rewardPools(where:{
@@ -132,6 +137,11 @@ class RewardsSwapAction extends HandlerBase {
     return data?.rewardPools || []
   }
 
+  /**
+   * Gets token balances of common quote tokens on Polygon
+   * @param address Address to query for
+   * @returns Token and balance info for WMATIC, USDC, USDT and WETH on Polygon
+   */
   async getUserTokenBalances(address: string): Promise<any> {
     const [wMatic, usdc, usdt, weth] = await Promise.all([
       this.publicClient.readContract({
@@ -167,26 +177,60 @@ class RewardsSwapAction extends HandlerBase {
     ]
   }
 
-  async getRoute(
-    recipient: string,
-    inputToken: string,
-    outputToken: string,
-    amountIn: string
+  /**
+   * Returns the token amounts that go to each party
+   * @param amountOut The amount received from the swap
+   * @param isDirectPromotion True if no rewards pool is used
+   * @param percentReward The percent of amountOut being distributed as reward from reward pool
+   * @param cap The max amount of rewards to distribute per tx from reward pool
+   * @param remainingRewards The remaining rewards in the reward pool
+   * @param sharedRewardPercent The percent of their reward the poster shares with swapper
+   * @param isReferral Whether this post was a referral or not
+   * @param hasClient Whether this post has a client address defined or not
+   *
+   * @return Amounts going to poster, swapper, referrer and client
+   */
+  async getSplitsTokenOut(
+    amountOut: bigint,
+    isDirectPromotion: boolean,
+    percentReward: bigint,
+    cap: bigint,
+    remainingRewards: bigint,
+    sharedRewardPercent: bigint,
+    isReferral: boolean,
+    hasClient: boolean
   ): Promise<any> {
-    if (!this.rpcURLs?.[this.chain.id]) throw new Error("No RPC URL for chain")
-    return await getUniV3Route(
-      this.chain.id,
-      this.rpcURLs[this.chain.id],
-      inputToken,
-      outputToken,
-      amountIn,
-      recipient
-    )
+    const res = this.publicClient.readContract({
+      address: this.swapAddress,
+      abi: RewardsSwapAbi as unknown as Abi,
+      functionName: "getSplitsTokenOut",
+      args: [
+        amountOut,
+        isDirectPromotion,
+        percentReward,
+        cap,
+        remainingRewards,
+        sharedRewardPercent,
+        isReferral,
+        hasClient,
+      ],
+    })
+    return res
   }
 
-  async pairExists(inputToken: string, outputToken: string): Promise<boolean> {
-    if (!this.rpcURLs?.[this.chain.id]) throw new Error("No RPC URL for chain")
-    return await getPairExists(inputToken, outputToken, this.rpcURLs[this.chain.id])
+  /**
+   * Returns the splits of incoming tokens
+   * @param amountIn The amount of the incoming token
+   * @return protocol The amount going to the protocol
+   */
+  async getSplitsTokenIn(amountIn: bigint): Promise<any> {
+    const res = this.publicClient.readContract({
+      address: this.swapAddress,
+      abi: RewardsSwapAbi as unknown as Abi,
+      functionName: "getSplitsTokenIn",
+      args: [amountIn],
+    })
+    return res
   }
 
   getActionModuleConfig(): ActionModuleConfig {
@@ -224,8 +268,7 @@ class RewardsSwapAction extends HandlerBase {
       (data.sharedRewardPercent || 0).toString(),
       data.recipient,
       data.rewardsPoolId.toString(),
-      (data.sharedClientPercent || 0).toString(),
-      data.token,
+      data.token || zeroAddress,
     ])
   }
 
@@ -236,6 +279,7 @@ class RewardsSwapAction extends HandlerBase {
   encodeModuleActData(data: ModuleActDataSchema): string {
     return encodeData(JSON.parse(this.metadata!.metadata.processCalldataABI), [
       data.path,
+      data.deadline,
       data.amountIn,
       data.amountOutMinimum,
       data.clientAddress,
