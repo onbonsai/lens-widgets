@@ -3,7 +3,7 @@ import { Abi, TransactionReceipt, WalletClient, encodeAbiParameters, zeroAddress
 import { Environment, encodeData } from "@lens-protocol/client";
 import HandlerBase, { ActionModuleConfig, DefaultFetchActionModuleDataParams } from "./HandlerBase";
 import RentableSpaceActionAbi from "../abis/RentableSpaceAction.json";
-import IERC20Abi from "../abis/IERC20.json";
+import { fetchToken } from "../utils/tokens"
 
 const RENTABLE_SPACE_ACTION_TESTNET_ADDRESS = "0xDE54905696C8f05505209A610aa91B63f9f44d4C";
 const RENTABLE_SPACE_ACTION_MAINNET_ADDRESS = "";
@@ -119,7 +119,7 @@ class RentableSpaceAction extends HandlerBase {
 
     this.activeSpace = activeSpace as ActiveSpace;
     this.activeAd = activeAd ? activeAd as ActiveAd : null;
-    this.paymentToken = await this.fetchToken(this.activeSpace!.currency);
+    this.paymentToken = await fetchToken(this.publicClient, this.activeSpace!.currency);
 
     return { activeAd };
   }
@@ -261,26 +261,6 @@ class RentableSpaceAction extends HandlerBase {
 
     return !!this.activeAd ? 'Replace Ad' : 'Rent';
   }
-
-  fetchToken = async (tokenAddress: `0x${string}`) => {
-    const [symbol, decimals] = await Promise.all([
-      this.publicClient.readContract({
-        address: tokenAddress,
-        abi: IERC20Abi as unknown as Abi,
-        functionName: "symbol"
-      }),
-      this.publicClient.readContract({
-        address: tokenAddress,
-        abi: IERC20Abi as unknown as Abi,
-        functionName: "decimals"
-      })
-    ]);
-
-    return {
-      symbol: symbol as string,
-      decimals: decimals as number
-    };
-  };
 }
 
 

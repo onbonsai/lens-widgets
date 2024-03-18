@@ -20,6 +20,9 @@ import {
 import {
   RENTABLE_SPACE_ACTION_TESTNET_ADDRESS, RENTABLE_SPACE_ACTION_MAINNET_ADDRESS, RentableSpaceAction,
 } from "./handlers/RentableSpaceAction";
+import {
+  TIP_ACTION_TESTNET_ADDRESS, TIP_ACTION_MAINNET_ADDRESS, TipAction,
+} from "./handlers/TipAction";
 
 // 2. add the entry for MAINNET, where `handler` is the exported handler class
 const MAINNET = [
@@ -27,7 +30,8 @@ const MAINNET = [
   { address: SIMPLE_COLLECTION_MINT_MAINNET_ADDRESS, handler: SimpleCollectionMintAction, name: "SimpleCollectionMintAction" },
   { address: REWARD_ENGAGEMENT_MAINNET_ADDRESS, handler: RewardEngagementAction, name: "RewardEngagementAction" },
   { address: BOUNTY_ACTION_MAINNET_ADDRESS, handler: PublicationBountyAction, name: "PublicationBountyAction" },
-  { address: REWARDS_SWAP_MAINNET_ADDRESS, handler: RewardsSwapAction, name: "RewardsSwap" }
+  { address: REWARDS_SWAP_MAINNET_ADDRESS, handler: RewardsSwapAction, name: "RewardsSwap" },
+  { address: TIP_ACTION_MAINNET_ADDRESS, handler: TipAction, name: "TipAction" },
 ];
 
 // 2. add the entry for TESTNET
@@ -37,7 +41,8 @@ const TESTNET = [
   { address: REWARD_ENGAGEMENT_TESTNET_ADDRESS, handler: RewardEngagementAction, name: "RewardEngagementAction" },
   { address: BOUNTY_ACTION_TESTNET_ADDRESS, handler: PublicationBountyAction, name: "PublicationBountyAction" },
   { address: REWARDS_SWAP_TESTNET_ADDRESS, handler: RewardsSwapAction, name: "RewardsSwap" },
-  { address: RENTABLE_SPACE_ACTION_TESTNET_ADDRESS, handler: RentableSpaceAction, name: "RentableSpaceAction" }
+  { address: RENTABLE_SPACE_ACTION_TESTNET_ADDRESS, handler: RentableSpaceAction, name: "RentableSpaceAction" },
+  { address: TIP_ACTION_TESTNET_ADDRESS, handler: TipAction, name: "TipAction" },
 ];
 
 // 3. you are gucci

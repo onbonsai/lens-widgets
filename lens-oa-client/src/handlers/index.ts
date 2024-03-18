@@ -5,6 +5,7 @@ import { RewardEngagementAction } from "./RewardEngagementAction";
 import { RewardsSwapAction } from "./RewardsSwapAction";
 import { SimpleCollectionMintAction } from "./SimpleCollectionMintAction";
 import { ZoraLzMintAction, QuoteData } from "./ZoraLzMintAction";
+import { TipAction } from "./TipAction";
 
 // types
 export interface ActionHandler extends HandlerBase { }
@@ -20,4 +21,5 @@ export {
   ZoraLzMintAction,
   QuoteData as ZoraLzMintActionQuoteData,
   Bounty,
+  TipAction,
 };
