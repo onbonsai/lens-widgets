@@ -8,7 +8,7 @@ import { MADFI_SUBGRAPH_URL, MADFI_SUBGRPAH_URL_TESTNET } from "../utils/madfi"
 // import { getPairExists, getUniV3Route } from "../utils/uniswap"
 
 const REWARDS_SWAP_TESTNET_ADDRESS = "0xFaa69aB20B6eA0b4aC819ae2B80FeF2863aeaFdf"
-const REWARDS_SWAP_MAINNET_ADDRESS = "0xFaa69aB20B6eA0b4aC819ae2B80FeF2863aeaFdf"
+const REWARDS_SWAP_MAINNET_ADDRESS = "0xE7f3DB2a0837b16a23DFF5E2Bc4303Ea94b34E7F"
 
 // NOTE: for now only handle these tokens as the inputs
 const INPUT_TOKENS = {
