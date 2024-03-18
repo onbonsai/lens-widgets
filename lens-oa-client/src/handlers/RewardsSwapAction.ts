@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { parseUnits, zeroAddress, Abi, TransactionReceipt } from "viem"
+import { zeroAddress, Abi } from "viem"
 import { Environment, encodeData } from "@lens-protocol/client"
 import HandlerBase, { ActionModuleConfig, DefaultFetchActionModuleDataParams } from "./HandlerBase"
 import RewardsSwapAbi from "../abis/RewardsSwap.json"
@@ -49,7 +49,6 @@ const MODULE_INIT_DATA_SCHEMA = z.object({
   sharedRewardPercent: z.number(),
   recipient: z.string(),
   rewardsPoolId: z.number(),
-  sharedClientPercent: z.number(),
   token: z.string(),
 })
 
@@ -138,6 +137,22 @@ class RewardsSwapAction extends HandlerBase {
   }
 
   /**
+   * Fetches the params a post was initiated with
+   * @param profileId The profile id of the post
+   * @param pubId The publication id of the post
+   * @returns The params a post was initiated with
+   */
+  async getPostData(profileId: string, pubId: string): Promise<any> {
+    const res = this.publicClient.readContract({
+      address: this.swapAddress,
+      abi: RewardsSwapAbi as unknown as Abi,
+      functionName: "posts",
+      args: [profileId, pubId],
+    })
+    return res
+  }
+
+  /**
    * Gets token balances of common quote tokens on Polygon
    * @param address Address to query for
    * @returns Token and balance info for WMATIC, USDC, USDT and WETH on Polygon
@@ -185,7 +200,7 @@ class RewardsSwapAction extends HandlerBase {
    * @param cap The max amount of rewards to distribute per tx from reward pool
    * @param remainingRewards The remaining rewards in the reward pool
    * @param sharedRewardPercent The percent of their reward the poster shares with swapper
-   * @param isReferral Whether this post was a referral or not
+   * @param isReferral Whether this post was a mirror referral or not
    * @param hasClient Whether this post has a client address defined or not
    *
    * @return Amounts going to poster, swapper, referrer and client
@@ -250,12 +265,7 @@ class RewardsSwapAction extends HandlerBase {
   }
 
   encodeModuleInitData(data: ModuleInitDataSchema): string {
-    if (
-      data.sharedRewardPercent > 100_00 ||
-      data.sharedClientPercent > 100_00 ||
-      data.sharedRewardPercent < 0 ||
-      data.sharedClientPercent < 0
-    ) {
+    if (data.sharedRewardPercent > 100_00 || data.sharedRewardPercent < 0) {
       throw new Error("shared amounts must be between 0 and 100 in basis points (10,000)")
     }
 
