@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { zeroAddress, Abi } from "viem"
+import { zeroAddress, Abi, WalletClient } from "viem"
 import { Environment, encodeData } from "@lens-protocol/client"
 import HandlerBase, { ActionModuleConfig, DefaultFetchActionModuleDataParams } from "./HandlerBase"
 import RewardsSwapAbi from "../abis/RewardsSwap.json"
@@ -150,6 +150,41 @@ class RewardsSwapAction extends HandlerBase {
       args: [profileId, pubId],
     })
     return res
+  }
+
+  /**
+   * Creates a rewards pool
+   * @param walletClient Viem wallet client to sign tx
+   * @param token The token to swap for and distribute rewards for.
+   * @param rewardsAmount The total amount of rewards to bew distributed.
+   * @param percentReward The percent of each swap to distribute as rewards bps i.e. 1000 = 10%.
+   * @param percentCap The max amount of rewards to distribute per tx, as a percent of the total rewards amount.
+   * Direct amount is calculated as percent of rewardsAmount and stored as a uint256.
+   * @param profileId The profile id of a MadFi club to receive points on (optional)
+   */
+  async createRewardsPool(
+    walletClient: WalletClient,
+    token: string,
+    rewardsAmount: bigint,
+    percentReward: bigint,
+    percentCap: bigint,
+    profileId: bigint = BigInt(0)
+  ) {
+    if (percentReward > 100_00 || percentReward < 0) {
+      throw new Error("percentReward must be between 0 and 10000 (100% in basis points)")
+    }
+    if (percentCap > 100_00 || percentCap < 0) {
+      throw new Error("percentCap must be between 0 and 10000 (100% in basis points)")
+    }
+    const [address] = await walletClient.getAddresses()
+    await walletClient.writeContract({
+      chain: this.chain,
+      account: address,
+      address: this.swapAddress,
+      abi: RewardsSwapAbi as unknown as Abi,
+      functionName: "createRewardsPool",
+      args: [token, rewardsAmount, percentReward, percentCap, profileId],
+    })
   }
 
   /**
