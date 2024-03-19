@@ -33,6 +33,10 @@ class TipAction extends HandlerBase {
   }
 
   async fetchActionModuleData(data: DefaultFetchActionModuleDataParams): Promise<any> {
+    this.authenticatedProfileId = data.authenticatedProfileId; // in case it wasn't set before
+    // @ts-expect-error: type
+    this.metadata = await this.lensClient.modules.fetchMetadata({ implementation: this.address });
+
     return {};
   }
 
