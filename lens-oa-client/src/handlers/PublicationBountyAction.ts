@@ -54,8 +54,8 @@ class PublicationBountyAction extends HandlerBase {
 
   constructor(
     _environment: Environment,
-    profileId: string,
-    publicationId: string,
+    profileId?: string,
+    publicationId?: string,
     authenticatedProfileId?: string,
     rpcURLs?: { [chainId: number]: string }
   ) {
@@ -72,8 +72,8 @@ class PublicationBountyAction extends HandlerBase {
 
     this.publicationBounty = await fetchPublicationBounty(
       this.isPolygon!,
-      parseInt(this.profileId, 16).toString(),
-      parseInt(this.pubId, 16).toString()
+      parseInt(this.profileId!, 16).toString(),
+      parseInt(this.pubId!, 16).toString()
     );
     if (this.publicationBounty) {
       this.paymentToken = await fetchToken(this.publicClient, this.publicationBounty!.bounty.token);

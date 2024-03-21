@@ -69,8 +69,8 @@ abstract class HandlerBase {
   public chain: typeof polygon | typeof polygonMumbai;
   public lensClient: LensClient;
   public publicClient: PublicClient;
-  public profileId: string;
-  public pubId: string;
+  public profileId?: string;
+  public pubId?: string;
   public publicationId?: string; // {profileId}-{pubId}
   public authenticatedProfileId?: string;
   public wmatic: `0x${string}`;
@@ -87,10 +87,18 @@ abstract class HandlerBase {
   public mintableNFTURLs?: { opensea?: string; zora?: string };
   public disabled?: boolean; // to prevent acting twice or acting on invalid state
 
+  /**
+   * Constructor for HandlerBase, to be implemeted by inheriting contracts
+   * @param _environment Lens environment config: production | testnet
+   * @param profileId [optional] profileId of the post creator (if initialized with open action)
+   * @param pubId [optional] pub id of the post (if initialized with open action)
+   * @param authenticatedProfileId [optional] the profile id of the authenticated profile
+   * @param rpcURLs [optional] mapping of rpc urls for necessary chains (ex: { 137: "http://" })
+   */
   constructor(
     _environment: Environment,
-    profileId: string,
-    pubId: string,
+    profileId?: string,
+    pubId?: string,
     authenticatedProfileId?: string,
     rpcURLs?: { [chainId: number]: string }
   ) {
@@ -114,9 +122,13 @@ abstract class HandlerBase {
 
     const rpc = rpcURLs && rpcURLs[this.chain.id] ? rpcURLs[this.chain.id] : this.chain.rpcUrls.default.http[0];
     this.publicClient = createPublicClient({ chain: this.chain, transport: http(rpc) });
-    this.profileId = profileId;
-    this.pubId = pubId;
-    this.publicationId = `${profileId}-${pubId}`;
+    if (!!profileId) {
+      this.profileId = profileId;
+    }
+    if (!!pubId) {
+      this.pubId = pubId;
+      this.publicationId = `${profileId}-${pubId}`;
+    }
     this.authenticatedProfileId = authenticatedProfileId;
     // @ts-expect-error: 0x{string}
     this.currencies = this.chain === polygon
