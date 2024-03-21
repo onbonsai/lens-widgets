@@ -88,8 +88,8 @@ class ZoraLzMintAction extends HandlerBase {
 
   constructor(
     _environment: Environment,
-    profileId: string,
-    publicationId: string,
+    profileId?: string,
+    publicationId?: string,
     authenticatedProfileId?: string,
     rpcURLs?: { [chainId: number]: string }
   ) {
@@ -108,7 +108,7 @@ class ZoraLzMintAction extends HandlerBase {
         address: this.address! as `0x${string}`,
         abi: ZoraLzMintActionAbi as unknown as Abi,
         functionName: "remoteMints",
-        args: [this.profileId, this.pubId],
+        args: [this.profileId!, this.pubId!],
       }) as RemoteMintData;
       const remoteMintData = {
         zoraCreator: _remoteMintData[0],
@@ -135,7 +135,7 @@ class ZoraLzMintAction extends HandlerBase {
             address: remoteMintData.zoraCreator as `0x${string}`,
             abi: ZoraLzCreatorAbi as unknown as Abi,
             functionName: "publicationTokens",
-            args: [this.profileId, this.pubId],
+            args: [this.profileId!, this.pubId!],
           }),
           remoteClient.readContract({
             address: remoteMintData.zoraCreator as `0x${string}`,
@@ -282,7 +282,7 @@ class ZoraLzMintAction extends HandlerBase {
       address: this.address! as `0x${string}`,
       abi: ZoraLzMintActionAbi as unknown as Abi,
       functionName: "getDestinationSalePrice",
-      args: [this.profileId, this.pubId, quantity],
+      args: [this.profileId!, this.pubId!, quantity],
     }) as BigInt;
     const estimateFeesInput = this.getEstimateFeesInput(RelayAction.MINT_TOKEN, from, BigInt(quantity), nativeForDst);
     const estimatedFees = await this.publicClient.readContract({
@@ -314,8 +314,8 @@ class ZoraLzMintAction extends HandlerBase {
     return {
       lzChainId: BigInt(this.remoteMintData!.lzChainId),
       relayAction: BigInt(action),
-      profileId: BigInt(this.profileId),
-      pubId: BigInt(this.pubId),
+      profileId: BigInt(this.profileId!),
+      pubId: BigInt(this.pubId!),
       profileOwner,
       uri: uri || "",
       salePrice: salePrice || 0,

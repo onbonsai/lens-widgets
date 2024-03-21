@@ -68,10 +68,18 @@ class RewardsSwapAction extends HandlerBase {
   private inputTokens: any
   private subgraphUrl: string
 
+  /**
+   * Constructor for RewardsSwapAction
+   * @param _environment Lens environment config: production | testnet
+   * @param profileId [optional] profileId of the post creator (if initialized with open action)
+   * @param pubId [optional] pub id of the post (if initialized with open action)
+   * @param authenticatedProfileId [optional] the profile id of the authenticated profile
+   * @param rpcURLs [optional] mapping of rpc urls for necessary chains (ex: { 137: "http://" })
+   */
   constructor(
     _environment: Environment,
-    profileId: string,
-    publicationId: string,
+    profileId?: string,
+    publicationId?: string,
     authenticatedProfileId?: string,
     rpcURLs?: { [chainId: number]: string }
   ) {

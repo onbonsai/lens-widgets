@@ -45,8 +45,8 @@ class RewardEngagementAction extends HandlerBase {
 
   constructor(
     _environment: Environment,
-    profileId: string,
-    publicationId: string,
+    profileId?: string,
+    publicationId?: string,
     authenticatedProfileId?: string,
     rpcURLs?: { [chainId: number]: string }
   ) {
