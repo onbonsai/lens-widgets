@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from 'urql';
-import { MADFI_GENESIS_BADGE_ID, MADFI_SUBGRPAH_URL_TESTNET, MADFI_SUBGRAPH_URL } from './../actions/utils/madfi';
+import { MADFI_GENESIS_BADGE_ID, MADFI_SUBGRPAH_URL_TESTNET, MADFI_SUBGRAPH_URL } from '@madfi/lens-oa-client';
 
 const FETCH_MADFI_TOKEN = `
   query getMadSbtTokenByCollectionIdAndOwner($collectionId: String!, $owner: String!) {

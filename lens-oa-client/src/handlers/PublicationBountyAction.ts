@@ -2,8 +2,8 @@ import { z } from "zod";
 import { Abi, zeroAddress } from 'viem';
 import { Environment, encodeData } from "@lens-protocol/client";
 import HandlerBase, { ActionModuleConfig, DefaultFetchActionModuleDataParams } from "./HandlerBase";
-import { fetchPublicationBounty } from "../../services/madfi/getPublicationBounty";
-import IERC20Abi from "./../abis/IERC20.json";
+import { fetchPublicationBounty } from "../services/getPublicationBounty";
+import { fetchToken } from "../utils/tokens";
 
 const BOUNTY_ACTION_TESTNET_ADDRESS = "0x46F6e501BCE4784a82304C56388f871dCeB708AE";
 const BOUNTY_ACTION_MAINNET_ADDRESS = "0x6587ee890bd85426ED3509AbC5215311C5397D43";
@@ -76,7 +76,7 @@ class PublicationBountyAction extends HandlerBase {
       parseInt(this.pubId, 16).toString()
     );
     if (this.publicationBounty) {
-      this.paymentToken = await this.fetchToken(this.publicationBounty!.bounty.token);
+      this.paymentToken = await fetchToken(this.publicClient, this.publicationBounty!.bounty.token);
 
       const actorProfileId = parseInt(this.authenticatedProfileId, 16).toString();
       this.activeBid = this.publicationBounty?.bids.find(({ profileId }) => profileId == actorProfileId);
@@ -141,26 +141,6 @@ class PublicationBountyAction extends HandlerBase {
 
     return this.publicationBounty?.bounty.open ? 'Submit Bid' : 'Closed';
   }
-
-  fetchToken = async (tokenAddress: `0x${string}`) => {
-    const [symbol, decimals] = await Promise.all([
-      this.publicClient.readContract({
-        address: tokenAddress,
-        abi: IERC20Abi as unknown as Abi,
-        functionName: "symbol"
-      }),
-      this.publicClient.readContract({
-        address: tokenAddress,
-        abi: IERC20Abi as unknown as Abi,
-        functionName: "decimals"
-      })
-    ]);
-
-    return {
-      symbol: symbol as string,
-      decimals: decimals as number
-    };
-  };
 }
 
 

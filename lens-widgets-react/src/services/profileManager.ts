@@ -1,8 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
 import { createClient } from 'urql';
 import { omit } from "lodash/object";
 import { RelaySuccessFragment, LensClient } from "@lens-protocol/client";
-import { TESTNET_API_URL, MAINNET_API_URL } from "./lens";
+import { TESTNET_API_URL, MAINNET_API_URL } from "@madfi/lens-oa-client";
 
 const GET_PROFILE_MANAGERS = `
   query profileManagers($profileId: ProfileId!) {
@@ -90,26 +89,4 @@ export const getProfileManagers = async (lensClient: LensClient, profileId: stri
   } catch (error) {
     console.log(error);
   }
-};
-
-export const useIsProfileManager = (client: LensClient, profileId?: string | null, contractAddress?: string) => {
-  const result = useQuery<boolean>(
-    ["is-profile-manager", `${profileId}/${contractAddress}`],
-    async () => {
-      if (!profileId) return false;
-
-      const profileManagers = await getProfileManagers(client, profileId);
-
-      for (const manager of profileManagers) {
-        if (manager.toLowerCase() === contractAddress?.toLowerCase()) return true;
-      }
-
-      return false;
-    },
-    {
-      enabled: !!profileId && !!contractAddress,
-    },
-  );
-
-  return result;
 };

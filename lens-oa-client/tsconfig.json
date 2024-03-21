@@ -8,16 +8,16 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "declaration": true,
-    "jsx": "react-jsx",
     "downlevelIteration": true,
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": false,
     "skipLibCheck": true,
-    "lib": ["ESNext", "DOM"],
+    "lib": [
+      "ESNext"
+    ],
     "strict": true,
     "outDir": "./dist",
     "resolveJsonModule": true
   },
-  "include": ["./src"],
-  "exclude": ["node_modules/", "lens-oa-client/"]
+  "include": ["src/**/*"]
 }

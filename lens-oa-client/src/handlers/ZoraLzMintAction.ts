@@ -14,10 +14,10 @@ import {
 } from 'viem/chains';
 import { Environment, encodeData } from "@lens-protocol/client";
 import HandlerBase, { ActionModuleConfig, DefaultFetchActionModuleDataParams } from "./HandlerBase";
-import ZoraLzMintActionAbi from "./../abis/ZoraLzMintAction.json";
-import IERC1155Abi from "./../abis/IERC1155.json";
-import ZoraLzCreatorAbi from "./../abis/ZoraLzCreator.json";
-import { fetchTokenWithMetadata } from "./../utils/zora";
+import ZoraLzMintActionAbi from "../abis/ZoraLzMintAction.json";
+import IERC1155Abi from "../abis/IERC1155.json";
+import ZoraLzCreatorAbi from "../abis/ZoraLzCreator.json";
+import { fetchTokenWithMetadata } from "../utils/zora";
 
 const ZORA_LZ_MINT_TESTNET_ADDRESS = "0x55991a42e8FEb9DFAC9Fcc172f133D36AC2282A2";
 const ZORA_LZ_MINT_MAINNET_ADDRESS = "0x5f377e3e9BE56Ff72588323Df6a4ecd5cEedc56A";

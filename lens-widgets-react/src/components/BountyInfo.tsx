@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { formatUnits } from 'viem';
-import { Bounty } from '../actions/handlers/PublicationBountyAction';
+import { Bounty } from '@madfi/lens-oa-client';
 
 export const BountyInfo = ({ bounty, isDarkTheme, paymentToken }: { bounty: Bounty, isDarkTheme: boolean, paymentToken: { symbol, decimals } }) => {
   const bountyAmountOrNull = useMemo(() => {

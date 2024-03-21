@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { zeroAddress } from "viem";
-import { fetchTokenWithMetadata } from '../actions/utils/zora';
+import { fetchTokenWithMetadata } from '@madfi/lens-oa-client';
 
 export const useZoraTokenMetadata = (
   tokenAddress?: `0x${string}`,

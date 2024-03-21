@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { ProfileFragment } from "@lens-protocol/client";
 import { Abi, TransactionReceipt, WalletClient, formatEther } from "viem";
-import Spinner from "../../components/Spinner";
-import { ZoraLzMintAction, QuoteData } from "../handlers/ZoraLzMintAction";
-import IERC20Abi from "./../abis/IERC20.json";
+import { ZoraLzMintAction, ZoraLzMintActionQuoteData, actOnchain, actWithSignedTypedata } from "@madfi/lens-oa-client";
+import IERC20Abi from "@madfi/lens-oa-client/dist/abis/IERC20.json";
+import Spinner from "../Spinner";
 import useTokenBalance from "../../hooks/useTokenBalance";
 import useTokenAllowance from "../../hooks/useTokenAllowance";
 import { Toast } from "../../types";
-import { actOnchain, actWithSignedTypedata } from "../utils/lens";
 import { OpenseaLogo } from "../../icons/logos/Opensea";
 import { LayerZeroLogo } from "../../icons/logos/LayerZero";
 
@@ -32,7 +31,7 @@ const ZoraLzMintActionModal = ({
   const [isLoadingQuoteData, setIsLoadingQuoteData] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
   const [isMinting, setIsMinting] = useState(false);
-  const [quoteData, setQuoteData] = useState<QuoteData | undefined>();
+  const [quoteData, setQuoteData] = useState<ZoraLzMintActionQuoteData | undefined>();
   const [txHash, setTxHash] = useState("");
   const totalMinted = countOpenActions; // TODO: need to query zora instead of this proxy stat
   const estimatedRelayTime = handler.isPolygon ? '20 minutes' : '30 seconds'; // TODO: use lz relay api when released

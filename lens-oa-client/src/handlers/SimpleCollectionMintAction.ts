@@ -2,16 +2,16 @@ import { z } from "zod";
 import { parseUnits, zeroAddress, Abi, TransactionReceipt } from 'viem';
 import { Environment, encodeData } from "@lens-protocol/client";
 import HandlerBase, { ActionModuleConfig, DefaultFetchActionModuleDataParams } from "./HandlerBase";
-import SimpleCollectionMintActionAbi from "./../abis/SimpleCollectionMintAction.json";
-import MadSBTAbi from "./../abis/MadSBT.json";
-import MadSBTLevelsAbi from "./../abis/SBTLevels.json";
+import SimpleCollectionMintActionAbi from "../abis/SimpleCollectionMintAction.json";
+import MadSBTAbi from "../abis/MadSBT.json";
+import MadSBTLevelsAbi from "../abis/SBTLevels.json";
 import {
   MAD_SBT_TESTNET_ADDRESS,
   MAD_SBT_MAINNET_ADDRESS,
   SBT_LEVELS_MAINNET_ADDRESS,
   SBT_LEVELS_TESTNET_ADDRESS,
   storjGatewayURL
-} from "./../utils/madfi";
+} from "../utils/madfi";
 import { getEventFromReceipt } from "../utils/viem";
 
 const SIMPLE_COLLECTION_MINT_TESTNET_ADDRESS = "0x34e1071e319fe512c052a92a2ceFaF2589a0E098";

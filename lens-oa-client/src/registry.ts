@@ -1,35 +1,28 @@
 import { Environment, production } from "@lens-protocol/client";
-import { getAddress } from "ethers/lib/utils";
+import { getAddress } from "viem";
 
 // 1. import your handler class
 import {
-  SIMPLE_COLLECTION_MINT_TESTNET_ADDRESS,
-  SIMPLE_COLLECTION_MINT_MAINNET_ADDRESS,
-  SimpleCollectionMintAction
+  SIMPLE_COLLECTION_MINT_TESTNET_ADDRESS, SIMPLE_COLLECTION_MINT_MAINNET_ADDRESS, SimpleCollectionMintAction
 } from "./handlers/SimpleCollectionMintAction";
 import {
-  ZORA_LZ_MINT_TESTNET_ADDRESS,
-  ZORA_LZ_MINT_MAINNET_ADDRESS,
-  ZoraLzMintAction
+  ZORA_LZ_MINT_TESTNET_ADDRESS, ZORA_LZ_MINT_MAINNET_ADDRESS, ZoraLzMintAction
 } from "./handlers/ZoraLzMintAction";
 import {
-  REWARD_ENGAGEMENT_TESTNET_ADDRESS,
-  REWARD_ENGAGEMENT_MAINNET_ADDRESS,
-  RewardEngagementAction
+  REWARD_ENGAGEMENT_TESTNET_ADDRESS, REWARD_ENGAGEMENT_MAINNET_ADDRESS, RewardEngagementAction
 } from "./handlers/RewardEngagementAction";
 import {
-  BOUNTY_ACTION_TESTNET_ADDRESS,
-  BOUNTY_ACTION_MAINNET_ADDRESS,
-  PublicationBountyAction
+  BOUNTY_ACTION_TESTNET_ADDRESS, BOUNTY_ACTION_MAINNET_ADDRESS, PublicationBountyAction
 } from "./handlers/PublicationBountyAction";
 import {
   REWARDS_SWAP_TESTNET_ADDRESS, REWARDS_SWAP_MAINNET_ADDRESS, RewardsSwapAction
 } from "./handlers/RewardsSwapAction"
 import {
-  RENTABLE_SPACE_ACTION_TESTNET_ADDRESS,
-  RENTABLE_SPACE_ACTION_MAINNET_ADDRESS,
-  RentableSpaceAction,
+  RENTABLE_SPACE_ACTION_TESTNET_ADDRESS, RENTABLE_SPACE_ACTION_MAINNET_ADDRESS, RentableSpaceAction,
 } from "./handlers/RentableSpaceAction";
+import {
+  TIP_ACTION_TESTNET_ADDRESS, TIP_ACTION_MAINNET_ADDRESS, TipAction,
+} from "./handlers/TipAction";
 
 // 2. add the entry for MAINNET, where `handler` is the exported handler class
 const MAINNET = [
@@ -37,7 +30,8 @@ const MAINNET = [
   { address: SIMPLE_COLLECTION_MINT_MAINNET_ADDRESS, handler: SimpleCollectionMintAction, name: "SimpleCollectionMintAction" },
   { address: REWARD_ENGAGEMENT_MAINNET_ADDRESS, handler: RewardEngagementAction, name: "RewardEngagementAction" },
   { address: BOUNTY_ACTION_MAINNET_ADDRESS, handler: PublicationBountyAction, name: "PublicationBountyAction" },
-  { address: REWARDS_SWAP_MAINNET_ADDRESS, handler: RewardsSwapAction, name: "RewardsSwap" }
+  { address: REWARDS_SWAP_MAINNET_ADDRESS, handler: RewardsSwapAction, name: "RewardsSwap" },
+  { address: TIP_ACTION_MAINNET_ADDRESS, handler: TipAction, name: "TipAction" },
 ];
 
 // 2. add the entry for TESTNET
@@ -47,7 +41,8 @@ const TESTNET = [
   { address: REWARD_ENGAGEMENT_TESTNET_ADDRESS, handler: RewardEngagementAction, name: "RewardEngagementAction" },
   { address: BOUNTY_ACTION_TESTNET_ADDRESS, handler: PublicationBountyAction, name: "PublicationBountyAction" },
   { address: REWARDS_SWAP_TESTNET_ADDRESS, handler: RewardsSwapAction, name: "RewardsSwap" },
-  { address: RENTABLE_SPACE_ACTION_TESTNET_ADDRESS, handler: RentableSpaceAction, name: "RentableSpaceAction" }
+  { address: RENTABLE_SPACE_ACTION_TESTNET_ADDRESS, handler: RentableSpaceAction, name: "RentableSpaceAction" },
+  { address: TIP_ACTION_TESTNET_ADDRESS, handler: TipAction, name: "TipAction" },
 ];
 
 // 3. you are gucci

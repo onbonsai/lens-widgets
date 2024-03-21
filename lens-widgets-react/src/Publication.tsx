@@ -34,7 +34,7 @@ import { WalletClient } from 'viem';
 import { Toast } from './types';
 import { VerifiedBadgeIcon } from "./icons"
 import { useGetOwnedMadFiBadge } from './hooks/useGetOwnedBadge';
-import HandlerBase from './actions/handlers/HandlerBase';
+import { ActionHandler } from '@madfi/lens-oa-client';
 
 export function Publication({
   publicationId,
@@ -75,9 +75,9 @@ export function Publication({
   authenticatedProfile?: ProfileFragment | null,
   walletClient?: WalletClient,
   renderActButtonWithCTA?: string,
-  onActButtonClick?: (e, actionModuleHandler?: HandlerBase) => void,
-  onCommentButtonClick?: (e, actionModuleHandler?: HandlerBase) => void,
-  onMirrorButtonClick?: (e, actionModuleHandler?: HandlerBase) => void,
+  onActButtonClick?: (e, actionModuleHandler?: ActionHandler) => void,
+  onCommentButtonClick?: (e, actionModuleHandler?: ActionHandler) => void,
+  onMirrorButtonClick?: (e, actionModuleHandler?: ActionHandler) => void,
   onLikeButtonClick?: (e, p) => void,
   onShareButtonClick?: (e) => void,
   hideCommentButton?: boolean,

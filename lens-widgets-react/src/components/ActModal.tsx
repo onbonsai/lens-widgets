@@ -2,15 +2,21 @@ import { useMemo } from "react";
 import { PostFragment } from "@lens-protocol/client";
 import { WalletClient } from "viem";
 import Modal from "./Modal";
-import HandlerBase from "../actions/handlers/HandlerBase";
-import ZoraLzMintActionModal from "./../actions/modals/ZoraLzMintActionModal";
-import SimpleCollectionMintActionModal from "../actions/modals/SimpleCollectionMintActionModal";
-import RewardEngagementActionModal from "../actions/modals/RewardEngagementModal";
-import PublicationBountyActionModal from "../actions/modals/PublicationBountyActionModal";
+import {
+  ActionHandler,
+  ZoraLzMintAction,
+  SimpleCollectionMintAction,
+  RewardEngagementAction,
+  PublicationBountyAction
+} from "@madfi/lens-oa-client";
+import ZoraLzMintActionModal from "./modals/ZoraLzMintActionModal";
+import SimpleCollectionMintActionModal from "./modals/SimpleCollectionMintActionModal";
+import RewardEngagementActionModal from "./modals/RewardEngagementModal";
+import PublicationBountyActionModal from "./modals/PublicationBountyActionModal";
 import { Toast } from "../types";
 
 interface ActModalProps {
-  handler: HandlerBase;
+  handler: ActionHandler;
   openActModal: boolean;
   setOpenActModal: (b: boolean) => void;
   style: { backgroundColor: string; color: string }
@@ -20,7 +26,7 @@ interface ActModalProps {
   countOpenActions: number;
   toast?: Toast;
   appDomainWhitelistedGasless?: boolean;
-  onActButtonClick?: (e, actionModuleHandler?: HandlerBase) => void,
+  onActButtonClick?: (e, actionModuleHandler?: ActionHandler) => void,
   handlePinMetadata?: (content: string, files: any[]) => Promise<string> // to upload post content on bounties
   signless?: boolean; // whether the authenticated profile has enabled signless
 };
@@ -48,8 +54,7 @@ const ActModal = ({
     if (metadata?.metadata?.name === "ZoraLzMintActionV1") {
       return (
         <ZoraLzMintActionModal
-          // @ts-expect-error: casted correctly in the modal
-          handler={handler}
+          handler={handler as ZoraLzMintAction}
           publicationBy={publication.by}
           walletClient={walletClient}
           isDarkTheme={isDarkTheme}
@@ -61,8 +66,7 @@ const ActModal = ({
     } else if (metadata?.metadata?.name === "SimpleCollectionMintAction") {
       return (
         <SimpleCollectionMintActionModal
-          // @ts-expect-error: casted correctly in the modal
-          handler={handler}
+          handler={handler as SimpleCollectionMintAction}
           publicationBy={publication.by}
           walletClient={walletClient}
           isDarkTheme={isDarkTheme}
@@ -74,8 +78,7 @@ const ActModal = ({
     } else if (metadata?.metadata?.name === "RewardEngagementAction") {
       return (
         <RewardEngagementActionModal
-          // @ts-expect-error: casted correctly in the modal
-          handler={handler}
+          handler={handler as RewardEngagementAction}
           publicationBy={publication.by}
           walletClient={walletClient}
           isDarkTheme={isDarkTheme}
@@ -87,8 +90,7 @@ const ActModal = ({
     } else if (metadata?.metadata?.name === "PublicationBountyAction") {
       return (
         <PublicationBountyActionModal
-          // @ts-expect-error: casted correctly in the modal
-          handler={handler}
+          handler={handler as PublicationBountyAction}
           publicationBy={publication.by}
           // @ts-expect-error: publication
           publicationContent={publication.metadata.content}
