@@ -1,912 +1,909 @@
 [
   {
-    "type": "constructor",
     "inputs": [
       {
+        "internalType": "address",
         "name": "hub",
-        "type": "address",
-        "internalType": "address"
+        "type": "address"
       },
       {
+        "internalType": "address",
         "name": "_moduleRegistry",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "_madSBT",
-        "type": "address",
-        "internalType": "address"
+        "type": "address"
       }
     ],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "constructor"
   },
   {
-    "type": "function",
-    "name": "HUB",
     "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "stateMutability": "view"
+    "name": "InitParamsInvalid",
+    "type": "error"
   },
   {
-    "type": "function",
-    "name": "MODULE_REGISTRY",
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "openAction",
+        "type": "address"
+      }
+    ],
+    "name": "InvalidActionModuleForAd",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "activeSpaceId",
+        "type": "uint256"
+      }
+    ],
+    "name": "MustCancelActiveAd",
+    "type": "error"
+  },
+  {
     "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "contract IModuleRegistry"
-      }
-    ],
-    "stateMutability": "view"
+    "name": "NoFeesEarned",
+    "type": "error"
   },
   {
-    "type": "function",
-    "name": "activeAds",
     "inputs": [
       {
-        "name": "profileId",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "spaceId",
-        "type": "uint256",
-        "internalType": "uint256"
+        "internalType": "uint256",
+        "name": "activeSpaceId",
+        "type": "uint256"
       }
     ],
-    "outputs": [
-      {
-        "name": "advertiserId",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "adId",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "createdAt",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "expireAt",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "costPerSecond",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "openActionModule",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "adContentUri",
-        "type": "string",
-        "internalType": "string"
-      }
-    ],
-    "stateMutability": "view"
+    "name": "NoInitDuringActiveAd",
+    "type": "error"
   },
   {
-    "type": "function",
-    "name": "activeSpaces",
-    "inputs": [
-      {
-        "name": "profileId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "spaceId",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "currency",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "costPerSecond",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "expireAt",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "interestMerkleRoot",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "allowOpenAction",
-        "type": "bool",
-        "internalType": "bool"
-      },
-      {
-        "name": "clientFeePerActBps",
-        "type": "uint16",
-        "internalType": "uint16"
-      },
-      {
-        "name": "referralFeePerActBps",
-        "type": "uint16",
-        "internalType": "uint16"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "adMinDuration",
     "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint64",
-        "internalType": "uint64"
-      }
-    ],
-    "stateMutability": "view"
+    "name": "NoZeroAddress",
+    "type": "error"
   },
   {
-    "type": "function",
-    "name": "blacklistProfile",
-    "inputs": [
-      {
-        "name": "profileId",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "toggle",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
+    "inputs": [],
+    "name": "NotFoundOrExpired",
+    "type": "error"
   },
   {
-    "type": "function",
-    "name": "blacklistedProfiles",
-    "inputs": [
-      {
-        "name": "profileId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "blacklisted",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
+    "inputs": [],
+    "name": "NotHub",
+    "type": "error"
   },
   {
-    "type": "function",
-    "name": "cancelActiveAd",
+    "inputs": [],
+    "name": "OnlyWithDelegatedExecutor",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "Unauthorized",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "profileId",
-        "type": "uint256",
-        "internalType": "uint256"
+        "type": "uint256"
       },
       {
-        "name": "actorProfileId",
-        "type": "uint256",
-        "internalType": "uint256"
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "pubId",
+        "type": "uint256"
       },
       {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "adPubId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum IRentableSpaceAction.CancelAdReason",
         "name": "reason",
-        "type": "uint8",
-        "internalType": "enum IRentableSpaceAction.CancelAdReason"
+        "type": "uint8"
       },
       {
+        "indexed": false,
+        "internalType": "string",
         "name": "otherReason",
-        "type": "string",
-        "internalType": "string"
+        "type": "string"
       },
       {
-        "name": "closeSpace",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "closeActiveSpace",
-    "inputs": [
-      {
-        "name": "profileId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "feesEarned",
-    "inputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "refundAmount",
+        "type": "uint256"
       },
       {
-        "name": "currency",
-        "type": "address",
-        "internalType": "address"
+        "indexed": false,
+        "internalType": "bool",
+        "name": "closeActiveSpace",
+        "type": "bool"
       }
     ],
-    "outputs": [
-      {
-        "name": "amount",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
+    "name": "CancelActiveAd",
+    "type": "event"
   },
   {
-    "type": "function",
-    "name": "flagProfile",
+    "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "profileId",
-        "type": "uint256",
-        "internalType": "uint256"
+        "type": "uint256"
       },
       {
-        "name": "toggle",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "flaggedProfiles",
-    "inputs": [
-      {
-        "name": "profileId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "flagged",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getActiveAd",
-    "inputs": [
-      {
-        "name": "profileId",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "pubId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "contentUri",
-        "type": "string",
-        "internalType": "string"
+        "type": "uint256"
       },
       {
-        "name": "openActionModule",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getAdCost",
-    "inputs": [
-      {
-        "name": "profileId",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "duration",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "cost",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "costWithFee",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "costPerSecond",
-        "type": "uint256",
-        "internalType": "uint256"
+        "type": "uint256"
       }
     ],
-    "stateMutability": "view"
+    "name": "InitAction",
+    "type": "event"
   },
   {
-    "type": "function",
-    "name": "getModuleMetadataURI",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "string",
-        "internalType": "string"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getPaidAmountsOnActiveAd",
+    "anonymous": false,
     "inputs": [
       {
-        "name": "profileId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "currentPaidAmount",
-        "type": "uint256",
-        "internalType": "uint256"
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
       },
       {
-        "name": "totalCost",
-        "type": "uint256",
-        "internalType": "uint256"
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
       }
     ],
-    "stateMutability": "view"
+    "name": "OwnershipTransferred",
+    "type": "event"
   },
   {
-    "type": "function",
-    "name": "initialize",
+    "anonymous": false,
     "inputs": [
       {
-        "name": "moduleOwner",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "initializePublicationAction",
-    "inputs": [
-      {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "profileId",
-        "type": "uint256",
-        "internalType": "uint256"
+        "type": "uint256"
       },
       {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isBlacklisted",
+        "type": "bool"
+      }
+    ],
+    "name": "ProfileBlacklisted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isFlagged",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "byProfile",
+        "type": "uint256"
+      }
+    ],
+    "name": "ProfileFlagged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "pubId",
-        "type": "uint256",
-        "internalType": "uint256"
+        "type": "uint256"
       },
       {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "advertiserId",
+        "type": "uint256"
       },
       {
-        "name": "data",
-        "type": "bytes",
-        "internalType": "bytes"
-      }
-    ],
-    "outputs": [
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "adId",
+        "type": "uint256"
+      },
       {
-        "name": "",
-        "type": "bytes",
-        "internalType": "bytes"
+        "indexed": false,
+        "internalType": "string",
+        "name": "contentUri",
+        "type": "string"
       }
     ],
-    "stateMutability": "nonpayable"
+    "name": "SetActiveAd",
+    "type": "event"
   },
   {
-    "type": "function",
-    "name": "madSBT",
     "inputs": [],
+    "name": "HUB",
     "outputs": [
       {
+        "internalType": "address",
         "name": "",
-        "type": "address",
-        "internalType": "contract IMadSBT"
+        "type": "address"
       }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "metadataURI",
     "inputs": [],
+    "name": "MODULE_REGISTRY",
     "outputs": [
       {
+        "internalType": "contract IModuleRegistry",
         "name": "",
-        "type": "string",
-        "internalType": "string"
+        "type": "address"
       }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "minBidIncreaseBps",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint16",
-        "internalType": "uint16"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "owner",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "processPublicationAction",
     "inputs": [
       {
-        "name": "processActionParams",
-        "type": "tuple",
-        "internalType": "struct Types.ProcessActionParams",
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "spaceId",
+        "type": "uint256"
+      }
+    ],
+    "name": "activeAds",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "advertiserId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "adId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "createdAt",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "expireAt",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "costPerSecond",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "openActionModule",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "adContentUri",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      }
+    ],
+    "name": "activeSpaces",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "spaceId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "currency",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "costPerSecond",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "expireAt",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "interestMerkleRoot",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bool",
+        "name": "allowOpenAction",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint16",
+        "name": "clientFeePerActBps",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "referralFeePerActBps",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "adMinDuration",
+    "outputs": [
+      {
+        "internalType": "uint64",
+        "name": "",
+        "type": "uint64"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "toggle",
+        "type": "bool"
+      }
+    ],
+    "name": "blacklistProfile",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      }
+    ],
+    "name": "blacklistedProfiles",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "blacklisted",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "actorProfileId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "enum IRentableSpaceAction.CancelAdReason",
+        "name": "reason",
+        "type": "uint8"
+      },
+      {
+        "internalType": "string",
+        "name": "otherReason",
+        "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "closeSpace",
+        "type": "bool"
+      }
+    ],
+    "name": "cancelActiveAd",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      }
+    ],
+    "name": "closeActiveSpace",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "currency",
+        "type": "address"
+      }
+    ],
+    "name": "feesEarned",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "toggle",
+        "type": "bool"
+      }
+    ],
+    "name": "flagProfile",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      }
+    ],
+    "name": "flaggedProfiles",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "flagged",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pubId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getActiveAd",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "contentUri",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "adProfileId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "adPubId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "openActionModule",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "duration",
+        "type": "uint256"
+      }
+    ],
+    "name": "getAdCost",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "cost",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "costWithFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "costPerSecond",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getModuleMetadataURI",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getPaidAmountsOnActiveAd",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "currentPaidAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalCost",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "moduleOwner",
+        "type": "address"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pubId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "name": "initializePublicationAction",
+    "outputs": [
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "metadataURI",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "minBidIncreaseBps",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "components": [
           {
+            "internalType": "uint256",
             "name": "publicationActedProfileId",
-            "type": "uint256",
-            "internalType": "uint256"
+            "type": "uint256"
           },
           {
+            "internalType": "uint256",
             "name": "publicationActedId",
-            "type": "uint256",
-            "internalType": "uint256"
+            "type": "uint256"
           },
           {
+            "internalType": "uint256",
             "name": "actorProfileId",
-            "type": "uint256",
-            "internalType": "uint256"
+            "type": "uint256"
           },
           {
+            "internalType": "address",
             "name": "actorProfileOwner",
-            "type": "address",
-            "internalType": "address"
+            "type": "address"
           },
           {
+            "internalType": "address",
             "name": "transactionExecutor",
-            "type": "address",
-            "internalType": "address"
+            "type": "address"
           },
           {
+            "internalType": "uint256[]",
             "name": "referrerProfileIds",
-            "type": "uint256[]",
-            "internalType": "uint256[]"
+            "type": "uint256[]"
           },
           {
+            "internalType": "uint256[]",
             "name": "referrerPubIds",
-            "type": "uint256[]",
-            "internalType": "uint256[]"
+            "type": "uint256[]"
           },
           {
+            "internalType": "enum Types.PublicationType[]",
             "name": "referrerPubTypes",
-            "type": "uint8[]",
-            "internalType": "enum Types.PublicationType[]"
+            "type": "uint8[]"
           },
           {
+            "internalType": "bytes",
             "name": "actionModuleData",
-            "type": "bytes",
-            "internalType": "bytes"
+            "type": "bytes"
           }
-        ]
+        ],
+        "internalType": "struct Types.ProcessActionParams",
+        "name": "processActionParams",
+        "type": "tuple"
       }
     ],
+    "name": "processPublicationAction",
     "outputs": [
       {
+        "internalType": "bytes",
         "name": "",
-        "type": "bytes",
-        "internalType": "bytes"
+        "type": "bytes"
       }
     ],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "type": "function",
+    "inputs": [],
     "name": "protocolFeeBps",
-    "inputs": [],
     "outputs": [
       {
+        "internalType": "uint16",
         "name": "",
-        "type": "uint16",
-        "internalType": "uint16"
+        "type": "uint16"
       }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "type": "function",
+    "inputs": [],
     "name": "renounceOwnership",
-    "inputs": [],
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "setModuleMetadataURI",
     "inputs": [
       {
+        "internalType": "string",
         "name": "_metadataURI",
-        "type": "string",
-        "internalType": "string"
+        "type": "string"
       }
     ],
+    "name": "setModuleMetadataURI",
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "supportsInterface",
     "inputs": [
       {
+        "internalType": "bytes4",
         "name": "interfaceID",
-        "type": "bytes4",
-        "internalType": "bytes4"
+        "type": "bytes4"
       }
     ],
+    "name": "supportsInterface",
     "outputs": [
       {
+        "internalType": "bool",
         "name": "",
-        "type": "bool",
-        "internalType": "bool"
+        "type": "bool"
       }
     ],
-    "stateMutability": "pure"
+    "stateMutability": "pure",
+    "type": "function"
   },
   {
-    "type": "function",
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
     "name": "transferOwnership",
-    "inputs": [
-      {
-        "name": "newOwner",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "type": "function",
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "currency",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      }
+    ],
     "name": "withdrawFeesEarned",
-    "inputs": [
-      {
-        "name": "currency",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "profileId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "type": "function",
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "currency",
+        "type": "address"
+      }
+    ],
     "name": "withdrawProtocolFees",
-    "inputs": [
-      {
-        "name": "currency",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
     "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "event",
-    "name": "CancelActiveAd",
-    "inputs": [
-      {
-        "name": "profileId",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "pubId",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "adPubId",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "reason",
-        "type": "uint8",
-        "indexed": false,
-        "internalType": "enum IRentableSpaceAction.CancelAdReason"
-      },
-      {
-        "name": "otherReason",
-        "type": "string",
-        "indexed": false,
-        "internalType": "string"
-      },
-      {
-        "name": "refundAmount",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "closeActiveSpace",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "InitAction",
-    "inputs": [
-      {
-        "name": "profileId",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "pubId",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "costPerSecond",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "OwnershipTransferred",
-    "inputs": [
-      {
-        "name": "previousOwner",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "newOwner",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "ProfileBlacklisted",
-    "inputs": [
-      {
-        "name": "profileId",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "isBlacklisted",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "ProfileFlagged",
-    "inputs": [
-      {
-        "name": "profileId",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "isFlagged",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      },
-      {
-        "name": "byProfile",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "SetActiveAd",
-    "inputs": [
-      {
-        "name": "profileId",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "pubId",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "advertiserId",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "adId",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "contentUri",
-        "type": "string",
-        "indexed": false,
-        "internalType": "string"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "error",
-    "name": "InitParamsInvalid",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "InvalidActionModuleForAd",
-    "inputs": [
-      {
-        "name": "openAction",
-        "type": "address",
-        "internalType": "address"
-      }
-    ]
-  },
-  {
-    "type": "error",
-    "name": "MustCancelActiveAd",
-    "inputs": [
-      {
-        "name": "activeSpaceId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ]
-  },
-  {
-    "type": "error",
-    "name": "NoFeesEarned",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "NoInitDuringActiveAd",
-    "inputs": [
-      {
-        "name": "activeSpaceId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ]
-  },
-  {
-    "type": "error",
-    "name": "NoZeroAddress",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "NotFoundOrExpired",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "NotHub",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "Unauthorized",
-    "inputs": []
+    "stateMutability": "nonpayable",
+    "type": "function"
   }
 ]
