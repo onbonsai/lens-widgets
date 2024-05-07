@@ -31,6 +31,7 @@ const MAINNET = [
   { address: REWARD_ENGAGEMENT_MAINNET_ADDRESS, handler: RewardEngagementAction, name: "RewardEngagementAction" },
   { address: BOUNTY_ACTION_MAINNET_ADDRESS, handler: PublicationBountyAction, name: "PublicationBountyAction" },
   { address: REWARDS_SWAP_MAINNET_ADDRESS, handler: RewardsSwapAction, name: "RewardsSwap" },
+  { address: RENTABLE_SPACE_ACTION_MAINNET_ADDRESS, handler: RentableSpaceAction, name: "RentableSpaceAction" },
   { address: TIP_ACTION_MAINNET_ADDRESS, handler: TipAction, name: "TipAction" },
 ];
 

@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { Abi, TransactionReceipt, WalletClient, encodeAbiParameters, zeroAddress } from 'viem';
+import { Abi, TransactionReceipt, WalletClient, encodeAbiParameters, zeroAddress, zeroHash } from 'viem';
 import { Environment, encodeData } from "@lens-protocol/client";
 import HandlerBase, { ActionModuleConfig, DefaultFetchActionModuleDataParams } from "./HandlerBase";
 import RentableSpaceActionAbi from "../abis/RentableSpaceAction.json";
 import { fetchToken } from "../utils/tokens"
 
 const RENTABLE_SPACE_ACTION_TESTNET_ADDRESS = "0xDE54905696C8f05505209A610aa91B63f9f44d4C";
-const RENTABLE_SPACE_ACTION_MAINNET_ADDRESS = "";
+const RENTABLE_SPACE_ACTION_MAINNET_ADDRESS = "0xDE54905696C8f05505209A610aa91B63f9f44d4C";
 
 const MODULE_INIT_DATA_SCHEMA = z.object({
   currency: z.string(),
@@ -126,8 +126,8 @@ class RentableSpaceAction extends HandlerBase {
 
   getActionModuleConfig(): ActionModuleConfig {
     return {
-      displayName: `Rentable Post`,
-      description: `This post is rentable, place your content or publication here for a cost`,
+      displayName: `Rentable Billboard`,
+      description: `This post is rentable; you can pay to place your content or publication here`,
       address: {
         mumbai: RENTABLE_SPACE_ACTION_TESTNET_ADDRESS,
         polygon: RENTABLE_SPACE_ACTION_MAINNET_ADDRESS
@@ -144,7 +144,7 @@ class RentableSpaceAction extends HandlerBase {
     const expireAt = data.expireAt || "0";
     const clientFeePerActBps = data.clientFeePerActBps?.toString() || "0";
     const referralFeePerActBps = data.referralFeePerActBps?.toString() || "0"
-    const interestMerkleRoot = data.interestMerkleRoot || [];
+    const interestMerkleRoot = data.interestMerkleRoot || zeroHash;
     return encodeData(
       JSON.parse(this.metadata!.metadata.initializeCalldataABI),
       [
@@ -165,7 +165,7 @@ class RentableSpaceAction extends HandlerBase {
 
   encodeModuleActData(data: ModuleActDataSchema): string {
     return encodeAbiParameters(
-      JSON.parse(this.metadata!.metadata.processCalldataABI),
+      [JSON.parse(this.metadata!.metadata.processCalldataABI)],
       [{
         adPubId: data.adPubId || "0",
         duration: data.duration,

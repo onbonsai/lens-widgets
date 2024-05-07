@@ -1,6 +1,6 @@
 {
   "name": "@madfi/lens-oa-client",
-  "version": "0.1.7",
+  "version": "0.1.9",
   "description": "Node package to handle Lens Open Actions",
   "main": "dist/index.js",
   "scripts": {
@@ -14,7 +14,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@lens-protocol/client": "2.0.0-alpha.27",
+    "@lens-protocol/client": "2.2.0",
     "ethers": "^5.7.2",
     "lodash": "^4.17.21",
     "typescript": "^5.2.2",
