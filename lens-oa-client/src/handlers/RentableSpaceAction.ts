@@ -6,7 +6,7 @@ import RentableSpaceActionAbi from "../abis/RentableSpaceAction.json";
 import { fetchToken } from "../utils/tokens"
 
 const RENTABLE_SPACE_ACTION_TESTNET_ADDRESS = "0xDE54905696C8f05505209A610aa91B63f9f44d4C";
-const RENTABLE_SPACE_ACTION_MAINNET_ADDRESS = "0xDE54905696C8f05505209A610aa91B63f9f44d4C";
+const RENTABLE_SPACE_ACTION_MAINNET_ADDRESS = "0x6f7B96f99a3904581470002cEE1c5182d8743f34";
 
 const MODULE_INIT_DATA_SCHEMA = z.object({
   currency: z.string(),
