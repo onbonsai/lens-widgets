@@ -89,13 +89,13 @@ class RentableSpaceAction extends HandlerBase {
     this.isProfileAdmin = data.authenticatedProfileId === this.profileId;
 
     const [activeSpace, activeAd] = await Promise.all([
-      this.publicClient.readContract({
+      (this.publicClient.readContract({
         address: this.address,
         abi: RentableSpaceActionAbi as unknown as Abi,
         functionName: "activeSpaces",
         args: [this.profileId],
-      }),
-      (async () => {
+      }) as unknown as any),
+      ((async () => {
         try {
           // will not throw if exists and not expired
           await this.publicClient.readContract({
@@ -112,14 +112,36 @@ class RentableSpaceAction extends HandlerBase {
             args: [this.profileId, this.pubId]
           });
         } catch {} // NotFoundOrExpired
-      })(),
+      })() as unknown as any),
     ]);
 
+    this.activeSpace = activeSpace ? {
+      spaceId: activeSpace[0],
+      currency: activeSpace[1],
+      costPerSecond: activeSpace[2],
+      expireAt: activeSpace[3],
+      interestMerkleRoot: activeSpace[4],
+      allowOpenAction: activeSpace[5],
+      clientFeePerActBps: activeSpace[6],
+      referralFeePerActBps: activeSpace[7],
+    } : undefined;
+    this.activeAd = activeAd ? {
+      advertiserId: activeAd[0],
+      adId: activeAd[1],
+      createdAt: activeAd[2],
+      expireAt: activeAd[3],
+      costPerSecond: activeAd[4],
+      openActionModule: `0x${activeAd[5]}`,
+      adContentUri: activeAd[6],
+    } : undefined;
     // TODO: get ad cost
 
-    this.activeSpace = activeSpace as ActiveSpace;
-    this.activeAd = activeAd ? activeAd as ActiveAd : null;
-    this.paymentToken = await fetchToken(this.publicClient, this.activeSpace!.currency);
+    try {
+      this.paymentToken = await fetchToken(this.publicClient, this.activeSpace!.currency);
+    } catch {
+      console.log('failed to fetch payment token');
+      this.panicked = true;
+    }
 
     return { activeAd };
   }

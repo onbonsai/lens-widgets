@@ -1,6 +1,6 @@
 {
   "name": "@madfi/widgets-react",
-  "version": "2.2.3",
+  "version": "2.2.8",
   "description": "React widgets to render Lens components, with support for Open Actions",
   "main": "dist/index.js",
   "scripts": {
@@ -19,7 +19,7 @@
     "@emotion/css": "^11.10.5",
     "@ethersproject/providers": "^5.7.2",
     "@lens-protocol/client": "2.2.0",
-    "@madfi/lens-oa-client": "^0.1.9",
+    "@madfi/lens-oa-client": "^0.2.11",
     "@types/react": "^18.0.28",
     "date-fns": "^2.29.3",
     "ethers": "^5.7.2",
@@ -42,6 +42,6 @@
     "@graphql-codegen/typescript-operations": "^3.0.4"
   },
   "peerDependencies": {
-    "@tanstack/react-query": "^4.22.0"
+    "@tanstack/react-query": "^5.40.1"
   }
 }
