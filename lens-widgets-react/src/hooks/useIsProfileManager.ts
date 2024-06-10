@@ -3,9 +3,9 @@ import { LensClient } from "@lens-protocol/client";
 import { getProfileManagers } from "../services/profileManager";
 
 export default (client: LensClient, profileId?: string | null, contractAddress?: string) => {
-  const result = useQuery<boolean>(
-    ["is-profile-manager", `${profileId}/${contractAddress}`],
-    async () => {
+  const result = useQuery<boolean>({
+    queryKey: ['is-profile-manager', `${profileId}/${contractAddress}`],
+    queryFn: async () => {
       if (!profileId) return false;
 
       const profileManagers = await getProfileManagers(client, profileId);
@@ -16,10 +16,8 @@ export default (client: LensClient, profileId?: string | null, contractAddress?:
 
       return false;
     },
-    {
-      enabled: !!profileId && !!contractAddress,
-    },
-  );
+    enabled: !!profileId && !!contractAddress,
+  });
 
   return result;
 };
