@@ -8,3 +8,4 @@ export { ShareIcon } from './ShareIcon'
 export { XIcon } from './XIcon'
 export { VerifiedBadgeIcon } from './VerifiedBadgeIcon'
 export { MediaIcon } from './MediaIcon'
+export { VideoCameraSlashIcon } from './VideoCameraSlashIcon';

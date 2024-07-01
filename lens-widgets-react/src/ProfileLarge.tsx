@@ -15,7 +15,6 @@ import {
 } from './utils'
 import { getButtonStyle } from "./Profile"
 import { VerifiedBadgeIcon } from "./icons"
-import { useGetOwnedMadFiBadge } from './hooks/useGetOwnedBadge';
 import { LensLogo } from './icons/logos/Lens';
 import { FarcasterLogo } from './icons/logos/Farcaster';
 
@@ -65,18 +64,10 @@ export function ProfileLarge({
   const [profile, setProfile] = useState<any | undefined>()
   const [followers, setFollowers] = useState<ProfileHandle[]>([])
   const [hasError, setHasError] = useState(false);
-  const {
-    ownsBadge,
-    verified
-  } = useGetOwnedMadFiBadge(environment.name === 'production', profileData?.sponsor || profile?.sponsor, ethereumAddress || profileData?.ownedBy?.address || profileData.userAssociatedAddresses[0] || profile?.ownedBy?.address)
 
   useEffect(() => {
     fetchProfile()
   }, [profileId, handle, ethereumAddress])
-
-  const shouldRenderBadge = useMemo(() => {
-    return renderMadFiBadge && ownsBadge && verified;
-  }, [renderMadFiBadge, ownsBadge, verified]);
 
   // TO GET VALID URL ON BAD IMG.SRC
   const checkURL = async (url: string) => {
@@ -281,7 +272,6 @@ export function ProfileLarge({
         <div className={profileNameAndBioContainerStyle} onClick={onProfilePress}>
           <div className="flex gap-x-2">
             <p className={profileNameStyle}>{getDisplayName(profile)}</p>
-            {shouldRenderBadge && <span className="mt-2"><VerifiedBadgeIcon /></span>}
           </div>
           <p className={getProfileHandleStyle(theme)}>@{profile.handle?.suggestedFormatted?.localName.replace('@', '')}</p>
           {

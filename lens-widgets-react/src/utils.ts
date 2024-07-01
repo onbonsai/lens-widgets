@@ -203,11 +203,13 @@ export function getSubstring(string, length = 130) {
 }
 
 /* takes a string of text and returns the same text with HTML + styling to highlight the handles */
-export function formatHandleColors(text:string) {
+export function formatHandleColors(text: string) {
   let color = ThemeColor.lightGreen
   text = text.replaceAll('.lens', '')
   text = text.replace(/(https\S+)/g, `<span style="color: ${color};">$1</span>`)
-  return text.replace(/@(\w+)/g, `<span style="color: ${color};">@$1</span>`)
+  text = text.replace(/@(\w+)/g, `<span style="color: ${color};">@$1</span>`)
+  text = text.replace(/\n/g, '<br>')
+  return text
 }
 
 /* takes an array of handles, returns a commma separated string */
