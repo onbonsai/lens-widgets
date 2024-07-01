@@ -37,6 +37,9 @@ class TipAction extends HandlerBase {
     // @ts-expect-error: type
     this.metadata = await this.lensClient.modules.fetchMetadata({ implementation: this.address });
 
+    // HACK: not rendering the tip button
+    this.panicked = true;
+
     return {};
   }
 

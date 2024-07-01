@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { css } from '@emotion/css'
 import {
   Environment,
@@ -13,7 +13,7 @@ import { ThemeColor, Theme } from './types'
 import { formatDistance } from 'date-fns'
 import { isEmpty } from 'lodash/lang';
 import {
-  MessageIcon, MirrorIcon, HeartIcon, ShareIcon
+  MessageIcon, MirrorIcon, HeartIcon, ShareIcon, VideoCameraSlashIcon
 } from './icons'
 import {
   formatProfilePicture,
@@ -33,7 +33,6 @@ import { BountyInfo } from './components/BountyInfo';
 import { WalletClient } from 'viem';
 import { Toast } from './types';
 import { VerifiedBadgeIcon } from "./icons"
-import { useGetOwnedMadFiBadge } from './hooks/useGetOwnedBadge';
 import { ActionHandler } from '@madfi/lens-oa-client';
 
 export function Publication({
@@ -94,6 +93,7 @@ export function Publication({
   let [publication, setPublication] = useState<any>(publicationData)
   let [showFullText, setShowFullText] = useState(false)
   let [openActModal, setOpenActModal] = useState(false)
+  const [withPlaybackError, setWithPlaybackError] = useState<boolean>(false);
 
   const {
     isActionModuleSupported,
@@ -108,20 +108,7 @@ export function Publication({
     focusedOpenActionModuleName
   );
 
-  const {
-    ownsBadge,
-    verified
-  } = useGetOwnedMadFiBadge(
-    environment.name === 'production',
-    publication?.by?.sponsor,
-    publication?.by?.ownedBy?.address
-  );
-
   const actHandledExternally = renderActButtonWithCTA && onActButtonClick;
-
-  const shouldRenderBadge = useMemo(() => {
-    return renderMadFiBadge && ownsBadge && verified;
-  }, [renderMadFiBadge, ownsBadge, verified]);
 
   useEffect(() => {
     if (!publicationData) {
@@ -212,7 +199,7 @@ export function Publication({
 
   let media, cover
   if (publication.metadata.asset) {
-    media = publication.metadata.asset
+    media = publication.metadata.asset || {};
     if (media.__typename === "PublicationMetadataMediaImage") {
       media.type = 'image'
       media.original = { url: returnIpfsPathOrUrl(media.image.optimized?.uri || media.image.raw?.uri, ipfsGateway) }
@@ -228,6 +215,13 @@ export function Publication({
     if (media.cover) {
       cover = returnIpfsPathOrUrl(media.cover?.optimized?.uri || media.cover.raw?.uri, ipfsGateway)
     }
+  }
+
+  if (publication.metadata.__typename === "LiveStreamMetadataV3") {
+    media = {
+      type: "livestream",
+      original: { url: publication.metadata.liveURL }
+    };
   }
 
   return (
@@ -268,7 +262,7 @@ export function Publication({
           <div className={profileDetailsContainerStyle(color)}>
             <div className="flex gap-x-2">
               <p className={profileNameStyle}>{getDisplayName(profile)}</p>
-              {shouldRenderBadge && <span className="mt-1"><VerifiedBadgeIcon height={20} /></span>}
+              {renderMadFiBadge && <span className="mt-1"><VerifiedBadgeIcon height={20} /></span>}
             </div>
             {/* conditional due to bounties */}
             {publication.createdAt && (
@@ -318,13 +312,30 @@ export function Publication({
             )
           }
           {
-            publication.metadata?.__typename === "VideoMetadataV3" && (
+            (publication.metadata?.__typename === "VideoMetadataV3" || publication.metadata?.__typename === "LiveStreamMetadataV3") && (
               <div className={videoContainerStyle}>
                 <ReactPlayer
                   className={videoStyle}
                   url={media.original.url}
-                  controls
+                  controls={!withPlaybackError}
+                  onError={() => {
+                    if (!withPlaybackError) setWithPlaybackError(true);
+                  }}
+                  muted
+                  playing={true}
                 />
+                {publication.metadata?.__typename === "LiveStreamMetadataV3" && !withPlaybackError && (
+                  <div className={liveContainerStyle}>
+                    <div className={liveDotStyle} />
+                    LIVE
+                  </div>
+                )}
+                {publication.metadata?.__typename === "LiveStreamMetadataV3" && withPlaybackError && (
+                  <div className={endedContainerStyle}>
+                    <VideoCameraSlashIcon color={reactionTextColor} />
+                    <p>Stream Ended</p>
+                  </div>
+                )}
               </div>
             )
           }
@@ -648,3 +659,49 @@ const profileDetailsContainerStyle = color => css`
     color: ${color};
   }
 `
+
+const liveContainerStyle = css`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.25);
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+`
+
+const liveDotStyle = css`
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50%;
+  margin-right: 5px;
+  animation: flash 3s linear infinite;
+
+  @keyframes flash {
+    0% { opacity: 1; }
+    50% { opacity: 0.25; }
+    100% { opacity: 1; }
+  }
+`
+
+const endedContainerStyle = css`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.25);
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  gap: 5px; // Adjust as needed for space between icon and text
+`;

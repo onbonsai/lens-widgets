@@ -7,7 +7,6 @@ import { actOnchain, actWithSignedTypedata, actSignless } from "@madfi/lens-oa-c
 import { Toast } from "../../types";
 import useIsProfileManager from "../../hooks/useIsProfileManager";
 import { enableProfileManagerGasless } from "../../services/profileManager";
-import { useGetMadCreator } from "../../hooks/useGetOwnedBadge";
 import { GenericUploader } from "../GenericUploader";
 import { polygonScanUrl } from "../../utils";
 
@@ -53,9 +52,6 @@ const PublicationBountyActionModal = ({
     isLoading: isLoadingProfileManager,
     refetch: fetchIsProfileManager
   } = useIsProfileManager(handler.lensClient, handler.authenticatedProfileId, bountiesAddress);
-  const {
-    data: madCreator
-  } = useGetMadCreator(handler.isPolygon!, handler.connectedWalletAddress, handler.authenticatedProfileId);
 
   const getParsedBidCount = () => {
     let bidCount = 0;
@@ -186,7 +182,6 @@ const PublicationBountyActionModal = ({
           bidAmount: parseUnits(bid, paymentToken!.decimals).toString(),
           contentURI,
           revShare: revShare ? parseInt(revShare) : 0,
-          bidderCollectionId: madCreator?.activeMadSBT?.collectionId,
           // TODO: next level is to reward engagement on this
           // rewardActionModuleInitData: undefined
         });
@@ -334,15 +329,7 @@ const PublicationBountyActionModal = ({
                       colSpan: "3",
                       value: bid,
                       onChange: (e) => setBid(e.target.value)
-                    },
-                    revShare: {
-                      label: `Rev-Share with your social club (%)`,
-                      placeholder: "0",
-                      type: "text",
-                      colSpan: "3",
-                      value: revShare,
-                      onChange: (e) => setRevShare(e.target.value)
-                    },
+                    }
                   };
                   return (
                     <div key={field} className={`col-span-${fields[field].colSpan} gap-2`}>
@@ -363,7 +350,7 @@ const PublicationBountyActionModal = ({
                           type={fields[field].type}
                           placeholder={fields[field].placeholder as string}
                             className="block w-full rounded-md text-secondary placeholder:text-secondary/70 border-dark-grey bg-transparent pr-12 shadow-sm focus:border-dark-grey focus:ring-dark-grey sm:text-sm mt-2"
-                          disabled={isSubmitting || (item == "revShare" && !madCreator?.activeMadSBT?.collectionId)}
+                          disabled={isSubmitting}
                           value={fields[field].value}
                           onChange={fields[field].onChange}
                         />

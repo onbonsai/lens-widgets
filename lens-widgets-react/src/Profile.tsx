@@ -19,8 +19,7 @@ import {
   ipfsOrNotWithDefaultGateway,
   FARCASTER_BANNER_URL,
 } from './utils'
-import { VerifiedBadgeIcon } from "./icons"
-import { useGetOwnedMadFiBadge } from './hooks/useGetOwnedBadge';
+import { VerifiedBadgeIcon } from "./icons";
 import { LensLogo } from './icons/logos/Lens';
 import { FarcasterLogo } from './icons/logos/Farcaster';
 
@@ -74,18 +73,10 @@ export function Profile({
   const [profile, setProfile] = useState<any | undefined>()
   const [followers, setFollowers] = useState<ProfileHandle[]>([])
   const [hasError, setHasError] = useState(false);
-  const {
-    ownsBadge,
-    verified
-  } = useGetOwnedMadFiBadge(environment.name === 'production', profile?.sponsor, profile?.ownedBy?.address)
 
   useEffect(() => {
     fetchProfile()
   }, [profileId, handle, ethereumAddress])
-
-  const shouldRenderBadge = useMemo(() => {
-    return renderMadFiBadge && ownsBadge && verified;
-  }, [renderMadFiBadge, ownsBadge, verified]);
 
   // TO GET VALID URL ON BAD IMG.SRC
   const checkURL = async (url: string) => {
@@ -292,7 +283,7 @@ export function Profile({
         <div className={profileNameAndBioContainerStyle} onClick={onProfilePress}>
           <div className="flex gap-x-2">
             <p className={profileNameStyle}>{getDisplayName(profile)}</p>
-            {shouldRenderBadge && <span className="mt-2"><VerifiedBadgeIcon /></span>}
+            {renderMadFiBadge && <span className="mt-2"><VerifiedBadgeIcon /></span>}
           </div>
           <p className={getProfileHandleStyle(theme)}>@{profile.handle?.suggestedFormatted?.localName.replace('@', '')}</p>
           {
