@@ -326,7 +326,7 @@ export function Profile({
             <div className={miniAvatarContainerStyle}>
               {
                 followers.map(follower => (
-                  <div key={follower.handle.localName} className={getMiniAvatarWrapper()}>
+                  <div key={follower.handle?.localName} className={getMiniAvatarWrapper()}>
                     <img src={follower.picture} className={getMiniAvatarStyle(theme)} />
                   </div>
                 ))
@@ -337,7 +337,7 @@ export function Profile({
                 Boolean(followers.length) && <span>Followed by</span>
               }
               {
-                formatHandleList(followers.map(follower => follower.handle.suggestedFormatted.localName))
+                formatHandleList(followers.map(follower => follower.handle?.suggestedFormatted?.localName))
               }</p>
           </div>
         )}
@@ -638,7 +638,7 @@ export function getButtonStyle(theme: Theme, bgColor?: string, textColor?: strin
     marginTop: '10px',
     outline: 'none',
     border: 'none',
-    padding: '4px 16px',
+    padding: '2px 10px',
     backgroundColor,
     borderRadius: '50px',
     borderColor,
@@ -647,6 +647,6 @@ export function getButtonStyle(theme: Theme, bgColor?: string, textColor?: strin
     color,
     fontSize: '16px',
     fontWeight: '500',
-    cursor: disabled ? 'default' : 'pointer'
+    cursor: disabled ? 'default' : 'pointer',
   }
 }

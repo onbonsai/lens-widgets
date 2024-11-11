@@ -270,10 +270,32 @@ export function ProfileLarge({
       </div>
       <div className={getProfileInfoContainerStyle(theme)}>
         <div className={profileNameAndBioContainerStyle} onClick={onProfilePress}>
-          <div className="flex gap-x-2">
-            <p className={profileNameStyle}>{getDisplayName(profile)}</p>
+          <div className="flex justify-between items-center">
+            <div>
+              <div className="flex gap-x-2">
+                <p className={profileNameStyle}>{getDisplayName(profile)}</p>
+              </div>
+              <p className={getProfileHandleStyle(theme)}>@{profile.handle?.suggestedFormatted?.localName.replace('@', '')}</p>
+            </div>
+            {
+              profileType !== "ens" &&
+              <div style={followButtonContainerStyle || getButtonContainerStyle(hideFollowButton)}>
+                <button
+                  disabled={followButtonDisabled || isFollowed}
+                  onClick={onFollowPress}
+                  style={
+                    followButtonStyle ||
+                    getButtonStyle(
+                      theme,
+                      !followButtonDisabled ? followButtonBackgroundColor : ThemeColor.darkGray,
+                      followButtonTextColor,
+                      followButtonDisabled || isFollowed
+                    )
+                  }
+                >{!isFollowed ? "Follow" : "Following"}</button>
+              </div>
+            }
           </div>
-          <p className={getProfileHandleStyle(theme)}>@{profile.handle?.suggestedFormatted?.localName.replace('@', '')}</p>
           {
             profile.metadata?.bio && (
               <p className={bioStyle} dangerouslySetInnerHTML={{
@@ -291,24 +313,6 @@ export function ProfileLarge({
               {profile.stats?.followers.toLocaleString('en-US') || 0} <span>Followers</span>
             </p>
           </div>
-          {
-            profileType !== "ens" &&
-              <div style={followButtonContainerStyle || getButtonContainerStyle(hideFollowButton)}>
-                <button
-                  disabled={followButtonDisabled || isFollowed}
-                  onClick={onFollowPress}
-                  style={
-                    followButtonStyle ||
-                    getButtonStyle(
-                      theme,
-                      !followButtonDisabled ? followButtonBackgroundColor : ThemeColor.darkGray,
-                      followButtonTextColor,
-                      followButtonDisabled || isFollowed
-                    )
-                  }
-                  >{!isFollowed ? "Follow" : "Following"}</button>
-              </div>
-          }
         </div>
         <div onClick={onProfilePress} className={getFollowedByContainerStyle(theme)}>
           {profile.dappName === "lens" && (
