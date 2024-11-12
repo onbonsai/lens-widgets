@@ -72,7 +72,7 @@ export function Publication({
   publicationId?: string,
   publicationData?: any,
   onClick?: (e) => void,
-  onProfileClick?: (e) => void,
+  onProfileClick?: (e, handleLocalName) => void,
   theme?: Theme,
   ipfsGateway?: string,
   fontSize?: string,
@@ -150,7 +150,7 @@ export function Publication({
 
   function onProfilePress(e) {
     if (onProfileClick) {
-      onProfileClick(e)
+      onProfileClick(e, publication.by?.handle.localName);
     } else {
       // if (profile) {
       //   const { localName, namespace } = profile.handle

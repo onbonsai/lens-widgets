@@ -29,6 +29,7 @@ export function Publications({
   renderMadFiBadge = false,
   followButtonDisabled = false,
   onFollowPress,
+  onProfileClick,
 } : {
   profileId?: string,
   handle?: string,
@@ -47,6 +48,7 @@ export function Publications({
   hideFollowButton?: boolean,
   followButtonDisabled: boolean,
   onFollowPress?: (event, profileId) => void,
+  onProfileClick?: (e, handleLocalName) => void,
 }) {
   const [_publications, setPublications] = useState<any[] | undefined>([])
   const [followed, setFollowed] = useState({});
@@ -114,7 +116,7 @@ export function Publications({
                 }
                 operations={getOperationsFor(publication.id)}
                 renderMadFiBadge={renderMadFiBadge}
-                hideFollowButton={hideFollowButton || publication.by.operations?.canFollow === "NO"}
+                hideFollowButton={hideFollowButton || (publication.by.operations?.canFollow === "NO" && !publication.by.operations?.isFollowedByMe?.value)}
                 followButtonDisabled={followButtonDisabled}
                 followButtonBackgroundColor={(publication.by.operations?.isFollowedByMe?.value || followed[publication.id]) ? "transparent" : "#EEEDED"}
                 isFollowed={publication.by.operations?.isFollowedByMe?.value || followed[publication.id]}
@@ -126,6 +128,7 @@ export function Publications({
                     setFollowed({...followed, ...res }); // optimistic, better than leaving no state changed
                   }
                 }}
+                onProfileClick={onProfileClick}
               />
             </div>
           )
