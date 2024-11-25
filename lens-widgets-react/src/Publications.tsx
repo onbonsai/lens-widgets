@@ -19,6 +19,7 @@ export function Publications({
   publications,
   environment = production,
   authenticatedProfile,
+  hideFollowButton = true,
   hideCommentButton = false,
   hideQuoteButton = false,
   hideShareButton = false,
@@ -26,6 +27,9 @@ export function Publications({
   hasUpvotedComment,
   getOperationsFor,
   renderMadFiBadge = false,
+  followButtonDisabled = false,
+  onFollowPress,
+  onProfileClick,
 } : {
   profileId?: string,
   handle?: string,
@@ -41,8 +45,13 @@ export function Publications({
   hasUpvotedComment: (publicationId: string) => boolean,
   getOperationsFor: (publicationId: string) => PublicationOperationsFragment | undefined,
   renderMadFiBadge?: boolean,
+  hideFollowButton?: boolean,
+  followButtonDisabled: boolean,
+  onFollowPress?: (event, profileId) => void,
+  onProfileClick?: (e, handleLocalName) => void,
 }) {
   const [_publications, setPublications] = useState<any[] | undefined>([])
+  const [followed, setFollowed] = useState({});
 
   useEffect(() => {
     if (!publications?.length) {
@@ -107,6 +116,19 @@ export function Publications({
                 }
                 operations={getOperationsFor(publication.id)}
                 renderMadFiBadge={renderMadFiBadge}
+                hideFollowButton={hideFollowButton || (publication.by.operations?.canFollow === "NO" && !publication.by.operations?.isFollowedByMe?.value)}
+                followButtonDisabled={followButtonDisabled}
+                followButtonBackgroundColor={(publication.by.operations?.isFollowedByMe?.value || followed[publication.id]) ? "transparent" : "#EEEDED"}
+                isFollowed={publication.by.operations?.isFollowedByMe?.value || followed[publication.id]}
+                onFollowPress={(e) => {
+                  if (onFollowPress) {
+                    onFollowPress(e, publication.by.id);
+                    const res = {};
+                    res[publication.id] = true;
+                    setFollowed({...followed, ...res }); // optimistic, better than leaving no state changed
+                  }
+                }}
+                onProfileClick={onProfileClick}
               />
             </div>
           )

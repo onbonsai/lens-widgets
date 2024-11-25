@@ -34,6 +34,7 @@ import { WalletClient } from 'viem';
 import { Toast } from './types';
 import { VerifiedBadgeIcon } from "./icons"
 import { ActionHandler } from '@madfi/lens-oa-client';
+import { getButtonStyle } from "./Profile"
 
 export function Publication({
   publicationId,
@@ -52,9 +53,12 @@ export function Publication({
   onMirrorButtonClick,
   onLikeButtonClick,
   onShareButtonClick,
+  hideFollowButton = true,
   hideCommentButton = false,
   hideQuoteButton = false,
   hideShareButton = false,
+  followButtonDisabled = false,
+  followButtonBackgroundColor,
   operations,
   focusedOpenActionModuleName,
   useToast,
@@ -62,11 +66,13 @@ export function Publication({
   appDomainWhitelistedGasless,
   renderMadFiBadge = false,
   handlePinMetadata,
+  isFollowed = false,
+  onFollowPress,
 }: {
   publicationId?: string,
   publicationData?: any,
   onClick?: (e) => void,
-  onProfileClick?: (e) => void,
+  onProfileClick?: (e, handleLocalName) => void,
   theme?: Theme,
   ipfsGateway?: string,
   fontSize?: string,
@@ -79,9 +85,12 @@ export function Publication({
   onMirrorButtonClick?: (e, actionModuleHandler?: ActionHandler) => void,
   onLikeButtonClick?: (e, p) => void,
   onShareButtonClick?: (e) => void,
+  hideFollowButton?: boolean,
   hideCommentButton?: boolean,
   hideQuoteButton?: boolean,
   hideShareButton?: boolean,
+  followButtonDisabled: boolean,
+  followButtonBackgroundColor?: string,
   operations?: PublicationOperationsFragment,
   focusedOpenActionModuleName?: string // in case a post has multiple action modules
   useToast?: Toast // ex: react-hot-toast to render notifs
@@ -89,6 +98,8 @@ export function Publication({
   appDomainWhitelistedGasless?: boolean,
   renderMadFiBadge?: boolean,
   handlePinMetadata?: (content: string, files: any[]) => Promise<string> // to upload post content on bounties
+  isFollowed?: boolean,
+  onFollowPress?: (event, profileId) => void,
 }) {
   let [publication, setPublication] = useState<any>(publicationData)
   let [showFullText, setShowFullText] = useState(false)
@@ -139,7 +150,7 @@ export function Publication({
 
   function onProfilePress(e) {
     if (onProfileClick) {
-      onProfileClick(e)
+      onProfileClick(e, publication.by?.handle.localName);
     } else {
       // if (profile) {
       //   const { localName, namespace } = profile.handle
@@ -240,8 +251,8 @@ export function Publication({
               </div>
             )
           } */}
-        <div className={profileContainerStyle(isMirror, !!onProfileClick)} onClick={onProfilePress}>
-          <div>
+        <div className={profileContainerStyle(isMirror)}>
+          <div className={onProfileClick ? 'cursor-pointer' : 'cursor-default'} onClick={onProfilePress}>
             {
              publication.by?.metadata?.picture?.optimized?.uri ||
              publication.by?.metadata?.picture?.image.optimized?.uri  ? (
@@ -260,14 +271,32 @@ export function Publication({
             }
           </div>
           <div className={profileDetailsContainerStyle(color)}>
-            <div className="flex gap-x-2">
-              <p className={profileNameStyle}>{getDisplayName(profile)}</p>
-              {renderMadFiBadge && <span className="mt-1"><VerifiedBadgeIcon height={20} /></span>}
+            <div className="flex justify-between w-full">
+              <div>
+                <div className="flex gap-x-2">
+                  <p className={profileNameStyle}>{getDisplayName(profile)}</p>
+                  {renderMadFiBadge && <span className="mt-1"><VerifiedBadgeIcon height={20} /></span>}
+                </div>
+                {/* conditional due to bounties */}
+                {publication.createdAt && (
+                  <p className={dateStyle}> {formatDistance(new Date(publication.createdAt), new Date())} ago</p>
+                )}
+              </div>
+              <div style={getButtonContainerStyle(hideFollowButton)}>
+                <button
+                  disabled={followButtonDisabled || isFollowed}
+                  onClick={(e) => onFollowPress ? onFollowPress(e, publication.by.id) : undefined}
+                  style={
+                    getButtonStyle(
+                      theme,
+                      !followButtonDisabled ? followButtonBackgroundColor : ThemeColor.darkGray,
+                      undefined, // followButtonTextColor
+                      followButtonDisabled || isFollowed
+                    )
+                  }
+                >{!isFollowed ? "Follow" : "Following"}</button>
+              </div>
             </div>
-            {/* conditional due to bounties */}
-            {publication.createdAt && (
-              <p className={dateStyle}> {formatDistance(new Date(publication.createdAt), new Date())} ago</p>
-            )}
           </div>
         </div>
         <div className={textContainerStyle}>
@@ -521,11 +550,10 @@ const markdownStyle = (color, fontSize) => css`
   }
 `
 
-const profileContainerStyle = (isMirror, profileClickable) => css`
+const profileContainerStyle = (isMirror) => css`
   display: flex;
   align-items: center;
   padding-top: ${isMirror ? '2px' : '6px'};
-  cursor: ${profileClickable ? 'pointer' : 'default'}
 `
 const system = css`
   font-family: ${systemFonts} !important
@@ -654,6 +682,7 @@ const profileDetailsContainerStyle = color => css`
   display: flex;
   flex-direction: column;
   margin-left: 10px;
+  width: 100%;
   p {
     margin: 0;
     color: ${color};
@@ -705,3 +734,12 @@ const endedContainerStyle = css`
   font-weight: bold;
   gap: 5px; // Adjust as needed for space between icon and text
 `;
+
+function getButtonContainerStyle(hidden) {
+  return {
+    display: 'flex',
+    flex: 1,
+    justifyContent: 'flex-end',
+    visibility: hidden ? 'hidden' : 'visible' as any
+  }
+}
