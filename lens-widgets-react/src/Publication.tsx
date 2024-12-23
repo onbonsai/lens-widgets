@@ -213,15 +213,15 @@ export function Publication({
     media = publication.metadata.asset || {};
     if (media.__typename === "PublicationMetadataMediaImage") {
       media.type = 'image'
-      media.original = { url: returnIpfsPathOrUrl(media.image.optimized?.uri || media.image.raw?.uri, ipfsGateway) }
+      media.original = { url: returnIpfsPathOrUrl(media.image?.optimized?.uri || media.image.raw?.uri, ipfsGateway) }
     }
     if (media.__typename === "PublicationMetadataMediaVideo") {
       media.type = 'video'
-      media.original = { url: returnIpfsPathOrUrl(media.video.optimized?.uri || media.video.raw?.uri, ipfsGateway) }
+      media.original = { url: returnIpfsPathOrUrl(media.video?.optimized?.uri || media.video.raw?.uri, ipfsGateway) }
     }
     if (media.__typename === "PublicationMetadataMediaAudio") {
       media.type = 'audio'
-      media.original = { url: returnIpfsPathOrUrl(media.audio.optimized?.uri || media.audio.raw?.uri, ipfsGateway) }
+      media.original = { url: returnIpfsPathOrUrl(media.audio?.optimized?.uri || media.audio.raw?.uri, ipfsGateway) }
     }
     if (media.cover) {
       cover = returnIpfsPathOrUrl(media.cover?.optimized?.uri || media.cover.raw?.uri, ipfsGateway)
@@ -255,11 +255,11 @@ export function Publication({
           <div className={onProfileClick ? 'cursor-pointer' : 'cursor-default'} onClick={onProfilePress}>
             {
              publication.by?.metadata?.picture?.optimized?.uri ||
-             publication.by?.metadata?.picture?.image.optimized?.uri  ? (
+             publication.by?.metadata?.picture?.image?.optimized?.uri  ? (
                 <img
                   src={
                     publication.by.metadata.picture.__typename === 'NftImage' ?
-                    publication.by.metadata.picture?.image.optimized?.uri : publication.by.metadata.picture?.optimized?.uri
+                    publication.by.metadata.picture?.image?.optimized?.uri : publication.by.metadata?.picture?.optimized?.uri
                   }
                   className={profilePictureStyle}
                 />
@@ -334,7 +334,7 @@ export function Publication({
               <div className={imageContainerStyle}>
                 <img
                   className={mediaImageStyle}
-                  src={publication.metadata.asset.image.optimized?.uri || returnIpfsPathOrUrl(publication.metadata.asset.image.raw.uri)}
+                  src={publication.metadata.asset?.image?.optimized?.uri || returnIpfsPathOrUrl(publication.metadata.asset.image.raw.uri)}
                   onClick={onPublicationPress}
                 />
               </div>
