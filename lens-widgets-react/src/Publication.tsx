@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { css } from '@emotion/css'
 import {
   Environment,
@@ -35,6 +35,9 @@ import { Toast } from './types';
 import { VerifiedBadgeIcon } from "./icons"
 import { ActionHandler } from '@madfi/lens-oa-client';
 import { getButtonStyle } from "./Profile"
+import { NewHeartIcon } from './icons/NewHeartIcon';
+import { NewMessageIcon } from './icons/NewMessageIcon';
+import { NewShareIcon } from './icons/NewShareIcon';
 
 export function Publication({
   publicationId,
@@ -68,6 +71,22 @@ export function Publication({
   handlePinMetadata,
   isFollowed = false,
   onFollowPress,
+  profilePictureStyleOverride,
+  profileContainerStyleOverride,
+  textContainerStyleOverride,
+  containerBorderRadius,
+  containerPadding,
+  profilePadding,
+  backgroundColorOverride,
+  mediaImageStyleOverride,
+  imageContainerStyleOverride,
+  reactionsContainerStyleOverride,
+  reactionContainerStyleOverride,
+  markdownStyleBottomMargin,
+  shareContainerStyleOverride,
+  heartIconOverride,
+  messageIconOverride,
+  shareIconOverride,
 }: {
   publicationId?: string,
   publicationData?: any,
@@ -100,6 +119,22 @@ export function Publication({
   handlePinMetadata?: (content: string, files: any[]) => Promise<string> // to upload post content on bounties
   isFollowed?: boolean,
   onFollowPress?: (event, profileId) => void,
+  profilePictureStyleOverride?: string,
+  profileContainerStyleOverride?: (isMirror, padding?: string) => string,
+  textContainerStyleOverride?: string,
+  containerBorderRadius?: string,
+  containerPadding?: string,
+  profilePadding?: string,
+  backgroundColorOverride?: string,
+  mediaImageStyleOverride?: string,
+  imageContainerStyleOverride?: string,
+  reactionsContainerStyleOverride?: string,
+  reactionContainerStyleOverride?: (color, backgroundColor, isAuthenticatedAndWithHandler, hasReacted) => string,
+  markdownStyleBottomMargin?: string,
+  shareContainerStyleOverride?: (color, backgroundColor) => string,
+  heartIconOverride?: boolean,
+  messageIconOverride?: boolean,
+  shareIconOverride?: boolean,
 }) {
   let [publication, setPublication] = useState<any>(publicationData)
   let [showFullText, setShowFullText] = useState(false)
@@ -188,7 +223,7 @@ export function Publication({
   let isMirror = false
   if (publication.mirrorOf) {
     isMirror = true
-    const { mirrorOf, ...original} = publication
+    const { mirrorOf, ...original } = publication
     publication = publication.mirrorOf
     publication.original = original
   }
@@ -198,15 +233,26 @@ export function Publication({
   // theming
   const isDarkTheme = theme === Theme.dark
   const color = isDarkTheme ? ThemeColor.white : ThemeColor.darkGray
-  const backgroundColor = isDarkTheme ? ThemeColor.lightBlack : ThemeColor.white
+  const backgroundColor = backgroundColorOverride ?? (isDarkTheme ? ThemeColor.lightBlack : ThemeColor.white)
   const reactionBgColor = isDarkTheme ? ThemeColor.darkGray : ThemeColor.lightGray
   const actButttonBgColor = isDarkTheme ? ThemeColor.darkGray : ThemeColor.lightGray
   const reactionTextColor = isDarkTheme ? ThemeColor.lightGray : ThemeColor.darkGray
+
+  // style overrides
+  const activeProfilePictureStyle = profilePictureStyleOverride ?? profilePictureStyle;
+  const activeProfileContainerStyle = profileContainerStyleOverride ?? profileContainerStyle;
+  const activeTextContainerStyle = textContainerStyleOverride ?? textContainerStyle;
+  const activeMediaImageStyle = mediaImageStyleOverride ?? mediaImageStyle;
+  const actiiveImageContainerStyle = imageContainerStyleOverride ?? imageContainerStyle;
+  const activeReactionsContainerStyle = reactionsContainerStyleOverride ?? reactionsContainerStyle;
+  const activeReactionContainerStyle = reactionContainerStyleOverride ?? reactionContainerStyle;
+  const activeShareContainerStyle = shareContainerStyleOverride ?? shareContainerStyle;
 
   // misc
   const isAuthenticated = !!authenticatedProfile?.id;
   const renderActButton = walletClient && isAuthenticated && ((isActionModuleSupported && !isLoadingActionModuleState && !actionModuleHandler?.panicked) || actHandledExternally);
   const renderActLoading = walletClient && isAuthenticated && (isActionModuleSupported && isLoadingActionModuleState && !actionModuleHandler?.panicked && !actHandledExternally);
+
 
   let media, cover
   if (publication.metadata.asset) {
@@ -237,13 +283,13 @@ export function Publication({
 
   return (
     <div
-      className={publicationContainerStyle(backgroundColor, onClick ? true : false)}
+      className={publicationContainerStyle(backgroundColor, onClick ? true : false, containerBorderRadius)}
     >
       <div
-       onClick={onPublicationPress}
-       className={topLevelContentStyle}
+        onClick={onPublicationPress}
+        className={topLevelContentStyle(containerPadding)}
       >
-         {/* {
+        {/* {
             isMirror && (
               <div className={mirroredByContainerStyle}>
                 <MirrorIcon color={ThemeColor.mediumGray} />
@@ -251,21 +297,21 @@ export function Publication({
               </div>
             )
           } */}
-        <div className={profileContainerStyle(isMirror)}>
+        <div className={activeProfileContainerStyle(isMirror, profilePadding)}>
           <div className={onProfileClick ? 'cursor-pointer' : 'cursor-default'} onClick={onProfilePress}>
             {
-             publication.by?.metadata?.picture?.optimized?.uri ||
-             publication.by?.metadata?.picture?.image?.optimized?.uri  ? (
+              publication.by?.metadata?.picture?.optimized?.uri ||
+                publication.by?.metadata?.picture?.image?.optimized?.uri ? (
                 <img
                   src={
                     publication.by.metadata.picture.__typename === 'NftImage' ?
-                    publication.by.metadata.picture?.image?.optimized?.uri : publication.by.metadata?.picture?.optimized?.uri
+                      publication.by.metadata.picture?.image?.optimized?.uri : publication.by.metadata?.picture?.optimized?.uri
                   }
-                  className={profilePictureStyle}
+                  className={activeProfilePictureStyle}
                 />
               ) : (
                 <div
-                  className={profilePictureStyle}
+                  className={activeProfilePictureStyle}
                 />
               )
             }
@@ -299,23 +345,23 @@ export function Publication({
             </div>
           </div>
         </div>
-        <div className={textContainerStyle}>
+        <div className={activeTextContainerStyle}>
           <ReactMarkdown
-            className={markdownStyle(color,fontSize)}
+            className={markdownStyle(color, fontSize, markdownStyleBottomMargin)}
             rehypePlugins={[rehypeRaw]}
           >
             {showFullText
               ? formatHandleColors(publication.metadata.content)
               : formatHandleColors(getSubstring(publication.metadata.content, 339))}
           </ReactMarkdown>
-        {publication.metadata.content.length > 339 && (
-          <button className={showMoreStyle} onClick={(event) => {
-            event.stopPropagation()
-            setShowFullText(!showFullText)
-          }}>
-            {showFullText ? 'Show Less' : 'Show More'}
-          </button>
-        )}
+          {publication.metadata.content.length > 339 && (
+            <button className={showMoreStyle} onClick={(event) => {
+              event.stopPropagation()
+              setShowFullText(!showFullText)
+            }}>
+              {showFullText ? 'Show Less' : 'Show More'}
+            </button>
+          )}
         </div>
       </div>
       {/* Render a NFT preview component OR the media content */}
@@ -331,9 +377,9 @@ export function Publication({
         <>
           {
             publication.metadata?.__typename === "ImageMetadataV3" && (
-              <div className={imageContainerStyle}>
+              <div className={actiiveImageContainerStyle}>
                 <img
-                  className={mediaImageStyle}
+                  className={activeMediaImageStyle}
                   src={publication.metadata.asset?.image?.optimized?.uri || returnIpfsPathOrUrl(publication.metadata.asset.image.raw.uri)}
                   onClick={onPublicationPress}
                 />
@@ -396,30 +442,30 @@ export function Publication({
         </div>
       )}
       <div
-        className={reactionsContainerStyle}
+        className={activeReactionsContainerStyle}
         onClick={onPublicationPress}
       >
         {!isEmpty(publication.stats) && (
           <>
             <div
-              className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onLikeButtonClick, operations?.hasUpvoted)}
+              className={activeReactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onLikeButtonClick, operations?.hasUpvoted)}
               onClick={(e) => { if (onLikeButtonClick) onLikeButtonClick(e, publication) }}
             >
-              <HeartIcon color={!operations?.hasUpvoted ? reactionTextColor : ThemeColor.red} />
-              <p>{publication.stats.upvotes > 0 ? publication.stats.upvotes : null}</p>
+              {heartIconOverride ? <NewHeartIcon color={!operations?.hasUpvoted ? reactionTextColor : ThemeColor.red} /> : <HeartIcon color={!operations?.hasUpvoted ? reactionTextColor : ThemeColor.red} />}
+              {publication.stats.upvotes > 0 && <p>{publication.stats.upvotes > 0 ? publication.stats.upvotes : null}</p>}
             </div>
             {!hideCommentButton && (
               <div
-                className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onCommentButtonClick, false)}
+                className={activeReactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onCommentButtonClick, false)}
                 onClick={onCommentPress}
               >
-                <MessageIcon color={reactionTextColor} />
-                <p>{publication.stats.comments > 0 ? publication.stats.comments : null}</p>
+                {messageIconOverride ? <NewMessageIcon color={reactionTextColor} /> : <MessageIcon color={reactionTextColor} />}
+                {publication.stats.comments > 0 && <p>{publication.stats.comments > 0 ? publication.stats.comments : null}</p>}
               </div>
             )}
             {!hideQuoteButton && (
               <div
-                className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onMirrorButtonClick, operations?.hasMirrored)}
+                className={activeReactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onMirrorButtonClick, operations?.hasMirrored)}
                 onClick={onMirrorPress}
               >
                 <MirrorIcon color={!operations?.hasMirrored ? reactionTextColor : ThemeColor.lightGreen} />
@@ -435,16 +481,16 @@ export function Publication({
               </div>
             )}
             {renderActLoading && (
-              <div className={shareContainerStyle(reactionTextColor, reactionBgColor)}>
+              <div className={activeShareContainerStyle(reactionTextColor, reactionBgColor)}>
                 <Spinner customClasses="h-6 w-6" color={color} />
               </div>
             )}
             {!(renderActButton || renderActLoading) && !hideShareButton && (
               <div
-                className={shareContainerStyle(reactionTextColor, reactionBgColor)}
+                className={activeShareContainerStyle(reactionTextColor, reactionBgColor)}
                 onClick={onShareButtonClick}
               >
-                <ShareIcon color={reactionTextColor} />
+                {shareIconOverride ? < NewShareIcon color={reactionTextColor} /> : <ShareIcon color={reactionTextColor} />}
               </div>
             )}
           </>
@@ -486,12 +532,15 @@ const textContainerStyle = css`
   padding-top: 22px;
 `
 
-const topLevelContentStyle = css`
-  padding: 12px 18px 0px;
+const topLevelContentStyle = (padding?: string) => css`
+  padding: ${padding ?? '12px 18px 0px'};
 `
 
 const imageContainerStyle = css`
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 100%;
   overflow: hidden;
   max-height: 480px;
@@ -538,7 +587,7 @@ const mediaImageStyle = css`
   display: block;
 `
 
-const markdownStyle = (color, fontSize) => css`
+const markdownStyle = (color, fontSize, bottomMargin?: string) => css`
   color: ${color};
   overflow: hidden;
   li {
@@ -546,14 +595,14 @@ const markdownStyle = (color, fontSize) => css`
   }
   p {
     font-size: ${fontSize || '14px'};
-    margin-bottom: 5px;
+    margin-bottom: ${bottomMargin ?? '5px'};
   }
 `
 
-const profileContainerStyle = (isMirror) => css`
+const profileContainerStyle = (isMirror, padding?: string) => css`
   display: flex;
   align-items: center;
-  padding-top: ${isMirror ? '2px' : '6px'};
+  padding: ${padding ?? (isMirror ? '2px 0 0 0' : '6px 0 0 0')};
 `
 const system = css`
   font-family: ${systemFonts} !important
@@ -567,6 +616,10 @@ const profileNameStyle = css`
 const profilePictureStyle = css`
   width: 42px;
   height: 42px;
+  min-width: 42px;
+  min-height: 42px;
+  max-width: 42px;
+  max-height: 42px;
   border-radius: 20px;
   object-fit: cover;
   background-color: #dddddd;
@@ -658,12 +711,12 @@ const actButtonContainerStyle = (color, backgroundColor, disabled?: boolean) => 
   cursor: ${!disabled ? 'pointer' : 'default'};
 `
 
-const publicationContainerStyle = (color, onClick: boolean) => css`
+const publicationContainerStyle = (color, onClick: boolean, containerBorderRadius?: string) => css`
   max-width: 510px;
   width: 100%;
   background-color: ${color};
-  cursor: ${onClick ? 'pointer': 'default'};
-  border-radius: 18px;
+  cursor: ${onClick ? 'pointer' : 'default'};
+  border-radius: ${containerBorderRadius ?? '18px'};
   @media (max-width: 510px) {
     width: 100%
   }

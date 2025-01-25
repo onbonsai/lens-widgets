@@ -30,7 +30,24 @@ export function Publications({
   followButtonDisabled = false,
   onFollowPress,
   onProfileClick,
-} : {
+  profilePictureStyleOverride,
+  profileContainerStyleOverride,
+  textContainerStyleOverride,
+  containerBorderRadius,
+  containerPadding,
+  profilePadding,
+  backgroundColorOverride,
+  mediaImageStyleOverride,
+  imageContainerStyleOverride,
+  reactionsContainerStyleOverride,
+  reactionContainerStyleOverride,
+  publicationContainerStyleOverride,
+  markdownStyleBottomMargin,
+  shareContainerStyleOverride,
+  heartIconOverride,
+  messageIconOverride,
+  shareIconOverride,
+}: {
   profileId?: string,
   handle?: string,
   theme?: Theme,
@@ -49,6 +66,23 @@ export function Publications({
   followButtonDisabled: boolean,
   onFollowPress?: (event, profileId) => void,
   onProfileClick?: (e, handleLocalName) => void,
+  profilePictureStyleOverride?: string,
+  profileContainerStyleOverride?: (isMirror, padding?: string) => string,
+  textContainerStyleOverride?: string,
+  containerBorderRadius?: string,
+  containerPadding?: string,
+  profilePadding?: string,
+  backgroundColorOverride?: string,
+  mediaImageStyleOverride?: string,
+  imageContainerStyleOverride?: string,
+  reactionsContainerStyleOverride?: string,
+  reactionContainerStyleOverride?: (color, backgroundColor, isAuthenticatedAndWithHandler, hasReacted) => string,
+  publicationContainerStyleOverride?: string,
+  markdownStyleBottomMargin?: string,
+  shareContainerStyleOverride?: (color, backgroundColor) => string,
+  heartIconOverride?: boolean,
+  messageIconOverride?: boolean,
+  shareIconOverride?: boolean,
 }) {
   const [_publications, setPublications] = useState<any[] | undefined>([])
   const [followed, setFollowed] = useState({});
@@ -63,7 +97,7 @@ export function Publications({
 
   async function fetchPublications() {
     let id = profileId
-    let limit:LimitType = LimitType.TEN
+    let limit: LimitType = LimitType.TEN
     if (numberOfPublications) {
       if (numberOfPublications === 25) {
         limit = LimitType.TWENTYFIVE
@@ -95,12 +129,15 @@ export function Publications({
     }
   }
 
+  // style overrides
+  const activePublicationContainerStyle = publicationContainerStyleOverride || publicationContainerStyle
+
   return (
     <div className={publicationsContainerStyle}>
       {
         publications?.map(publication => {
           return (
-            <div key={`${publication.id}`} className={publicationContainerStyle}>
+            <div key={`${publication.id}`} className={activePublicationContainerStyle}>
               <PublicationComponent
                 publicationData={publication}
                 publicationId={publication.id}
@@ -125,10 +162,26 @@ export function Publications({
                     onFollowPress(e, publication.by.id);
                     const res = {};
                     res[publication.id] = true;
-                    setFollowed({...followed, ...res }); // optimistic, better than leaving no state changed
+                    setFollowed({ ...followed, ...res }); // optimistic, better than leaving no state changed
                   }
                 }}
                 onProfileClick={onProfileClick}
+                profilePictureStyleOverride={profilePictureStyleOverride}
+                profileContainerStyleOverride={profileContainerStyleOverride}
+                textContainerStyleOverride={textContainerStyleOverride}
+                containerBorderRadius={containerBorderRadius}
+                containerPadding={containerPadding}
+                profilePadding={profilePadding}
+                backgroundColorOverride={backgroundColorOverride}
+                mediaImageStyleOverride={mediaImageStyleOverride}
+                imageContainerStyleOverride={imageContainerStyleOverride}
+                reactionsContainerStyleOverride={reactionsContainerStyleOverride}
+                reactionContainerStyleOverride={reactionContainerStyleOverride}
+                markdownStyleBottomMargin={markdownStyleBottomMargin}
+                shareContainerStyleOverride={shareContainerStyleOverride}
+                heartIconOverride={heartIconOverride}
+                messageIconOverride={messageIconOverride}
+                shareIconOverride={shareIconOverride}
               />
             </div>
           )
