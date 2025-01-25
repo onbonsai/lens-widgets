@@ -451,7 +451,7 @@ export function Publication({
               className={activeReactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onLikeButtonClick, operations?.hasUpvoted)}
               onClick={(e) => { if (onLikeButtonClick) onLikeButtonClick(e, publication) }}
             >
-              {heartIconOverride ? <NewHeartIcon color={!operations?.hasUpvoted ? reactionTextColor : ThemeColor.red} /> : <HeartIcon color={!operations?.hasUpvoted ? reactionTextColor : ThemeColor.red} />}
+              {heartIconOverride ? <NewHeartIcon fillColor={!operations?.hasUpvoted ? ThemeColor.transparent : ThemeColor.red} outlineColor={!operations?.hasUpvoted ? reactionTextColor : ThemeColor.red} /> : <HeartIcon color={!operations?.hasUpvoted ? reactionTextColor : ThemeColor.red} />}
               {publication.stats.upvotes > 0 && <p>{publication.stats.upvotes > 0 ? publication.stats.upvotes : null}</p>}
             </div>
             {!hideCommentButton && (
