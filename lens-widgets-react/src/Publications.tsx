@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { css } from '@emotion/css'
 import { client, profileByHandle, getPublications } from './graphql'
 import { Publication as PublicationComponent } from './Publication'
-import { ProfileFragment, PublicationOperationsFragment, Environment, production } from '@lens-protocol/client'
 import { Theme } from './types'
 
 enum LimitType {
@@ -17,7 +16,7 @@ export function Publications({
   theme,
   numberOfPublications,
   publications,
-  environment = production,
+  environment,
   authenticatedProfile,
   hideFollowButton = true,
   hideCommentButton = false,
@@ -53,14 +52,14 @@ export function Publications({
   theme?: Theme,
   numberOfPublications?: number,
   publications?: any[],
-  environment?: Environment,
-  authenticatedProfile?: ProfileFragment | null,
+  environment?: any,
+  authenticatedProfile?: any,
   hideCommentButton?: boolean,
   hideQuoteButton?: boolean,
   hideShareButton?: boolean,
   onLikeButtonClick?: (e, publicationId: string) => void,
   hasUpvotedComment: (publicationId: string) => boolean,
-  getOperationsFor: (publicationId: string) => PublicationOperationsFragment | undefined,
+  getOperationsFor: (publicationId: string) => any,
   renderMadFiBadge?: boolean,
   hideFollowButton?: boolean,
   followButtonDisabled: boolean,
@@ -153,10 +152,10 @@ export function Publications({
                 }
                 operations={getOperationsFor(publication.id)}
                 renderMadFiBadge={renderMadFiBadge}
-                hideFollowButton={hideFollowButton || (publication.by.operations?.canFollow === "NO" && !publication.by.operations?.isFollowedByMe?.value)}
+                hideFollowButton={false} // TODO: fix this
                 followButtonDisabled={followButtonDisabled}
-                followButtonBackgroundColor={(publication.by.operations?.isFollowedByMe?.value || followed[publication.id]) ? "transparent" : "#EEEDED"}
-                isFollowed={publication.by.operations?.isFollowedByMe?.value || followed[publication.id]}
+                followButtonBackgroundColor={"#EEEDED"} // TODO: fix this
+                isFollowed={false} // TODO: fix this
                 onFollowPress={(e) => {
                   if (onFollowPress) {
                     onFollowPress(e, publication.by.id);
