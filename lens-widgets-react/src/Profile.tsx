@@ -1,7 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { css } from '@emotion/css'
 import { ThemeColor, ProfileHandle, Theme, AirstackProfile, ENSProfile } from './types'
-import { LensClient, ProfileFragment, development, production } from "@lens-protocol/client";
 import { client } from './graphql/client'
 import {
   profileById,
@@ -41,7 +40,7 @@ export function Profile({
   ipfsGateway,
   onFollowPress,
   skipFetchFollowers,
-  environment = production,
+  environment,
   followButtonDisabled = false,
   isFollowed = false,
   renderMadFiBadge = false,
@@ -64,7 +63,7 @@ export function Profile({
   ipfsGateway?: string,
   onFollowPress?: (event) => void,
   skipFetchFollowers?: boolean,
-  environment?: (typeof development | typeof production),
+  environment?: any,
   followButtonDisabled: boolean,
   isFollowed?: boolean,
   renderMadFiBadge?: boolean,
@@ -149,44 +148,10 @@ export function Profile({
   }
 
   async function fetchProfile() {
-    if (profileData) {
-      formatProfile(profileData)
-      fetchFollowers(profileData.id)
-      return;
-    }
-    if (!profileId && !ethereumAddress && !handle) {
-      return console.log('please pass in either a Lens profile ID or an Ethereum address')
-    }
-    const lensClient = new LensClient({ environment });
-    if (handle) {
-      try {
-        handle = handle.toLowerCase()
-        const { data } = await client
-          .query(profileQuery, {
-            handle
-          })
-          .toPromise()
-        formatProfile(data.profile)
-        fetchFollowers(data.profile.id)
-      } catch (err) {
-        console.log('error fetching profile... ', err)
-      }
-    } else if (profileId) {
-      try {
-        const profile = await lensClient.profile.fetch({ forProfileId: profileId })
-        if (!profile) throw new Error();
-
-        formatProfile(profile)
-        fetchFollowers(profileId)
-      } catch (err) {
-        console.log('error fetching profile... ', err)
-      }
-    } else {
-      throw new Error('not supporting address yet');
-    }
+    throw new Error('not supporting fetch profile yet');
   }
 
-  function formatProfile(profile: ProfileFragment) {
+  function formatProfile(profile: any) {
     let copy = formatProfilePicture(profile)
     setProfile(copy)
     setHasError(false);

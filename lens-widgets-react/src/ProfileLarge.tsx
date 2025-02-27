@@ -1,7 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { css } from '@emotion/css'
 import { ThemeColor, ProfileHandle, Theme, AirstackProfile, ENSProfile } from './types'
-import { LensClient, ProfileFragment, development, production } from "@lens-protocol/client";
 import {
   formatProfilePicture,
   systemFonts,
@@ -34,7 +33,7 @@ export function ProfileLarge({
   hideFollowButton = true,
   ipfsGateway,
   onFollowPress,
-  environment = production,
+  environment,
   followButtonDisabled = false,
   isFollowed = false,
   renderMadFiBadge = false,
@@ -55,7 +54,7 @@ export function ProfileLarge({
   hideFollowButton?: boolean,
   ipfsGateway?: string,
   onFollowPress?: (event) => void,
-  environment?: (typeof development | typeof production),
+  environment?: any,
   followButtonDisabled: boolean,
   isFollowed?: boolean,
   renderMadFiBadge?: boolean,
@@ -115,67 +114,14 @@ export function ProfileLarge({
   }
 
   async function fetchFollowers(id: string) {
-    try {
-      const lensClient = new LensClient({ environment })
-      const followers = await lensClient.profile.followers({ of: id })
-
-      const filteredProfiles = followers.items.filter(p => p.metadata?.picture)
-      let first3 = JSON.parse(JSON.stringify(filteredProfiles.slice(0, 3)))
-      first3 = first3.map(profile => {
-        profile.handle = profile.handle.suggestedFormatted?.localName || profile.handle.localName
-        profile.picture = returnIpfsPathOrUrl(profile.metadata.picture.optimized?.uri || profile.metadata.picture.raw?.uri, ipfsGateway)
-        return profile
-      })
-      setFollowers(first3)
-    } catch (err) {
-      console.log('error fetching followers ...', err)
-    }
+    throw new Error('not supporting fetch followers yet');
   }
 
   async function fetchProfile() {
-    if (profileData) {
-      if (profileType === 'lens') {
-        formatProfile(profileData)
-        fetchFollowers(profileData.id)
-        return;
-      } else if (profileType === 'farcaster') {
-        formatProfileAirstack(profileData)
-        return;
-      } else if (profileType === 'ens') {
-        formatProfileEns(profileData)
-        return
-      }
-    }
-    if (!profileId && !ethereumAddress && !handle) {
-      return console.log('please pass in either a Lens profile ID or an Ethereum address')
-    }
-    const lensClient = new LensClient({ environment });
-    if (handle) {
-      try {
-        const profile = await lensClient.profile.fetch({ forHandle: handle });
-        if (!profile) throw new Error();
-
-        formatProfile(profile)
-        fetchFollowers(profile.id)
-      } catch (err) {
-        console.log('error fetching profile... ', err)
-      }
-    } else if (profileId) {
-      try {
-        const profile = await lensClient.profile.fetch({ forProfileId: profileId })
-        if (!profile) throw new Error();
-
-        formatProfile(profile)
-        fetchFollowers(profileId)
-      } catch (err) {
-        console.log('error fetching profile... ', err)
-      }
-    } else {
-      throw new Error('not supporting address yet');
-    }
+    throw new Error('not supporting fetch profile yet');
   }
 
-  function formatProfile(profile: ProfileFragment) {
+  function formatProfile(profile: any) {
     let copy = formatProfilePicture(profile)
     setProfile(copy)
     setHasError(false);

@@ -1,13 +1,10 @@
 import { useState, useEffect } from "react";
 import { WalletClient } from "viem";
-import { Environment, PostFragment, CommentBaseFragment } from "@lens-protocol/client";
 import { fetchActionModuleHandlers, ActionHandler } from "@madfi/lens-oa-client";
 
-type PubWithModules = PostFragment | CommentBaseFragment;
-
 export const useSupportedActionModule = (
-  environment: Environment,
-  publication?: PubWithModules,
+  environment: any,
+  publication?: any,
   authenticatedProfileId?: string,
   walletClient?: WalletClient,
   rpcURLs?: { [chainId: number]: string },
@@ -21,7 +18,6 @@ export const useSupportedActionModule = (
     if (environment && publication?.id && publication?.openActionModules?.length) {
       const [profileId, pubId] = publication.id.split("-");
 
-      // @ts-expect-error we check `openActionModules` array length in `fetchActionModuleHandlers`
       const actionModulesHandlers = fetchActionModuleHandlers(environment, publication.openActionModules);
 
       if (!actionModulesHandlers.length) return;

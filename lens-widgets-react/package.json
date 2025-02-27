@@ -1,6 +1,6 @@
 {
   "name": "@madfi/widgets-react",
-  "version": "2.5.5",
+  "version": "3.0.0",
   "description": "React widgets to render Lens components, with support for Open Actions",
   "main": "dist/index.js",
   "scripts": {
@@ -18,7 +18,7 @@
   "dependencies": {
     "@emotion/css": "^11.10.5",
     "@ethersproject/providers": "^5.7.2",
-    "@lens-protocol/client": "2.2.0",
+    "@lens-protocol/client": "0.0.0-canary-20250224081220",
     "@madfi/lens-oa-client": "^0.3.0",
     "@types/react": "^18.0.28",
     "date-fns": "^2.29.3",

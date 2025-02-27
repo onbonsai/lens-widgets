@@ -1,4 +1,3 @@
-import { ProfileFragment } from '@lens-protocol/client'
 import {
   Theme, Size, ThemeColor, Profile
 } from './types'
@@ -103,7 +102,7 @@ export function formatProfilePictures(profiles: Profile[]) {
   })
 }
 
-export function formatProfilePicture(profile: ProfileFragment) {
+export function formatProfilePicture(profile: any) {
   const _profile = JSON.parse(JSON.stringify(profile))
   let { picture, coverPicture } = _profile.metadata || {} // TODO: need to handle higher up with `rawURI`
 
@@ -130,10 +129,8 @@ export function formatProfilePicture(profile: ProfileFragment) {
   return _profile
 }
 
-export function getDisplayName(profile: ProfileFragment) {
-  return profile.metadata?.displayName ||
-    profile.handle?.suggestedFormatted?.localName ||
-    profile.handle?.localName;
+export function getDisplayName(profile: any) {
+  return profile.metadata?.name
 }
 
 export function configureMirrorAndIpfsUrl(items: any[]) {

@@ -1,12 +1,5 @@
 import { ReactNode, useEffect, useState } from 'react'
 import { css } from '@emotion/css'
-import {
-  Environment,
-  LensClient,
-  production,
-  PublicationOperationsFragment,
-  ProfileFragment,
-} from "@lens-protocol/client";
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 import { ThemeColor, Theme } from './types'
@@ -16,7 +9,6 @@ import {
   MessageIcon, MirrorIcon, HeartIcon, ShareIcon, VideoCameraSlashIcon
 } from './icons'
 import {
-  formatProfilePicture,
   returnIpfsPathOrUrl,
   systemFonts,
   getSubstring,
@@ -27,17 +19,16 @@ import ReactPlayer from 'react-player'
 import { AudioPlayer } from './AudioPlayer'
 import { useSupportedActionModule } from './hooks/useSupportedActionModule';
 import Spinner from './components/Spinner';
-import ActModal from './components/ActModal';
-import { MintNFTCard } from './components/MintNFTCard';
-import { BountyInfo } from './components/BountyInfo';
 import { WalletClient } from 'viem';
 import { Toast } from './types';
 import { VerifiedBadgeIcon } from "./icons"
-import { ActionHandler } from '@madfi/lens-oa-client';
 import { getButtonStyle } from "./Profile"
 import { NewHeartIcon } from './icons/NewHeartIcon';
 import { NewMessageIcon } from './icons/NewMessageIcon';
 import { NewShareIcon } from './icons/NewShareIcon';
+import { PublicClient, testnet, staging } from "@lens-protocol/client";
+import { evmAddress, postId, txHash } from "@lens-protocol/client";
+import { fetchPost } from "@lens-protocol/client/actions";
 
 export function Publication({
   publicationId,
@@ -47,7 +38,7 @@ export function Publication({
   theme = Theme.default,
   ipfsGateway,
   fontSize,
-  environment = production,
+  environment,
   authenticatedProfile,
   walletClient,
   renderActButtonWithCTA,
@@ -95,13 +86,13 @@ export function Publication({
   theme?: Theme,
   ipfsGateway?: string,
   fontSize?: string,
-  environment?: Environment,
-  authenticatedProfile?: ProfileFragment | null,
+  environment?: any,
+  authenticatedProfile?: any,
   walletClient?: WalletClient,
   renderActButtonWithCTA?: string,
-  onActButtonClick?: (e, actionModuleHandler?: ActionHandler) => void,
-  onCommentButtonClick?: (e, actionModuleHandler?: ActionHandler) => void,
-  onMirrorButtonClick?: (e, actionModuleHandler?: ActionHandler) => void,
+  onActButtonClick?: (e, actionModuleHandler?: any) => void,
+  onCommentButtonClick?: (e, actionModuleHandler?: any) => void,
+  onMirrorButtonClick?: (e, actionModuleHandler?: any) => void,
   onLikeButtonClick?: (e, p) => void,
   onShareButtonClick?: (e) => void,
   hideFollowButton?: boolean,
@@ -110,7 +101,7 @@ export function Publication({
   hideShareButton?: boolean,
   followButtonDisabled: boolean,
   followButtonBackgroundColor?: string,
-  operations?: PublicationOperationsFragment,
+  operations?: any,
   focusedOpenActionModuleName?: string // in case a post has multiple action modules
   useToast?: Toast // ex: react-hot-toast to render notifs
   rpcURLs?: { [chainId: number]: string },
@@ -166,13 +157,21 @@ export function Publication({
 
   async function fetchPublication() {
     try {
-      const lensClient = new LensClient({ environment });
-      const pub = await lensClient.publication.fetch({ forId: publicationId });
-      setPublication(pub);
+      const lensClient = PublicClient.create({
+        environment,
+      });
+      const result = await fetchPost(lensClient, {
+        post: postId(publicationId!),
+      });
+      if (result.isErr()) {
+        return console.error(result.error);
+      }
+      setPublication(result.value);
     } catch (err) {
       console.log('error fetching publication: ', err)
     }
   }
+
   function onPublicationPress(e) {
     if (onClick) {
       onClick(e)
@@ -185,7 +184,7 @@ export function Publication({
 
   function onProfilePress(e) {
     if (onProfileClick) {
-      onProfileClick(e, publication.by?.handle.localName);
+      onProfileClick(e, publication.author.username.localName);
     } else {
       // if (profile) {
       //   const { localName, namespace } = profile.handle
@@ -227,8 +226,7 @@ export function Publication({
     publication = publication.mirrorOf
     publication.original = original
   }
-  publication.profile = formatProfilePicture(publication.by)
-  const { profile } = publication
+  const { author } = publication
 
   // theming
   const isDarkTheme = theme === Theme.dark
@@ -300,13 +298,9 @@ export function Publication({
         <div className={activeProfileContainerStyle(isMirror, profilePadding)}>
           <div className={onProfileClick ? 'cursor-pointer' : 'cursor-default'} onClick={onProfilePress}>
             {
-              publication.by?.metadata?.picture?.optimized?.uri ||
-                publication.by?.metadata?.picture?.image?.optimized?.uri ? (
+              publication.author?.metadata?.picture ? (
                 <img
-                  src={
-                    publication.by.metadata.picture.__typename === 'NftImage' ?
-                      publication.by.metadata.picture?.image?.optimized?.uri : publication.by.metadata?.picture?.optimized?.uri
-                  }
+                  src={publication.author?.metadata?.picture}
                   className={activeProfilePictureStyle}
                 />
               ) : (
@@ -320,15 +314,16 @@ export function Publication({
             <div className="flex justify-between w-full">
               <div>
                 <div className="flex gap-x-2">
-                  <p className={profileNameStyle}>{getDisplayName(profile)}</p>
+                  <p className={profileNameStyle}>{getDisplayName(author)}</p>
                   {renderMadFiBadge && <span className="mt-1"><VerifiedBadgeIcon height={20} /></span>}
                 </div>
                 {/* conditional due to bounties */}
-                {publication.createdAt && (
-                  <p className={dateStyle}> {formatDistance(new Date(publication.createdAt), new Date())} ago</p>
+                {publication.timestamp && (
+                  <p className={dateStyle}> {formatDistance(new Date(publication.timestamp), new Date())} ago</p>
                 )}
               </div>
-              <div style={getButtonContainerStyle(hideFollowButton)}>
+              {/* TODO: add follow button */}
+              {/* <div style={getButtonContainerStyle(hideFollowButton)}>
                 <button
                   disabled={followButtonDisabled || isFollowed}
                   onClick={(e) => onFollowPress ? onFollowPress(e, publication.by.id) : undefined}
@@ -341,7 +336,7 @@ export function Publication({
                     )
                   }
                 >{!isFollowed ? "Follow" : "Following"}</button>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -364,15 +359,6 @@ export function Publication({
           )}
         </div>
       </div>
-      {/* Render a NFT preview component OR the media content */}
-      {!isLoadingActionModuleState && actionModuleHandler?.mintableNFT && (
-        <div className={nftContainerStyle}>
-          <MintNFTCard
-            metadata={actionModuleHandler?.mintableNFTMetadata}
-            isDarkTheme={isDarkTheme}
-          />
-        </div>
-      )}
       {!isLoadingActionModuleState && !actionModuleHandler?.mintableNFT && (
         <>
           {
@@ -427,19 +413,6 @@ export function Publication({
             )
           }
         </>
-      )}
-      {/* Render Bounty info */}
-      {/* @ts-expect-error */}
-      {!isLoadingActionModuleState && !!actionModuleHandler?.publicationBounty && (
-        <div className={bountyInfoContainerStyle}>
-          <BountyInfo
-            isDarkTheme={isDarkTheme}
-            // @ts-expect-error
-            bounty={actionModuleHandler!.publicationBounty?.bounty}
-            // @ts-expect-error
-            paymentToken={actionModuleHandler!.paymentToken}
-          />
-        </div>
       )}
       <div
         className={activeReactionsContainerStyle}
@@ -496,23 +469,6 @@ export function Publication({
           </>
         )}
       </div>
-      {renderActButton && actionModuleHandler && (
-        <ActModal
-          handler={actionModuleHandler}
-          openActModal={openActModal}
-          setOpenActModal={setOpenActModal}
-          style={{ backgroundColor, color }}
-          publication={publication}
-          walletClient={walletClient}
-          isDarkTheme={isDarkTheme}
-          countOpenActions={publication.stats.countOpenActions}
-          toast={useToast}
-          appDomainWhitelistedGasless={appDomainWhitelistedGasless}
-          onActButtonClick={onActButtonClick}
-          handlePinMetadata={handlePinMetadata}
-          signless={authenticatedProfile?.signless}
-        />
-      )}
     </div>
   )
 }
@@ -545,21 +501,6 @@ const imageContainerStyle = css`
   overflow: hidden;
   max-height: 480px;
   margin-top: 14px;
-`
-
-const nftContainerStyle = css`
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  max-height: 600px;
-  margin-top: 14px;
-`
-
-const bountyInfoContainerStyle = css`
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  max-height: 200px;
 `
 
 const videoContainerStyle = css`
