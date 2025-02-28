@@ -29,6 +29,7 @@ import { NewShareIcon } from './icons/NewShareIcon';
 import { PublicClient, testnet, staging } from "@lens-protocol/client";
 import { evmAddress, postId, txHash } from "@lens-protocol/client";
 import { fetchPost } from "@lens-protocol/client/actions";
+import { storageClient } from './utils'
 
 export function Publication({
   publicationId,
@@ -132,6 +133,8 @@ export function Publication({
   let [openActModal, setOpenActModal] = useState(false)
   const [withPlaybackError, setWithPlaybackError] = useState<boolean>(false);
 
+  const [assetUrl, setAssetUrl] = useState<string>("");
+
   const {
     isActionModuleSupported,
     actionModuleHandler,
@@ -154,6 +157,25 @@ export function Publication({
       setPublication(publicationData)
     }
   }, [publicationId])
+
+  useEffect(() => {
+    const resolveAssetUrl = async () => {
+      if (publication.metadata.__typename === "ImageMetadata") {
+        const url = publication.metadata.image.item.startsWith("lens://")
+          ? await storageClient.resolve(publication.metadata.image.item)
+          : publication.metadata.image.item;
+        setAssetUrl(url);
+      } else if (publication.metadata.__typename === "VideoMetadata") {
+        const url = publication.metadata.image.item.startsWith("lens://")
+          ? await storageClient.resolve(publication.metadata.video.item)
+          : publication.metadata.video.item;
+        setAssetUrl(url);
+      }
+    }
+    if (publication) {
+      resolveAssetUrl();
+    }
+  }, [publication]);
 
   async function fetchPublication() {
     try {
@@ -252,32 +274,7 @@ export function Publication({
   const renderActLoading = walletClient && isAuthenticated && (isActionModuleSupported && isLoadingActionModuleState && !actionModuleHandler?.panicked && !actHandledExternally);
 
 
-  let media, cover
-  if (publication.metadata.asset) {
-    media = publication.metadata.asset || {};
-    if (media.__typename === "PublicationMetadataMediaImage") {
-      media.type = 'image'
-      media.original = { url: returnIpfsPathOrUrl(media.image?.optimized?.uri || media.image.raw?.uri, ipfsGateway) }
-    }
-    if (media.__typename === "PublicationMetadataMediaVideo") {
-      media.type = 'video'
-      media.original = { url: returnIpfsPathOrUrl(media.video?.optimized?.uri || media.video.raw?.uri, ipfsGateway) }
-    }
-    if (media.__typename === "PublicationMetadataMediaAudio") {
-      media.type = 'audio'
-      media.original = { url: returnIpfsPathOrUrl(media.audio?.optimized?.uri || media.audio.raw?.uri, ipfsGateway) }
-    }
-    if (media.cover) {
-      cover = returnIpfsPathOrUrl(media.cover?.optimized?.uri || media.cover.raw?.uri, ipfsGateway)
-    }
-  }
-
-  if (publication.metadata.__typename === "LiveStreamMetadataV3") {
-    media = {
-      type: "livestream",
-      original: { url: publication.metadata.liveURL }
-    };
-  }
+  let cover; // TODO: handle audio cover
 
   return (
     <div
@@ -362,22 +359,22 @@ export function Publication({
       {!isLoadingActionModuleState && !actionModuleHandler?.mintableNFT && (
         <>
           {
-            publication.metadata?.__typename === "ImageMetadataV3" && (
+            publication.metadata?.__typename === "ImageMetadata" && (
               <div className={actiiveImageContainerStyle}>
                 <img
                   className={activeMediaImageStyle}
-                  src={publication.metadata.asset?.image?.optimized?.uri || returnIpfsPathOrUrl(publication.metadata.asset.image.raw.uri)}
+                  src={assetUrl}
                   onClick={onPublicationPress}
                 />
               </div>
             )
           }
           {
-            (publication.metadata?.__typename === "VideoMetadataV3" || publication.metadata?.__typename === "LiveStreamMetadataV3") && (
+            (publication.metadata?.__typename === "VideoMetadata" || publication.metadata?.__typename === "LiveStreamMetadata") && (
               <div className={videoContainerStyle}>
                 <ReactPlayer
                   className={videoStyle}
-                  url={media.original.url}
+                  url={assetUrl}
                   controls={!withPlaybackError}
                   onError={() => {
                     if (!withPlaybackError) setWithPlaybackError(true);
@@ -401,10 +398,10 @@ export function Publication({
             )
           }
           {
-            publication.metadata?.__typename === "AudioMetadataV3" && (
+            publication.metadata?.__typename === "AudioMetadata" && (
               <div className={audioContainerStyle}>
                 <AudioPlayer
-                  url={media.original.url}
+                  url={assetUrl}
                   theme={theme}
                   cover={cover}
                   profile={publication.by}

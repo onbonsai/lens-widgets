@@ -2,6 +2,10 @@ import {
   Theme, Size, ThemeColor, Profile
 } from './types'
 
+import { StorageClient } from "@lens-chain/storage-client";
+
+export const storageClient = StorageClient.create();
+
 export const backgroundColorMap: Record<Theme, ThemeColor> = {
   default: ThemeColor.darkGray,
   light: ThemeColor.lightGray,
