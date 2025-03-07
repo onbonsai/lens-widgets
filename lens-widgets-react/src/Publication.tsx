@@ -79,6 +79,7 @@ export function Publication({
   heartIconOverride,
   messageIconOverride,
   shareIconOverride,
+  actButtonContainerStyleOverride,
 }: {
   publicationId?: string,
   publicationData?: any,
@@ -127,6 +128,7 @@ export function Publication({
   heartIconOverride?: boolean,
   messageIconOverride?: boolean,
   shareIconOverride?: boolean,
+  actButtonContainerStyleOverride?: (color, backgroundColor, disabled?: boolean) => string,
 }) {
   let [publication, setPublication] = useState<any>(publicationData)
   let [showFullText, setShowFullText] = useState(false)
@@ -217,7 +219,7 @@ export function Publication({
   }
 
   function _onActButtonClick(e) {
-    if (actionModuleHandler?.disabled) return;
+    // if (actionModuleHandler?.disabled) return;
 
     if (isActionModuleSupported && !actHandledExternally) {
       e.preventDefault();
@@ -267,9 +269,10 @@ export function Publication({
   const activeReactionsContainerStyle = reactionsContainerStyleOverride ?? reactionsContainerStyle;
   const activeReactionContainerStyle = reactionContainerStyleOverride ?? reactionContainerStyle;
   const activeShareContainerStyle = shareContainerStyleOverride ?? shareContainerStyle;
+  const activeActContainerStyle = actButtonContainerStyleOverride ?? actButtonContainerStyle;
 
   // misc
-  const isAuthenticated = !!authenticatedProfile?.id;
+  const isAuthenticated = !!authenticatedProfile?.address;
   const renderActButton = walletClient && isAuthenticated && ((isActionModuleSupported && !isLoadingActionModuleState && !actionModuleHandler?.panicked) || actHandledExternally);
   const renderActLoading = walletClient && isAuthenticated && (isActionModuleSupported && isLoadingActionModuleState && !actionModuleHandler?.panicked && !actHandledExternally);
 
@@ -439,12 +442,12 @@ export function Publication({
                 onClick={onMirrorPress}
               >
                 <MirrorIcon color={!operations?.hasMirrored ? reactionTextColor : ThemeColor.lightGreen} />
-                <p>{publication.stats.mirrors + publication.stats.quotes > 0 ? publication.stats.mirrors + publication.stats.quotes : null}</p>
+                <p>{publication.stats.mirrors + publication.stats.quotes}</p>
               </div>
             )}
             {renderActButton && (
               <div
-                className={actButtonContainerStyle(reactionTextColor, actButttonBgColor, actionModuleHandler?.disabled)}
+                className={activeActContainerStyle(reactionTextColor, actButttonBgColor, actionModuleHandler?.disabled)}
                 onClick={_onActButtonClick}
               >
                 <p>{actHandledExternally ? renderActButtonWithCTA : actionModuleHandler?.getActButtonLabel()}</p>
