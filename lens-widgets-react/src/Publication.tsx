@@ -29,7 +29,7 @@ import { NewShareIcon } from './icons/NewShareIcon';
 import { PublicClient, testnet, staging } from "@lens-protocol/client";
 import { evmAddress, postId, txHash } from "@lens-protocol/client";
 import { fetchPost } from "@lens-protocol/client/actions";
-import { storageClient } from './utils'
+import { storageClient, DEFAULT_LENS_PROFILE_IMAGE } from './utils'
 
 export function Publication({
   publicationId,
@@ -298,7 +298,7 @@ export function Publication({
         <div className={activeProfileContainerStyle(isMirror, profilePadding)}>
           <div className={onProfileClick ? 'cursor-pointer' : 'cursor-default'} onClick={onProfilePress}>
             <img
-              src={publication.author?.metadata?.picture || "./icons/default.png"}
+              src={publication.author?.metadata?.picture || DEFAULT_LENS_PROFILE_IMAGE}
               className={activeProfilePictureStyle}
             />
           </div>
@@ -450,7 +450,7 @@ export function Publication({
                 <Spinner customClasses="h-6 w-6" color={color} />
               </div>
             )}
-            {!(renderActButton || renderActLoading) && !hideShareButton && (
+            {!hideShareButton && (
               <div
                 className={activeShareContainerStyle(reactionTextColor, reactionBgColor)}
                 onClick={onShareButtonClick}
