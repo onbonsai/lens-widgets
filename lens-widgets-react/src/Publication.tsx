@@ -297,25 +297,17 @@ export function Publication({
           } */}
         <div className={activeProfileContainerStyle(isMirror, profilePadding)}>
           <div className={onProfileClick ? 'cursor-pointer' : 'cursor-default'} onClick={onProfilePress}>
-            {
-              publication.author?.metadata?.picture ? (
-                <img
-                  src={publication.author?.metadata?.picture}
-                  className={activeProfilePictureStyle}
-                />
-              ) : (
-                <div
-                  className={activeProfilePictureStyle}
-                />
-              )
-            }
+            <img
+              src={publication.author?.metadata?.picture || "./icons/default.png"}
+              className={activeProfilePictureStyle}
+            />
           </div>
           <div className={profileDetailsContainerStyle(color)}>
             <div className="flex justify-between w-full">
               <div>
                 <div className="flex gap-x-2">
                   <p className={profileNameStyle}>{getDisplayName(author)}</p>
-                  {renderMadFiBadge && <span className="mt-1"><VerifiedBadgeIcon height={20} /></span>}
+                  {/* {renderMadFiBadge && <span className="mt-1"><VerifiedBadgeIcon height={20} /></span>} */}
                 </div>
                 {/* conditional due to bounties */}
                 {publication.timestamp && (
@@ -442,7 +434,7 @@ export function Publication({
                 onClick={onMirrorPress}
               >
                 <MirrorIcon color={!operations?.hasMirrored ? reactionTextColor : ThemeColor.lightGreen} />
-                <p>{publication.stats.mirrors + publication.stats.quotes}</p>
+                <p>{publication.stats.mirrors + publication.stats.quotes > 0 ? publication.stats.mirrors + publication.stats.quotes : 0}</p>
               </div>
             )}
             {renderActButton && (
