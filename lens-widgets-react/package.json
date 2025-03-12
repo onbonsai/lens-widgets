@@ -1,6 +1,6 @@
 {
   "name": "@madfi/widgets-react",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "description": "React widgets to render Lens components, with support for Open Actions",
   "main": "dist/index.js",
   "scripts": {
