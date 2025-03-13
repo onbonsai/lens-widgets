@@ -2,34 +2,34 @@ import { ReactNode, useEffect, useState } from 'react'
 import { css } from '@emotion/css'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
-import { ThemeColor, Theme } from './types'
+import { ThemeColor, Theme } from '../types'
 import { formatDistance } from 'date-fns'
 import { isEmpty } from 'lodash/lang';
 import {
   MessageIcon, MirrorIcon, HeartIcon, ShareIcon, VideoCameraSlashIcon
-} from './icons'
+} from '../icons'
 import {
   returnIpfsPathOrUrl,
   systemFonts,
   getSubstring,
   formatHandleColors,
   getDisplayName,
-} from './utils'
+} from '../utils'
 import ReactPlayer from 'react-player'
-import { AudioPlayer } from './AudioPlayer'
-import { useSupportedActionModule } from './hooks/useSupportedActionModule';
-import Spinner from './components/Spinner';
+import { AudioPlayer } from '../AudioPlayer'
+import { useSupportedActionModule } from '../hooks/useSupportedActionModule';
+import Spinner from '../components/Spinner';
 import { WalletClient } from 'viem';
-import { Toast } from './types';
-import { VerifiedBadgeIcon } from "./icons"
-import { getButtonStyle } from "./Profile"
-import { NewHeartIcon } from './icons/NewHeartIcon';
-import { NewMessageIcon } from './icons/NewMessageIcon';
-import { NewShareIcon } from './icons/NewShareIcon';
+import { Toast } from '../types';
+import { VerifiedBadgeIcon } from "../icons"
+import { getButtonStyle } from "../Profile"
+import { NewHeartIcon } from '../icons/NewHeartIcon';
+import { NewMessageIcon } from '../icons/NewMessageIcon';
+import { NewShareIcon } from '../icons/NewShareIcon';
 import { PublicClient, testnet, staging } from "@lens-protocol/client";
 import { evmAddress, postId, txHash } from "@lens-protocol/client";
 import { fetchPost } from "@lens-protocol/client/actions";
-import { storageClient, DEFAULT_LENS_PROFILE_IMAGE } from './utils'
+import { storageClient, DEFAULT_LENS_PROFILE_IMAGE } from '../utils'
 
 export function Publication({
   publicationId,
@@ -76,6 +76,8 @@ export function Publication({
   reactionContainerStyleOverride,
   markdownStyleBottomMargin,
   shareContainerStyleOverride,
+  profileNameStyleOverride,
+  dateNameStyleOverride,
   heartIconOverride,
   messageIconOverride,
   shareIconOverride,
@@ -124,6 +126,8 @@ export function Publication({
   reactionsContainerStyleOverride?: string,
   reactionContainerStyleOverride?: (color, backgroundColor, isAuthenticatedAndWithHandler, hasReacted) => string,
   markdownStyleBottomMargin?: string,
+  profileNameStyleOverride?: string,
+  dateNameStyleOverride?: string,
   shareContainerStyleOverride?: (color, backgroundColor) => string,
   heartIconOverride?: boolean,
   messageIconOverride?: boolean,
@@ -265,11 +269,13 @@ export function Publication({
   const activeProfileContainerStyle = profileContainerStyleOverride ?? profileContainerStyle;
   const activeTextContainerStyle = textContainerStyleOverride ?? textContainerStyle;
   const activeMediaImageStyle = mediaImageStyleOverride ?? mediaImageStyle;
-  const actiiveImageContainerStyle = imageContainerStyleOverride ?? imageContainerStyle;
+  const activeImageContainerStyle = imageContainerStyleOverride ?? imageContainerStyle;
   const activeReactionsContainerStyle = reactionsContainerStyleOverride ?? reactionsContainerStyle;
   const activeReactionContainerStyle = reactionContainerStyleOverride ?? reactionContainerStyle;
   const activeShareContainerStyle = shareContainerStyleOverride ?? shareContainerStyle;
   const activeActContainerStyle = actButtonContainerStyleOverride ?? actButtonContainerStyle;
+  const activeProfileNameStyle = profileNameStyleOverride ?? profileNameStyle;
+  const activeDateStyle = dateNameStyleOverride ?? dateStyle;
 
   // misc
   const isAuthenticated = !!authenticatedProfile?.address;
@@ -279,15 +285,13 @@ export function Publication({
 
   let cover; // TODO: handle audio cover
 
-  return (
+
+  const PostProfileAndTextContent = (props: { isTop?: boolean }) => (
     <div
-      className={publicationContainerStyle(backgroundColor, onClick ? true : false, containerBorderRadius)}
+      onClick={onPublicationPress}
+      className={topLevelContentStyle(containerPadding)}
     >
-      <div
-        onClick={onPublicationPress}
-        className={topLevelContentStyle(containerPadding)}
-      >
-        {/* {
+      {/* {
             isMirror && (
               <div className={mirroredByContainerStyle}>
                 <MirrorIcon color={ThemeColor.mediumGray} />
@@ -295,27 +299,27 @@ export function Publication({
               </div>
             )
           } */}
-        <div className={activeProfileContainerStyle(isMirror, profilePadding)}>
-          <div className={onProfileClick ? 'cursor-pointer' : 'cursor-default'} onClick={onProfilePress}>
-            <img
-              src={publication.author?.metadata?.picture || DEFAULT_LENS_PROFILE_IMAGE}
-              className={activeProfilePictureStyle}
-            />
-          </div>
-          <div className={profileDetailsContainerStyle(color)}>
-            <div className="flex justify-between w-full">
-              <div>
-                <div className="flex gap-x-2">
-                  <p className={profileNameStyle}>{getDisplayName(author)}</p>
-                  {/* {renderMadFiBadge && <span className="mt-1"><VerifiedBadgeIcon height={20} /></span>} */}
-                </div>
-                {/* conditional due to bounties */}
-                {publication.timestamp && (
-                  <p className={dateStyle}> {formatDistance(new Date(publication.timestamp), new Date())} ago</p>
-                )}
+      <div className={activeProfileContainerStyle(isMirror, profilePadding)}>
+        <div className={onProfileClick ? 'cursor-pointer' : 'cursor-default'} onClick={onProfilePress}>
+          <img
+            src={publication.author?.metadata?.picture || DEFAULT_LENS_PROFILE_IMAGE}
+            className={activeProfilePictureStyle}
+          />
+        </div>
+        <div className={profileDetailsContainerStyle(color)}>
+          <div className="flex justify-between w-full">
+            <div>
+              <div className="flex gap-x-2">
+                <p className={activeProfileNameStyle}>{getDisplayName(author)}</p>
+                {/* {renderMadFiBadge && <span className="mt-1"><VerifiedBadgeIcon height={20} /></span>} */}
               </div>
-              {/* TODO: add follow button */}
-              {/* <div style={getButtonContainerStyle(hideFollowButton)}>
+              {/* conditional due to bounties */}
+              {publication.timestamp && (
+                <p className={activeDateStyle}> {formatDistance(new Date(publication.timestamp), new Date())} ago</p>
+              )}
+            </div>
+            {/* TODO: add follow button */}
+            {/* <div style={getButtonContainerStyle(hideFollowButton)}>
                 <button
                   disabled={followButtonDisabled || isFollowed}
                   onClick={(e) => onFollowPress ? onFollowPress(e, publication.by.id) : undefined}
@@ -329,137 +333,146 @@ export function Publication({
                   }
                 >{!isFollowed ? "Follow" : "Following"}</button>
               </div> */}
-            </div>
           </div>
         </div>
-        <div className={activeTextContainerStyle}>
-          <ReactMarkdown
-            className={markdownStyle(color, fontSize, markdownStyleBottomMargin)}
-            rehypePlugins={[rehypeRaw]}
-          >
-            {showFullText
-              ? formatHandleColors(publication.metadata.content)
-              : formatHandleColors(getSubstring(publication.metadata.content, 339))}
-          </ReactMarkdown>
-          {publication.metadata.content.length > 339 && (
-            <button className={showMoreStyle} onClick={(event) => {
-              event.stopPropagation()
-              setShowFullText(!showFullText)
-            }}>
-              {showFullText ? 'Show Less' : 'Show More'}
-            </button>
-          )}
-        </div>
       </div>
-      {!isLoadingActionModuleState && !actionModuleHandler?.mintableNFT && (
-        <>
-          {
-            publication.metadata?.__typename === "ImageMetadata" && (
-              <div className={actiiveImageContainerStyle}>
-                <img
-                  className={activeMediaImageStyle}
-                  src={assetUrl}
-                  onClick={onPublicationPress}
-                />
-              </div>
-            )
-          }
-          {
-            (publication.metadata?.__typename === "VideoMetadata" || publication.metadata?.__typename === "LiveStreamMetadata") && (
-              <div className={videoContainerStyle}>
-                <ReactPlayer
-                  className={videoStyle}
-                  url={assetUrl}
-                  controls={!withPlaybackError}
-                  onError={() => {
-                    if (!withPlaybackError) setWithPlaybackError(true);
-                  }}
-                  muted
-                  playing={true}
-                />
-                {publication.metadata?.__typename === "LiveStreamMetadataV3" && !withPlaybackError && (
-                  <div className={liveContainerStyle}>
-                    <div className={liveDotStyle} />
-                    LIVE
-                  </div>
-                )}
-                {publication.metadata?.__typename === "LiveStreamMetadataV3" && withPlaybackError && (
-                  <div className={endedContainerStyle}>
-                    <VideoCameraSlashIcon color={reactionTextColor} />
-                    <p>Stream Ended</p>
-                  </div>
-                )}
-              </div>
-            )
-          }
-          {
-            publication.metadata?.__typename === "AudioMetadata" && (
-              <div className={audioContainerStyle}>
-                <AudioPlayer
-                  url={assetUrl}
-                  theme={theme}
-                  cover={cover}
-                  profile={publication.by}
-                />
-              </div>
-            )
-          }
-        </>
-      )}
-      <div
-        className={activeReactionsContainerStyle}
-        onClick={onPublicationPress}
-      >
-        {!isEmpty(publication.stats) && (
+      <div className={activeTextContainerStyle}>
+        <ReactMarkdown
+          className={markdownStyle(color, fontSize, markdownStyleBottomMargin)}
+          rehypePlugins={[rehypeRaw]}
+        >
+          {showFullText
+            ? formatHandleColors(publication.metadata.content)
+            : formatHandleColors(getSubstring(publication.metadata.content, 339))}
+        </ReactMarkdown>
+        {publication.metadata.content.length > 339 && (
+          <button className={showMoreStyle} onClick={(event) => {
+            event.stopPropagation()
+            setShowFullText(!showFullText)
+          }}>
+            {showFullText ? 'Show Less' : 'Show More'}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div
+      className={publicationContainerStyle(backgroundColor, onClick ? true : false, containerBorderRadius)}
+    >
+      <PostProfileAndTextContent isTop />
+      <div>
+        {!isLoadingActionModuleState && !actionModuleHandler?.mintableNFT && (
           <>
-            <div
-              className={activeReactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onLikeButtonClick, operations?.hasUpvoted)}
-              onClick={(e) => { if (onLikeButtonClick) onLikeButtonClick(e, publication) }}
-            >
-              {heartIconOverride ? <NewHeartIcon fillColor={!operations?.hasUpvoted ? ThemeColor.transparent : ThemeColor.red} outlineColor={!operations?.hasUpvoted ? reactionTextColor : ThemeColor.red} /> : <HeartIcon color={!operations?.hasUpvoted ? reactionTextColor : ThemeColor.red} />}
-              {publication.stats.upvotes > 0 && <p>{publication.stats.upvotes > 0 ? publication.stats.upvotes : null}</p>}
-            </div>
-            {!hideCommentButton && (
-              <div
-                className={activeReactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onCommentButtonClick && operations.canComment, false)}
-                onClick={onCommentPress}
-              >
-                {messageIconOverride ? <NewMessageIcon color={reactionTextColor} /> : <MessageIcon color={reactionTextColor} />}
-                {publication.stats.comments > 0 && <p>{publication.stats.comments > 0 ? publication.stats.comments : null}</p>}
-              </div>
-            )}
-            {!hideQuoteButton && (
-              <div
-                className={activeReactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onMirrorButtonClick, operations?.hasMirrored)}
-                onClick={onMirrorPress}
-              >
-                <MirrorIcon color={!operations?.hasMirrored ? reactionTextColor : ThemeColor.lightGreen} />
-                <p>{publication.stats.mirrors + publication.stats.quotes > 0 ? publication.stats.mirrors + publication.stats.quotes : 0}</p>
-              </div>
-            )}
-            {renderActButton && (
-              <div
-                className={activeActContainerStyle(reactionTextColor, actButttonBgColor, actionModuleHandler?.disabled)}
-                onClick={_onActButtonClick}
-              >
-                <p>{actHandledExternally ? renderActButtonWithCTA : actionModuleHandler?.getActButtonLabel()}</p>
-              </div>
-            )}
-            {renderActLoading && (
-              <div className={activeShareContainerStyle(reactionTextColor, reactionBgColor)}>
-                <Spinner customClasses="h-6 w-6" color={color} />
-              </div>
-            )}
-            {!hideShareButton && (
-              <div
-                className={activeShareContainerStyle(reactionTextColor, reactionBgColor)}
-                onClick={onShareButtonClick}
-              >
-                {shareIconOverride ? < NewShareIcon color={reactionTextColor} /> : <ShareIcon color={reactionTextColor} />}
-              </div>
-            )}
+            {
+              publication.metadata?.__typename === "ImageMetadata" && (
+                <div className={activeImageContainerStyle}>
+                  <img
+                    className={activeMediaImageStyle}
+                    src={assetUrl}
+                    onClick={onPublicationPress}
+                  />
+                </div>
+              )
+            }
+            {
+              (publication.metadata?.__typename === "VideoMetadata" || publication.metadata?.__typename === "LiveStreamMetadata") && (
+                <div className={videoContainerStyle}>
+                  <ReactPlayer
+                    className={videoStyle}
+                    url={assetUrl}
+                    controls={!withPlaybackError}
+                    onError={() => {
+                      if (!withPlaybackError) setWithPlaybackError(true);
+                    }}
+                    muted
+                    playing={true}
+                  />
+                  {publication.metadata?.__typename === "LiveStreamMetadataV3" && !withPlaybackError && (
+                    <div className={liveContainerStyle}>
+                      <div className={liveDotStyle} />
+                      LIVE
+                    </div>
+                  )}
+                  {publication.metadata?.__typename === "LiveStreamMetadataV3" && withPlaybackError && (
+                    <div className={endedContainerStyle}>
+                      <VideoCameraSlashIcon color={reactionTextColor} />
+                      <p>Stream Ended</p>
+                    </div>
+                  )}
+                </div>
+              )
+            }
+            {
+              publication.metadata?.__typename === "AudioMetadata" && (
+                <div className={audioContainerStyle}>
+                  <AudioPlayer
+                    url={assetUrl}
+                    theme={theme}
+                    cover={cover}
+                    profile={publication.by}
+                  />
+                </div>
+              )
+            }
           </>
         )}
+        <div
+          className={activeReactionsContainerStyle}
+          onClick={onPublicationPress}
+        >
+          {!isEmpty(publication.stats) && (
+            <>
+              <div
+                className={activeReactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onLikeButtonClick, operations?.hasUpvoted)}
+                onClick={(e) => { if (onLikeButtonClick) onLikeButtonClick(e, publication) }}
+              >
+                {heartIconOverride ? <NewHeartIcon fillColor={!operations?.hasUpvoted ? ThemeColor.transparent : ThemeColor.red} outlineColor={!operations?.hasUpvoted ? reactionTextColor : ThemeColor.red} /> : <HeartIcon color={!operations?.hasUpvoted ? reactionTextColor : ThemeColor.red} />}
+                {publication.stats.upvotes > 0 && <p>{publication.stats.upvotes > 0 ? publication.stats.upvotes : null}</p>}
+              </div>
+              {!hideCommentButton && (
+                <div
+                  className={activeReactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onCommentButtonClick && operations.canComment, false)}
+                  onClick={onCommentPress}
+                >
+                  {messageIconOverride ? <NewMessageIcon color={reactionTextColor} /> : <MessageIcon color={reactionTextColor} />}
+                  {publication.stats.comments > 0 && <p>{publication.stats.comments > 0 ? publication.stats.comments : null}</p>}
+                </div>
+              )}
+              {!hideQuoteButton && (
+                <div
+                  className={activeReactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onMirrorButtonClick, operations?.hasMirrored)}
+                  onClick={onMirrorPress}
+                >
+                  <MirrorIcon color={!operations?.hasMirrored ? reactionTextColor : ThemeColor.lightGreen} />
+                  <p>{publication.stats.mirrors + publication.stats.quotes > 0 ? publication.stats.mirrors + publication.stats.quotes : 0}</p>
+                </div>
+              )}
+              {renderActButton && (
+                <div
+                  className={activeActContainerStyle(reactionTextColor, actButttonBgColor, actionModuleHandler?.disabled)}
+                  onClick={_onActButtonClick}
+                >
+                  <p>{actHandledExternally ? renderActButtonWithCTA : actionModuleHandler?.getActButtonLabel()}</p>
+                </div>
+              )}
+              {renderActLoading && (
+                <div className={activeShareContainerStyle(reactionTextColor, reactionBgColor)}>
+                  <Spinner customClasses="h-6 w-6" color={color} />
+                </div>
+              )}
+              {!hideShareButton && (
+                <div
+                  className={activeShareContainerStyle(reactionTextColor, reactionBgColor)}
+                  onClick={onShareButtonClick}
+                >
+                  {shareIconOverride ? < NewShareIcon color={reactionTextColor} /> : <ShareIcon color={reactionTextColor} />}
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
     </div>
   )
@@ -513,11 +526,12 @@ const videoStyle = css`
   top: 0 !important;
   left: 0 !important;
 `
-
 const mediaImageStyle = css`
   width: 100%;
   height: auto;
   display: block;
+  object-fit: contain;
+  max-height: 100%;
 `
 
 const markdownStyle = (color, fontSize, bottomMargin?: string) => css`
@@ -644,14 +658,14 @@ const actButtonContainerStyle = (color, backgroundColor, disabled?: boolean) => 
   cursor: ${!disabled ? 'pointer' : 'default'};
 `
 
-const publicationContainerStyle = (color, onClick: boolean, containerBorderRadius?: string) => css`
-  max-width: 510px;
+const publicationContainerStyle = (color, onClick: boolean, containerBorderRadius?: string,) => css`
   width: 100%;
   background-color: ${color};
   cursor: ${onClick ? 'pointer' : 'default'};
   border-radius: ${containerBorderRadius ?? '18px'};
   @media (max-width: 510px) {
     width: 100%
+    max-width: 510px;
   }
   * {
     ${system};

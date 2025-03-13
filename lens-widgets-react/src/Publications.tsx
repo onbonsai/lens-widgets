@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { css } from '@emotion/css'
 import { client, profileByHandle, getPublications } from './graphql'
-import { Publication as PublicationComponent } from './Publication'
+import { Publication as PublicationComponent } from './Publication/Publication'
 import { Theme } from './types'
 
 enum LimitType {
@@ -41,6 +41,8 @@ export function Publications({
   reactionsContainerStyleOverride,
   reactionContainerStyleOverride,
   publicationContainerStyleOverride,
+  profileNameStyleOverride,
+  dateNameStyleOverride,
   markdownStyleBottomMargin,
   shareContainerStyleOverride,
   heartIconOverride,
@@ -78,6 +80,8 @@ export function Publications({
   reactionContainerStyleOverride?: (color, backgroundColor, isAuthenticatedAndWithHandler, hasReacted) => string,
   publicationContainerStyleOverride?: string,
   markdownStyleBottomMargin?: string,
+  profileNameStyleOverride?: string,
+  dateNameStyleOverride?: string,
   shareContainerStyleOverride?: (color, backgroundColor) => string,
   heartIconOverride?: boolean,
   messageIconOverride?: boolean,
@@ -181,6 +185,8 @@ export function Publications({
                 heartIconOverride={heartIconOverride}
                 messageIconOverride={messageIconOverride}
                 shareIconOverride={shareIconOverride}
+                profileNameStyleOverride={profileNameStyleOverride}
+                dateNameStyleOverride={dateNameStyleOverride}
               />
             </div>
           )
