@@ -172,7 +172,7 @@ export function Publication({
           : publication.metadata.image.item;
         setAssetUrl(url);
       } else if (publication.metadata.__typename === "VideoMetadata") {
-        const url = publication.metadata.image.item.startsWith("lens://")
+        const url = publication.metadata.video.item.startsWith("lens://")
           ? await storageClient.resolve(publication.metadata.video.item)
           : publication.metadata.video.item;
         setAssetUrl(url);
