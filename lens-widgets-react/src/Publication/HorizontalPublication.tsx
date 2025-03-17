@@ -1,12 +1,13 @@
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode, useEffect, useRef, useState } from 'react'
 import { css } from '@emotion/css'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 import { ThemeColor, Theme } from '../types'
 import { formatDistance } from 'date-fns'
-import { isEmpty } from 'lodash/lang';
+import { isEmpty } from 'lodash/lang'
 import {
-  MirrorIcon, VideoCameraSlashIcon
+  MirrorIcon,
+  VideoCameraSlashIcon
 } from '../icons'
 import {
   systemFonts,
@@ -16,16 +17,16 @@ import {
 } from '../utils'
 import ReactPlayer from 'react-player'
 import { AudioPlayer } from '../AudioPlayer'
-import { useSupportedActionModule } from '../hooks/useSupportedActionModule';
-import Spinner from '../components/Spinner';
-import { WalletClient } from 'viem';
-import { Toast } from '../types';
-import { NewHeartIcon } from '../icons/NewHeartIcon';
-import { NewMessageIcon } from '../icons/NewMessageIcon';
-import { NewShareIcon } from '../icons/NewShareIcon';
-import { PublicClient, testnet, staging } from "@lens-protocol/client";
-import { postId } from "@lens-protocol/client";
-import { fetchPost } from "@lens-protocol/client/actions";
+import { useSupportedActionModule } from '../hooks/useSupportedActionModule'
+import Spinner from '../components/Spinner'
+import { WalletClient } from 'viem'
+import { Toast } from '../types'
+import { NewHeartIcon } from '../icons/NewHeartIcon'
+import { NewMessageIcon } from '../icons/NewMessageIcon'
+import { NewShareIcon } from '../icons/NewShareIcon'
+import { PublicClient } from '@lens-protocol/client'
+import { postId } from '@lens-protocol/client'
+import { fetchPost } from '@lens-protocol/client/actions'
 import { storageClient, DEFAULT_LENS_PROFILE_IMAGE } from '../utils'
 
 export function HorizontalPublication({
@@ -62,45 +63,59 @@ export function HorizontalPublication({
   onFollowPress,
   nestedWidget,
 }: {
-  publicationId?: string,
-  publicationData?: any,
-  onClick?: (e) => void,
-  onProfileClick?: (e, handleLocalName) => void,
-  theme?: Theme,
-  ipfsGateway?: string,
-  fontSize?: string,
-  environment?: any,
-  authenticatedProfile?: any,
-  walletClient?: WalletClient,
-  renderActButtonWithCTA?: string,
-  onActButtonClick?: (e, actionModuleHandler?: any) => void,
-  onCommentButtonClick?: (e, actionModuleHandler?: any) => void,
-  onMirrorButtonClick?: (e, actionModuleHandler?: any) => void,
-  onLikeButtonClick?: (e, p) => void,
-  onShareButtonClick?: (e) => void,
-  hideFollowButton?: boolean,
-  hideCommentButton?: boolean,
-  hideQuoteButton?: boolean,
-  hideShareButton?: boolean,
-  followButtonDisabled: boolean,
-  followButtonBackgroundColor?: string,
-  operations?: any,
-  focusedOpenActionModuleName?: string // in case a post has multiple action modules
-  useToast?: Toast // ex: react-hot-toast to render notifs
-  rpcURLs?: { [chainId: number]: string },
-  appDomainWhitelistedGasless?: boolean,
-  renderMadFiBadge?: boolean,
-  handlePinMetadata?: (content: string, files: any[]) => Promise<string> // to upload post content on bounties
-  isFollowed?: boolean,
-  onFollowPress?: (event, profileId) => void,
-  nestedWidget?: ReactNode,
+  publicationId?: string
+  publicationData?: any
+  onClick?: (e) => void
+  onProfileClick?: (e, handleLocalName) => void
+  theme?: Theme
+  ipfsGateway?: string
+  fontSize?: string
+  environment?: any
+  authenticatedProfile?: any
+  walletClient?: WalletClient
+  renderActButtonWithCTA?: string
+  onActButtonClick?: (e, actionModuleHandler?: any) => void
+  onCommentButtonClick?: (e, actionModuleHandler?: any) => void
+  onMirrorButtonClick?: (e, actionModuleHandler?: any) => void
+  onLikeButtonClick?: (e, p) => void
+  onShareButtonClick?: (e) => void
+  hideFollowButton?: boolean
+  hideCommentButton?: boolean
+  hideQuoteButton?: boolean
+  hideShareButton?: boolean
+  followButtonDisabled: boolean
+  followButtonBackgroundColor?: string
+  operations?: any
+  focusedOpenActionModuleName?: string
+  useToast?: Toast
+  rpcURLs?: { [chainId: number]: string }
+  appDomainWhitelistedGasless?: boolean
+  renderMadFiBadge?: boolean
+  handlePinMetadata?: (content: string, files: any[]) => Promise<string>
+  isFollowed?: boolean
+  onFollowPress?: (event, profileId) => void
+  nestedWidget?: ReactNode
 }) {
-  let [publication, setPublication] = useState<any>(publicationData)
-  let [showFullText, setShowFullText] = useState(false)
-  let [openActModal, setOpenActModal] = useState(false)
-  const [withPlaybackError, setWithPlaybackError] = useState<boolean>(false);
+  const [publication, setPublication] = useState<any>(publicationData)
+  const [showFullText, setShowFullText] = useState(false)
+  const [openActModal, setOpenActModal] = useState(false)
+  const [withPlaybackError, setWithPlaybackError] = useState<boolean>(false)
+  const [assetUrl, setAssetUrl] = useState<string>("")
 
-  const [assetUrl, setAssetUrl] = useState<string>("");
+  const [leftColumnHeight, setLeftColumnHeight] = useState<number>(0)
+  const imageRef = useRef<HTMLImageElement | null>(null)
+
+  const measureImageHeight = () => {
+    requestAnimationFrame(() => {
+      if (imageRef.current) {
+        setLeftColumnHeight(imageRef.current.clientHeight)
+      }
+    })
+  }
+
+  const handleImageLoad = () => {
+    measureImageHeight()
+  }
 
   const {
     isActionModuleSupported,
@@ -113,49 +128,52 @@ export function HorizontalPublication({
     walletClient,
     rpcURLs,
     focusedOpenActionModuleName
-  );
+  )
 
-  const actHandledExternally = renderActButtonWithCTA && onActButtonClick;
+  const actHandledExternally = renderActButtonWithCTA && onActButtonClick
 
   useEffect(() => {
     if (!publicationData) {
-      fetchPublication();
+      fetchPublication()
     } else {
       setPublication(publicationData)
     }
   }, [publicationId])
 
   useEffect(() => {
+    window.addEventListener('resize', measureImageHeight)
+    return () => {
+      window.removeEventListener('resize', measureImageHeight)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!publication) return
+
     const resolveAssetUrl = async () => {
-      if (publication.metadata.__typename === "ImageMetadata") {
-        const url = publication.metadata.image.item.startsWith("lens://")
+      if (publication.metadata.__typename === 'ImageMetadata') {
+        const url = publication.metadata.image.item.startsWith('lens://')
           ? await storageClient.resolve(publication.metadata.image.item)
-          : publication.metadata.image.item;
-        setAssetUrl(url);
-      } else if (publication.metadata.__typename === "VideoMetadata") {
-        const url = publication.metadata.image.item.startsWith("lens://")
+          : publication.metadata.image.item
+        setAssetUrl(url)
+      } else if (publication.metadata.__typename === 'VideoMetadata') {
+        const url = publication.metadata.image.item.startsWith('lens://')
           ? await storageClient.resolve(publication.metadata.video.item)
-          : publication.metadata.video.item;
-        setAssetUrl(url);
+          : publication.metadata.video.item
+        setAssetUrl(url)
       }
     }
-    if (publication) {
-      resolveAssetUrl();
-    }
-  }, [publication]);
+    resolveAssetUrl()
+  }, [publication])
 
   async function fetchPublication() {
     try {
-      const lensClient = PublicClient.create({
-        environment,
-      });
-      const result = await fetchPost(lensClient, {
-        post: postId(publicationId!),
-      });
+      const lensClient = PublicClient.create({ environment })
+      const result = await fetchPost(lensClient, { post: postId(publicationId!) })
       if (result.isErr()) {
-        return console.error(result.error);
+        return console.error(result.error)
       }
-      setPublication(result.value);
+      setPublication(result.value)
     } catch (err) {
       console.log('error fetching publication: ', err)
     }
@@ -164,57 +182,41 @@ export function HorizontalPublication({
   function onPublicationPress(e) {
     if (onClick) {
       onClick(e)
-    } else {
-      // const pubId = publicationId || publicationData.id;
-      // const URI = `https://share.lens.xyz/p/${pubId}`;
-      // window.open(URI, '_blank')
     }
   }
 
   function onProfilePress(e) {
-    if (onProfileClick) {
-      onProfileClick(e, publication.author.username.localName);
-    } else {
-      // if (profile) {
-      //   const { localName, namespace } = profile.handle
-      //   const URI = `https://share.lens.xyz/u/${localName}.${namespace}`
-      //   window.open(URI, '_blank')
-      // }
-    }
+    onProfileClick?.(e, publication.author.username.localName)
   }
 
   function _onActButtonClick(e) {
-    // if (actionModuleHandler?.disabled) return;
-
     if (isActionModuleSupported && !actHandledExternally) {
-      e.preventDefault();
-      e.stopPropagation();
-      setOpenActModal(true);
+      e.preventDefault()
+      e.stopPropagation()
+      setOpenActModal(true)
     } else if (actHandledExternally) {
-      onActButtonClick(e, actionModuleHandler);
+      onActButtonClick?.(e, actionModuleHandler)
     }
   }
 
   function onCommentPress(e) {
-    if (onCommentButtonClick) {
-      onCommentButtonClick(e, actionModuleHandler);
-    }
+    onCommentButtonClick?.(e, actionModuleHandler)
   }
 
   function onMirrorPress(e) {
-    if (onMirrorButtonClick) {
-      onMirrorButtonClick(e, actionModuleHandler);
-    }
+    onMirrorButtonClick?.(e, actionModuleHandler)
   }
 
   if (!publication) return null
+
   let isMirror = false
   if (publication.mirrorOf) {
     isMirror = true
     const { mirrorOf, ...original } = publication
-    publication = publication.mirrorOf
+    setPublication(publication.mirrorOf)
     publication.original = original
   }
+
   const { author } = publication
 
   // theming
@@ -225,32 +227,29 @@ export function HorizontalPublication({
   const actButttonBgColor = isDarkTheme ? ThemeColor.darkGray : ThemeColor.lightGray
   const reactionTextColor = isDarkTheme ? ThemeColor.lightGray : ThemeColor.darkGray
 
-  // misc
-  const isAuthenticated = !!authenticatedProfile?.address;
-  const renderActButton = walletClient && isAuthenticated && ((isActionModuleSupported && !isLoadingActionModuleState && !actionModuleHandler?.panicked) || actHandledExternally);
-  const renderActLoading = walletClient && isAuthenticated && (isActionModuleSupported && isLoadingActionModuleState && !actionModuleHandler?.panicked && !actHandledExternally);
+  const isAuthenticated = !!authenticatedProfile?.address
+  const renderActButton =
+    walletClient &&
+    isAuthenticated &&
+    ((isActionModuleSupported && !isLoadingActionModuleState && !actionModuleHandler?.panicked) ||
+      actHandledExternally)
 
+  const renderActLoading =
+    walletClient &&
+    isAuthenticated &&
+    (isActionModuleSupported && isLoadingActionModuleState && !actionModuleHandler?.panicked && !actHandledExternally)
 
-  let cover; // TODO: handle audio cover
-
+  let cover // TODO: handle audio cover
 
   const PostProfileAndTextContent = () => (
-    <div
-      onClick={onPublicationPress}
-      className={topLevelContentStyle}
-    >
-      {/* {
-            isMirror && (
-              <div className={mirroredByContainerStyle}>
-                <MirrorIcon color={ThemeColor.mediumGray} />
-                <p>mirrored by {getDisplayName(publication.original.by)}</p>
-              </div>
-            )
-          } */}
+    <div onClick={onPublicationPress} className={topLevelContentStyle}>
       <div className={profileContainerStyle(isMirror)}>
-        <div className={onProfileClick ? 'cursor-pointer' : 'cursor-default'} onClick={onProfilePress}>
+        <div
+          className={onProfileClick ? 'cursor-pointer' : 'cursor-default'}
+          onClick={onProfilePress}
+        >
           <img
-            src={publication.author?.metadata?.picture || DEFAULT_LENS_PROFILE_IMAGE}
+            src={author?.metadata?.picture || DEFAULT_LENS_PROFILE_IMAGE}
             className={profilePictureStyle}
           />
         </div>
@@ -259,28 +258,13 @@ export function HorizontalPublication({
             <div>
               <div className="flex gap-x-2">
                 <p className={profileNameStyle}>{getDisplayName(author)}</p>
-                {/* {renderMadFiBadge && <span className="mt-1"><VerifiedBadgeIcon height={20} /></span>} */}
               </div>
-              {/* conditional due to bounties */}
               {publication.timestamp && (
-                <p className={dateStyle}> {formatDistance(new Date(publication.timestamp), new Date())} ago</p>
+                <p className={dateStyle}>
+                  {formatDistance(new Date(publication.timestamp), new Date())} ago
+                </p>
               )}
             </div>
-            {/* TODO: add follow button */}
-            {/* <div style={getButtonContainerStyle(hideFollowButton)}>
-                <button
-                  disabled={followButtonDisabled || isFollowed}
-                  onClick={(e) => onFollowPress ? onFollowPress(e, publication.by.id) : undefined}
-                  style={
-                    getButtonStyle(
-                      theme,
-                      !followButtonDisabled ? followButtonBackgroundColor : ThemeColor.darkGray,
-                      undefined, // followButtonTextColor
-                      followButtonDisabled || isFollowed
-                    )
-                  }
-                >{!isFollowed ? "Follow" : "Following"}</button>
-              </div> */}
           </div>
         </div>
       </div>
@@ -294,115 +278,168 @@ export function HorizontalPublication({
             : formatHandleColors(getSubstring(publication.metadata.content, 339))}
         </ReactMarkdown>
         {publication.metadata.content.length > 339 && (
-          <button className={showMoreStyle} onClick={(event) => {
-            event.stopPropagation()
-            setShowFullText(!showFullText)
-          }}>
+          <button
+            className={showMoreStyle}
+            onClick={(event) => {
+              event.stopPropagation()
+              setShowFullText(!showFullText)
+            }}
+          >
             {showFullText ? 'Show Less' : 'Show More'}
           </button>
         )}
       </div>
       {nestedWidget}
     </div>
-  );
+  )
 
   return (
     <div
-      className={publicationContainerStyle(backgroundColor, onClick ? true : false)}
+      className={publicationContainerStyle(backgroundColor)}
+      style={{ height: leftColumnHeight > 0 ? leftColumnHeight : 'auto', minHeight: '40vh' }}
     >
-      <div>
+      <div className={leftColumnStyle}>
         {!isLoadingActionModuleState && !actionModuleHandler?.mintableNFT && (
           <>
-            {
-              publication.metadata?.__typename === "ImageMetadata" && (
-                <div className={imageContainerStyle}>
-                  <img
-                    className={mediaImageStyle}
-                    src={assetUrl}
-                    onClick={onPublicationPress}
-                  />
-                </div>
-              )
-            }
-            {
-              (publication.metadata?.__typename === "VideoMetadata" || publication.metadata?.__typename === "LiveStreamMetadata") && (
+            <div></div>
+            {publication.metadata?.__typename === 'ImageMetadata' && (
+              <div className={imageContainerStyle}>
+                <img
+                  ref={imageRef}
+                  onLoad={handleImageLoad}
+                  className={mediaImageStyle}
+                  src={assetUrl}
+                  onClick={onPublicationPress}
+                  alt="Publication Image"
+                />
+              </div>
+            )}
+            {(publication.metadata?.__typename === 'VideoMetadata' ||
+              publication.metadata?.__typename === 'LiveStreamMetadata') && (
                 <div className={videoContainerStyle}>
                   <ReactPlayer
                     className={videoStyle}
                     url={assetUrl}
                     controls={!withPlaybackError}
                     onError={() => {
-                      if (!withPlaybackError) setWithPlaybackError(true);
+                      if (!withPlaybackError) setWithPlaybackError(true)
                     }}
                     muted
                     playing={true}
+                    onReady={() => {
+                      measureImageHeight()
+                    }}
                   />
-                  {publication.metadata?.__typename === "LiveStreamMetadataV3" && !withPlaybackError && (
-                    <div className={liveContainerStyle}>
-                      <div className={liveDotStyle} />
-                      LIVE
-                    </div>
-                  )}
-                  {publication.metadata?.__typename === "LiveStreamMetadataV3" && withPlaybackError && (
-                    <div className={endedContainerStyle}>
-                      <VideoCameraSlashIcon color={reactionTextColor} />
-                      <p>Stream Ended</p>
-                    </div>
-                  )}
+                  {publication.metadata?.__typename === 'LiveStreamMetadataV3' &&
+                    !withPlaybackError && (
+                      <div className={liveContainerStyle}>
+                        <div className={liveDotStyle} />
+                        LIVE
+                      </div>
+                    )}
+                  {publication.metadata?.__typename === 'LiveStreamMetadataV3' &&
+                    withPlaybackError && (
+                      <div className={endedContainerStyle}>
+                        <VideoCameraSlashIcon color={reactionTextColor} />
+                        <p>Stream Ended</p>
+                      </div>
+                    )}
                 </div>
-              )
-            }
-            {
-              publication.metadata?.__typename === "AudioMetadata" && (
-                <div className={audioContainerStyle}>
-                  <AudioPlayer
-                    url={assetUrl}
-                    theme={theme}
-                    cover={cover}
-                    profile={publication.by}
-                  />
-                </div>
-              )
-            }
+              )}
+            {publication.metadata?.__typename === 'AudioMetadata' && (
+              <div className={audioContainerStyle}>
+                <AudioPlayer
+                  url={assetUrl}
+                  theme={theme}
+                  cover={cover}
+                  profile={publication.by}
+                />
+              </div>
+            )}
           </>
         )}
-        <div
-          className={reactionsContainerStyle}
-          onClick={onPublicationPress}
-        >
+        <div className={reactionsContainerStyle} onClick={onPublicationPress}>
           {!isEmpty(publication.stats) && (
             <>
               <div
-                className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onLikeButtonClick, operations?.hasUpvoted)}
-                onClick={(e) => { if (onLikeButtonClick) onLikeButtonClick(e, publication) }}
+                className={reactionContainerStyle(
+                  reactionTextColor,
+                  reactionBgColor,
+                  isAuthenticated && onLikeButtonClick,
+                  operations?.hasUpvoted
+                )}
+                onClick={(e) => {
+                  onLikeButtonClick?.(e, publication)
+                }}
               >
-                <NewHeartIcon fillColor={!operations?.hasUpvoted ? ThemeColor.transparent : ThemeColor.red} outlineColor={!operations?.hasUpvoted ? reactionTextColor : ThemeColor.red} />
-                {publication.stats.upvotes > 0 && <p>{publication.stats.upvotes > 0 ? publication.stats.upvotes : null}</p>}
+                <NewHeartIcon
+                  fillColor={
+                    !operations?.hasUpvoted
+                      ? ThemeColor.transparent
+                      : ThemeColor.red
+                  }
+                  outlineColor={
+                    !operations?.hasUpvoted
+                      ? reactionTextColor
+                      : ThemeColor.red
+                  }
+                />
+                {publication.stats.upvotes > 0 && (
+                  <p>{publication.stats.upvotes}</p>
+                )}
               </div>
               {!hideCommentButton && (
                 <div
-                  className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onCommentButtonClick && operations.canComment, false)}
+                  className={reactionContainerStyle(
+                    reactionTextColor,
+                    reactionBgColor,
+                    isAuthenticated && onCommentButtonClick && operations?.canComment,
+                    false
+                  )}
                   onClick={onCommentPress}
                 >
                   <NewMessageIcon color={reactionTextColor} />
-                  {publication.stats.comments > 0 && <p>{publication.stats.comments > 0 ? publication.stats.comments : null}</p>}
+                  {publication.stats.comments > 0 && (
+                    <p>{publication.stats.comments}</p>
+                  )}
                 </div>
               )}
               {!hideQuoteButton && (
                 <div
-                  className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onMirrorButtonClick, operations?.hasMirrored)}
+                  className={reactionContainerStyle(
+                    reactionTextColor,
+                    reactionBgColor,
+                    isAuthenticated && onMirrorButtonClick,
+                    operations?.hasMirrored
+                  )}
                   onClick={onMirrorPress}
                 >
-                  <MirrorIcon color={!operations?.hasMirrored ? reactionTextColor : ThemeColor.lightGreen} />
-                  <p>{publication.stats.mirrors + publication.stats.quotes > 0 ? publication.stats.mirrors + publication.stats.quotes : 0}</p>
+                  <MirrorIcon
+                    color={
+                      !operations?.hasMirrored
+                        ? reactionTextColor
+                        : ThemeColor.lightGreen
+                    }
+                  />
+                  <p>
+                    {publication.stats.mirrors + publication.stats.quotes || 0}
+                  </p>
                 </div>
               )}
               {renderActButton && (
                 <div
-                  className={actButtonContainerStyle(reactionTextColor, actButttonBgColor, actionModuleHandler?.disabled)}
+                  className={actButtonContainerStyle(
+                    reactionTextColor,
+                    actButttonBgColor,
+                    actionModuleHandler?.disabled
+                  )}
                   onClick={_onActButtonClick}
                 >
-                  <p>{actHandledExternally ? renderActButtonWithCTA : actionModuleHandler?.getActButtonLabel()}</p>
+                  <p>
+                    {actHandledExternally
+                      ? renderActButtonWithCTA
+                      : actionModuleHandler?.getActButtonLabel()}
+                  </p>
                 </div>
               )}
               {renderActLoading && (
@@ -415,17 +452,22 @@ export function HorizontalPublication({
                   className={shareContainerStyle(reactionTextColor, reactionBgColor)}
                   onClick={onShareButtonClick}
                 >
-                  < NewShareIcon color={reactionTextColor} />
+                  <NewShareIcon color={reactionTextColor} />
                 </div>
               )}
             </>
           )}
         </div>
       </div>
-      <PostProfileAndTextContent />
+
+      <div className={rightColumnStyle}>
+        <PostProfileAndTextContent />
+      </div>
     </div>
   )
 }
+
+/** STYLES **/
 
 const showMoreStyle = css`
   color: ${ThemeColor.lightGreen};
@@ -448,7 +490,31 @@ const textContainerStyle = css`
 
 const topLevelContentStyle = css`
   padding: 12px;
-  overflow: auto;
+  /* The right column’s content can be tall. It will scroll if it overflows. */
+`
+
+const publicationContainerStyle = (backgroundColor: string) => css`
+  width: 100%;
+  background-color: ${backgroundColor};
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  margin-bottom: 4px;
+  border-radius: 24px;
+  font-family: ${systemFonts} !important;
+`
+
+const leftColumnStyle = css`
+  flex: 0 0 50%;   
+  max-width: 50%;  
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+`
+
+const rightColumnStyle = css`
+  flex: 1;
+  overflow-y: auto;
 `
 
 const imageContainerStyle = css`
@@ -458,36 +524,31 @@ const imageContainerStyle = css`
   align-items: flex-start;
   width: 100%;
   overflow: hidden;
-  max-height: 480px;
   border-radius: 16px;
   margin-top: 12px;
-  aspect-ratio: 1/1;
+`
+
+const mediaImageStyle = css`
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 16px;
+  object-fit: cover;
 `
 
 const videoContainerStyle = css`
-  padding-top: 56.25% !important;
-  height: 0px !important;
   position: relative !important;
   margin-top: 14px;
 `
 
 const audioContainerStyle = css`
-margin-top: 14px;
+  margin-top: 14px;
 `
 
 const videoStyle = css`
   width: 100% !important;
   height: 100% !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-`
-const mediaImageStyle = css`
-  width: calc(100% - 16px);
-  height: auto;
-  display: block;
-  border-radius: 16px;
-  object-fit: cover;
+  position: relative !important;
 `
 
 const markdownStyle = (color, fontSize) => css`
@@ -505,10 +566,7 @@ const markdownStyle = (color, fontSize) => css`
 const profileContainerStyle = (isMirror) => css`
   display: flex;
   align-items: center;
-  padding: 0 0 0 0;
-`
-const system = css`
-  font-family: ${systemFonts} !important
+  padding: 0;
 `
 
 const profileNameStyle = css`
@@ -519,13 +577,20 @@ const profileNameStyle = css`
 const profilePictureStyle = css`
   width: 36px;
   height: 36px;
-  min-width: 36px;
-  min-height: 36px;
-  max-width: 36px;
-  max-height: 36px;
   border-radius: 12px;
   object-fit: cover;
   background-color: #dddddd;
+`
+
+const profileDetailsContainerStyle = (color) => css`
+  display: flex;
+  flex-direction: column;
+  margin-left: 10px;
+  width: 100%;
+  p {
+    margin: 0;
+    color: ${color};
+  }
 `
 
 const reactionsContainerStyle = css`
@@ -541,49 +606,42 @@ const reactionsContainerStyle = css`
   cursor: default;
 `
 
-const mirroredByContainerStyle = css`
-  display: flex;
-  margin-bottom: 5px;
-  height: 30px;
-  align-items: center;
-  p {
-    margin: 0;
-    color: ${ThemeColor.mediumGray};
-    font-size: 14px;
-    margin-left: 10px;
-    margin-top: -2px;
-  }
-`
-
-const reactionContainerStyle = (color, backgroundColor, isAuthenticatedAndWithHandler, hasReacted) => css`
-  background-color: rgb(255,255,255,0.04);
-  &:hover {
-    background-color: ${isAuthenticatedAndWithHandler && !hasReacted ? backgroundColor : 'transparent'};
-  }
-  display: flex;
-  border-radius: 10px;
-  padding: 6px;
-  p {
-  display: flex;
-    align-items: center;
-    justify-content: center;
-    color: ${color};
-    background-color: rgb(255,255,255,0.04);
-    font-size: 10px;
-    margin: 0;
-    margin-left: 4px;
-    height: 14px;
-    width: 14px;
-    border-radius: 50%;
-    font-weight: 500;
-  }
-  cursor: ${isAuthenticatedAndWithHandler && !hasReacted ? 'pointer' : 'default'};
-`
+const reactionContainerStyle =
+  (color, backgroundColor, isAuthenticatedAndWithHandler, hasReacted) => css`
+    background-color: rgba(255, 255, 255, 0.04);
+    &:hover {
+      background-color: ${isAuthenticatedAndWithHandler && !hasReacted
+      ? backgroundColor
+      : 'transparent'
+    };
+    }
+    display: flex;
+    border-radius: 10px;
+    padding: 6px;
+    p {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: ${color};
+      background-color: rgba(255, 255, 255, 0.04);
+      font-size: 10px;
+      margin: 0;
+      margin-left: 4px;
+      height: 14px;
+      width: 14px;
+      border-radius: 50%;
+      font-weight: 500;
+    }
+    cursor: ${isAuthenticatedAndWithHandler && !hasReacted
+      ? 'pointer'
+      : 'default'
+    };
+  `
 
 const shareContainerStyle = (color, backgroundColor) => css`
-  background-color: rgb(255,255,255,0.08);
+  background-color: rgba(255, 255, 255, 0.08);
   &:hover {
-    background-color: ${backgroundColor}
+    background-color: ${backgroundColor};
   }
   display: flex;
   justify-content: center;
@@ -599,7 +657,7 @@ const shareContainerStyle = (color, backgroundColor) => css`
   p {
     color: ${color};
     font-size: 12px;
-    opacity: .75;
+    opacity: 0.75;
     margin: 0;
     margin-left: 4px;
   }
@@ -607,9 +665,9 @@ const shareContainerStyle = (color, backgroundColor) => css`
 `
 
 const actButtonContainerStyle = (color, backgroundColor, disabled?: boolean) => css`
-  background-color: rgb(255,255,255,0.08);
+  background-color: rgba(255,255,255,0.08);
   &:hover {
-    background-color: ${backgroundColor}
+    background-color: ${backgroundColor};
   }
   display: flex;
   justify-content: center;
@@ -623,57 +681,16 @@ const actButtonContainerStyle = (color, backgroundColor, disabled?: boolean) => 
   p {
     color: ${color};
     font-size: 14px;
-    opacity: .75;
+    opacity: 0.75;
     margin: 0;
   }
   cursor: ${!disabled ? 'pointer' : 'default'};
 `
 
-const publicationContainerStyle = (color, onClick: boolean) => css`
-  width: 100%;
-  background-color: ${color};
-  cursor: ${onClick ? 'pointer' : 'default'};
-  border-radius: 24px;
-  display: flex;
-  flex-direction: row;
-  max-width: 80vw;
-  aspect-ratio: 1.74/1;
-  overflow: hidden;
-  margin-bottom: 4px;
-  
-  /* Make direct children take 50% width each */
-  > div {
-    flex: 1;
-    width: 50%;
-    max-width: 480px;
-  }
-
-   /* Force second div (text content) to match height of first div (image) */
-  > div:nth-of-type(2) {
-    height: 100%;
-    overflow-y: auto; /* Allow scrolling if text is too long */
-  }
-  
-  * {
-    ${system};
-  }
-`
-
 const dateStyle = css`
   font-size: 12px;
   color: ${ThemeColor.darkGray};
-  opacity: .75;
-`
-
-const profileDetailsContainerStyle = color => css`
-  display: flex;
-  flex-direction: column;
-  margin-left: 10px;
-  width: 100%;
-  p {
-    margin: 0;
-    color: ${color};
-  }
+  opacity: 0.75;
 `
 
 const liveContainerStyle = css`
@@ -697,7 +714,6 @@ const liveDotStyle = css`
   border-radius: 50%;
   margin-right: 5px;
   animation: flash 3s linear infinite;
-
   @keyframes flash {
     0% { opacity: 1; }
     50% { opacity: 0.25; }
@@ -719,14 +735,5 @@ const endedContainerStyle = css`
   border-radius: 5px;
   color: white;
   font-weight: bold;
-  gap: 5px; // Adjust as needed for space between icon and text
-`;
-
-function getButtonContainerStyle(hidden) {
-  return {
-    display: 'flex',
-    flex: 1,
-    justifyContent: 'flex-end',
-    visibility: hidden ? 'hidden' : 'visible' as any
-  }
-}
+  gap: 5px;
+`
