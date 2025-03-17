@@ -66,40 +66,40 @@ export function HorizontalPublication({
   onFollowPress,
   nestedWidget,
 }: {
-  publicationId?: string,
-  publicationData?: any,
-  onClick?: (e) => void,
-  onProfileClick?: (e, handleLocalName) => void,
-  theme?: Theme,
-  ipfsGateway?: string,
-  fontSize?: string,
-  environment?: any,
-  authenticatedProfile?: any,
-  walletClient?: WalletClient,
-  renderActButtonWithCTA?: string,
-  onActButtonClick?: (e, actionModuleHandler?: any) => void,
-  onCommentButtonClick?: (e, actionModuleHandler?: any) => void,
-  onMirrorButtonClick?: (e, actionModuleHandler?: any) => void,
-  onLikeButtonClick?: (e, p) => void,
-  onShareButtonClick?: (e) => void,
-  onCollectButtonClick?: (e) => void,
-  hideFollowButton?: boolean,
-  hideCommentButton?: boolean,
-  hideQuoteButton?: boolean,
-  hideShareButton?: boolean,
-  hideCollectButton?: boolean,
-  followButtonDisabled: boolean,
-  followButtonBackgroundColor?: string,
-  operations?: any,
+  publicationId?: string
+  publicationData?: any
+  onClick?: (e) => void
+  onProfileClick?: (e, handleLocalName) => void
+  theme?: Theme
+  ipfsGateway?: string
+  fontSize?: string
+  environment?: any
+  authenticatedProfile?: any
+  walletClient?: WalletClient
+  renderActButtonWithCTA?: string
+  onActButtonClick?: (e, actionModuleHandler?: any) => void
+  onCommentButtonClick?: (e, actionModuleHandler?: any) => void
+  onMirrorButtonClick?: (e, actionModuleHandler?: any) => void
+  onLikeButtonClick?: (e, p) => void
+  onShareButtonClick?: (e) => void
+  onCollectButtonClick?: (e) => void
+  hideFollowButton?: boolean
+  hideCommentButton?: boolean
+  hideQuoteButton?: boolean
+  hideShareButton?: boolean
+  hideCollectButton?: boolean
+  followButtonDisabled: boolean
+  followButtonBackgroundColor?: string
+  operations?: any
   focusedOpenActionModuleName?: string // in case a post has multiple action modules
   useToast?: Toast // ex: react-hot-toast to render notifs
-  rpcURLs?: { [chainId: number]: string },
-  appDomainWhitelistedGasless?: boolean,
-  renderMadFiBadge?: boolean,
+  rpcURLs?: { [chainId: number]: string }
+  appDomainWhitelistedGasless?: boolean
+  renderMadFiBadge?: boolean
   handlePinMetadata?: (content: string, files: any[]) => Promise<string> // to upload post content on bounties
-  isFollowed?: boolean,
-  onFollowPress?: (event, profileId) => void,
-  nestedWidget?: ReactNode,
+  isFollowed?: boolean
+  onFollowPress?: (event, profileId) => void
+  nestedWidget?: ReactNode
 }) {
   const [publication, setPublication] = useState<any>(publicationData)
   const [showFullText, setShowFullText] = useState(false)
