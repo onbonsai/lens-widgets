@@ -26,6 +26,7 @@ import { getButtonStyle } from "../Profile"
 import { NewHeartIcon } from '../icons/NewHeartIcon';
 import { NewMessageIcon } from '../icons/NewMessageIcon';
 import { NewShareIcon } from '../icons/NewShareIcon';
+import { NewColllectIcon } from '../icons/NewCollectIcon'
 import { PublicClient, testnet, staging } from "@lens-protocol/client";
 import { evmAddress, postId, txHash } from "@lens-protocol/client";
 import { fetchPost } from "@lens-protocol/client/actions";
@@ -48,10 +49,12 @@ export function Publication({
   onMirrorButtonClick,
   onLikeButtonClick,
   onShareButtonClick,
+  onCollectButtonClick,
   hideFollowButton = true,
   hideCommentButton = false,
   hideQuoteButton = false,
   hideShareButton = false,
+  hideCollectButton = false,
   followButtonDisabled = false,
   followButtonBackgroundColor,
   operations,
@@ -99,10 +102,12 @@ export function Publication({
   onMirrorButtonClick?: (e, actionModuleHandler?: any) => void,
   onLikeButtonClick?: (e, p) => void,
   onShareButtonClick?: (e) => void,
+  onCollectButtonClick?: (e) => void,
   hideFollowButton?: boolean,
   hideCommentButton?: boolean,
   hideQuoteButton?: boolean,
   hideShareButton?: boolean,
+  hideCollectButton?: boolean,
   followButtonDisabled: boolean,
   followButtonBackgroundColor?: string,
   operations?: any,
@@ -446,7 +451,16 @@ export function Publication({
                   onClick={onMirrorPress}
                 >
                   <MirrorIcon color={!operations?.hasMirrored ? reactionTextColor : ThemeColor.lightGreen} />
-                  <p>{publication.stats.mirrors + publication.stats.quotes > 0 ? publication.stats.mirrors + publication.stats.quotes : 0}</p>
+                  {(publication.stats.mirrors + publication.stats.quotes > 0) ? <p>{publication.stats.mirrors + publication.stats.quotes}</p> : null}
+                </div>
+              )}
+              {!hideCollectButton && (
+                <div
+                  className={activeReactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onCollectButtonClick, operations?.hasCollected)}
+                  onClick={onCollectButtonClick}
+                >
+                  <NewColllectIcon fillColor={!operations?.hasCollected ? reactionTextColor : ThemeColor.transparent} outlineColor={reactionTextColor} />
+                  {(publication.stats.collects > 0) ? <p>{publication.stats.collects}</p> : null}
                 </div>
               )}
               {renderActButton && (
