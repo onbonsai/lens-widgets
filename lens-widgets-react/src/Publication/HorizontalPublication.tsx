@@ -280,18 +280,20 @@ export function HorizontalPublication({
         >
           {showFullText
             ? formatHandleColors(publication.metadata.content)
-            : formatHandleColors(getSubstring(publication.metadata.content, 339))}
+            : formatHandleColors(getSubstring(publication.metadata.content, 1000))}
         </ReactMarkdown>
-        {publication.metadata.content.length > 339 && (
-          <button
-            className={showMoreStyle}
-            onClick={(event) => {
-              event.stopPropagation()
-              setShowFullText(!showFullText)
-            }}
-          >
-            {showFullText ? 'Show Less' : 'Show More'}
-          </button>
+        {publication.metadata.content.length > 1000 && (
+          <div style={{ display: 'flex', marginRight: 5 }}>
+            <button
+              className={showMoreStyle}
+              onClick={(event) => {
+                event.stopPropagation()
+                setShowFullText(!showFullText)
+              }}
+            >
+              {showFullText ? 'Show Less' : 'Show More'}
+            </button>
+          </div>
         )}
       </div>
       {nestedWidget}
@@ -484,6 +486,8 @@ const showMoreStyle = css`
   &:hover {
     opacity: 0.6;
   }
+  margin-left: auto;
+  display: block;
 `
 
 const textContainerStyle = css`
@@ -496,7 +500,7 @@ const textContainerStyle = css`
 
 const topLevelContentStyle = css`
   padding: 12px;
-  /* The right column’s content can be tall. It will scroll if it overflows. */
+  /* The right column's content can be tall. It will scroll if it overflows. */
 `
 
 const publicationContainerStyle = (backgroundColor: string) => css`
@@ -521,6 +525,7 @@ const leftColumnStyle = css`
 const rightColumnStyle = css`
   flex: 1;
   overflow-y: auto;
+  margin-left: 6px;
 `
 
 const imageContainerStyle = css`

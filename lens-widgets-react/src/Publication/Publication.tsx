@@ -348,15 +348,17 @@ export function Publication({
         >
           {showFullText
             ? formatHandleColors(publication.metadata.content)
-            : formatHandleColors(getSubstring(publication.metadata.content, 339))}
+            : formatHandleColors(getSubstring(publication.metadata.content, 250))}
         </ReactMarkdown>
-        {publication.metadata.content.length > 339 && (
-          <button className={showMoreStyle} onClick={(event) => {
-            event.stopPropagation()
-            setShowFullText(!showFullText)
-          }}>
-            {showFullText ? 'Show Less' : 'Show More'}
-          </button>
+        {publication.metadata.content.length > 250 && (
+          <div style={{ display: 'flex', marginRight: 5 }}>
+            <button className={showMoreStyle} onClick={(event) => {
+              event.stopPropagation()
+              setShowFullText(!showFullText)
+            }}>
+              {showFullText ? 'Show Less' : 'Show More'}
+            </button>
+          </div>
         )}
       </div>
     </div>
@@ -501,6 +503,8 @@ const showMoreStyle = css`
   &:hover {
     opacity: 0.6;
   }
+  margin-left: auto;
+  display: block;
 `
 
 const textContainerStyle = css`
