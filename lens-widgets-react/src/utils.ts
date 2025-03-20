@@ -1,10 +1,33 @@
+import { fetchPostReferences } from '@lens-protocol/client/actions';
 import {
   Theme, Size, ThemeColor, Profile
 } from './types'
 
 import { StorageClient } from "@lens-chain/storage-client";
+import { postId, PostReferenceType, PublicClient, SessionClient } from '@lens-protocol/client';
 
 export const storageClient = StorageClient.create();
+
+export const getComments = async (slug: string, lensClient: PublicClient): Promise<any> => {
+  try {
+    const result = await fetchPostReferences(lensClient, {
+      referencedPost: postId(slug),
+      referenceTypes: [PostReferenceType.CommentOn],
+    });
+
+    if (result.isErr()) {
+      console.error(result.error);
+      return [];
+    }
+
+    // items: Array<AnyPost>
+    const { items, pageInfo } = result.value;
+
+    return items;
+  } catch (error) {
+    return [];
+  }
+};
 
 export const backgroundColorMap: Record<Theme, ThemeColor> = {
   default: ThemeColor.darkGray,

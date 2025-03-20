@@ -3,6 +3,8 @@ import { css } from '@emotion/css'
 import { client, profileByHandle, getPublications } from './graphql'
 import { Publication as PublicationComponent } from './Publication/Publication'
 import { Theme } from './types'
+import { PublicClient } from '@lens-protocol/client'
+import { getComments } from './utils'
 
 enum LimitType {
   TEN = 'Ten',
@@ -89,6 +91,8 @@ export function Publications({
 }) {
   const [_publications, setPublications] = useState<any[] | undefined>([])
   const [followed, setFollowed] = useState({});
+  const [expandedComments, setExpandedComments] = useState<{[key: string]: any[]}>({});
+  const [loadingComments, setLoadingComments] = useState<{[key: string]: boolean}>({});
 
   useEffect(() => {
     if (!publications?.length) {
@@ -132,6 +136,25 @@ export function Publications({
     }
   }
 
+  async function fetchComments(publicationId: string) {
+    setLoadingComments(prev => ({ ...prev, [publicationId]: true }));
+    try {
+      const lensClient = PublicClient.create({ environment });
+      const comments = await getComments(publicationId, lensClient);
+
+      if (comments) {
+        setExpandedComments(prev => ({
+          ...prev,
+          [publicationId]: comments
+        }));
+      }
+    } catch (err) {
+      console.log('error fetching comments: ', err);
+    } finally {
+      setLoadingComments(prev => ({ ...prev, [publicationId]: false }));
+    }
+  }
+
   // style overrides
   const activePublicationContainerStyle = publicationContainerStyleOverride || publicationContainerStyle
 
@@ -139,55 +162,160 @@ export function Publications({
     <div className={publicationsContainerStyle}>
       {
         publications?.map(publication => {
+          const hasExpandedComments = !!expandedComments[publication.id]?.length;
+          const isLoadingComments = loadingComments[publication.id];
+
           return (
-            <div key={`${publication.id}`} className={activePublicationContainerStyle}>
-              <PublicationComponent
-                publicationData={publication}
-                publicationId={publication.id}
-                environment={environment}
-                theme={theme}
-                authenticatedProfile={authenticatedProfile}
-                hideCommentButton={hideCommentButton}
-                hideQuoteButton={hideQuoteButton}
-                hideShareButton={hideShareButton}
-                onLikeButtonClick={onLikeButtonClick && !hasUpvotedComment(publication.id)
-                  ? (e) => onLikeButtonClick(e, publication.id)
-                  : undefined
-                }
-                operations={getOperationsFor(publication.id)}
-                renderMadFiBadge={renderMadFiBadge}
-                hideFollowButton={false} // TODO: fix this
-                followButtonDisabled={followButtonDisabled}
-                followButtonBackgroundColor={"#EEEDED"} // TODO: fix this
-                isFollowed={false} // TODO: fix this
-                onFollowPress={(e) => {
-                  if (onFollowPress) {
-                    onFollowPress(e, publication.by.id);
-                    const res = {};
-                    res[publication.id] = true;
-                    setFollowed({ ...followed, ...res }); // optimistic, better than leaving no state changed
+            <div key={`${publication.id}`} style={{ marginBottom: '12px' }}>
+              <div className={activePublicationContainerStyle}>
+                <PublicationComponent
+                  publicationData={publication}
+                  publicationId={publication.id}
+                  environment={environment}
+                  theme={theme}
+                  authenticatedProfile={authenticatedProfile}
+                  hideCommentButton={hideCommentButton}
+                  hideQuoteButton={hideQuoteButton}
+                  hideShareButton={hideShareButton}
+                  onLikeButtonClick={onLikeButtonClick && !hasUpvotedComment(publication.id)
+                    ? (e) => onLikeButtonClick(e, publication.id)
+                    : undefined
                   }
-                }}
-                onProfileClick={onProfileClick}
-                profilePictureStyleOverride={profilePictureStyleOverride}
-                profileContainerStyleOverride={profileContainerStyleOverride}
-                textContainerStyleOverride={textContainerStyleOverride}
-                containerBorderRadius={containerBorderRadius}
-                containerPadding={containerPadding}
-                profilePadding={profilePadding}
-                backgroundColorOverride={backgroundColorOverride}
-                mediaImageStyleOverride={mediaImageStyleOverride}
-                imageContainerStyleOverride={imageContainerStyleOverride}
-                reactionsContainerStyleOverride={reactionsContainerStyleOverride}
-                reactionContainerStyleOverride={reactionContainerStyleOverride}
-                markdownStyleBottomMargin={markdownStyleBottomMargin}
-                shareContainerStyleOverride={shareContainerStyleOverride}
-                heartIconOverride={heartIconOverride}
-                messageIconOverride={messageIconOverride}
-                shareIconOverride={shareIconOverride}
-                profileNameStyleOverride={profileNameStyleOverride}
-                dateNameStyleOverride={dateNameStyleOverride}
-              />
+                  operations={getOperationsFor(publication.id)}
+                  renderMadFiBadge={renderMadFiBadge}
+                  hideFollowButton={false} // TODO: fix this
+                  followButtonDisabled={followButtonDisabled}
+                  followButtonBackgroundColor={"#EEEDED"} // TODO: fix this
+                  isFollowed={false} // TODO: fix this
+                  onFollowPress={(e) => {
+                    if (onFollowPress) {
+                      onFollowPress(e, publication.by.id);
+                      const res = {};
+                      res[publication.id] = true;
+                      setFollowed({ ...followed, ...res }); // optimistic, better than leaving no state changed
+                    }
+                  }}
+                  onProfileClick={onProfileClick}
+                  profilePictureStyleOverride={profilePictureStyleOverride}
+                  profileContainerStyleOverride={profileContainerStyleOverride}
+                  textContainerStyleOverride={textContainerStyleOverride}
+                  containerBorderRadius={containerBorderRadius}
+                  containerPadding={containerPadding}
+                  profilePadding={profilePadding}
+                  backgroundColorOverride={backgroundColorOverride}
+                  mediaImageStyleOverride={mediaImageStyleOverride}
+                  imageContainerStyleOverride={imageContainerStyleOverride}
+                  reactionsContainerStyleOverride={reactionsContainerStyleOverride}
+                  reactionContainerStyleOverride={reactionContainerStyleOverride}
+                  markdownStyleBottomMargin={markdownStyleBottomMargin}
+                  shareContainerStyleOverride={shareContainerStyleOverride}
+                  heartIconOverride={heartIconOverride}
+                  messageIconOverride={messageIconOverride}
+                  shareIconOverride={shareIconOverride}
+                  profileNameStyleOverride={profileNameStyleOverride}
+                  dateNameStyleOverride={dateNameStyleOverride}
+                  onCommentButtonClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (!hasExpandedComments) {
+                      fetchComments(publication.id);
+                    } else {
+                      // Toggle comments off if they're already shown
+                      setExpandedComments(prev => {
+                        const newState = { ...prev };
+                        delete newState[publication.id];
+                        return newState;
+                      });
+                    }
+                  }}
+                />
+              </div>
+              
+              {/* Comments section */}
+              {isLoadingComments && (
+                <div className={css`
+                  display: flex;
+                  justify-content: center;
+                  padding-top: 1rem;
+                  padding-bottom: 1rem;
+                `}>
+                  <div className={css`
+                    animation: spin 1s linear infinite;
+                    border-radius: 9999px;
+                    height: 1.5rem;
+                    width: 1.5rem;
+                    border-bottom: 2px solid #4b5563;
+                    @keyframes spin {
+                      from {
+                        transform: rotate(0deg);
+                      }
+                      to {
+                        transform: rotate(360deg);
+                      }
+                    }
+                  `} />
+                </div>
+              )}
+              
+              {hasExpandedComments && (
+                <div className={css`
+                  padding-left: 3rem;
+                  margin-top: 0.5rem;
+                  & > * + * {
+                    margin-top: 1rem;
+                  }
+                `}>
+                  {expandedComments[publication.id].map((comment: any) => (
+                    <PublicationComponent
+                      key={comment.id}
+                      publicationData={comment}
+                      environment={environment}
+                      theme={theme}
+                      authenticatedProfile={authenticatedProfile}
+                      hideCommentButton={true}
+                      hideQuoteButton={true}
+                      hideShareButton={true}
+                      containerBorderRadius={containerBorderRadius}
+                      containerPadding={containerPadding}
+                      profilePadding={profilePadding}
+                      onLikeButtonClick={onLikeButtonClick && !hasUpvotedComment(comment.id)
+                        ? (e) => onLikeButtonClick(e, comment.id)
+                        : undefined
+                      }
+                      operations={getOperationsFor(comment.id)}
+                      renderMadFiBadge={renderMadFiBadge}
+                      hideFollowButton={hideFollowButton}
+                      followButtonDisabled={followButtonDisabled}
+                      followButtonBackgroundColor={"#EEEDED"}
+                      isFollowed={false}
+                      onFollowPress={(e) => {
+                        if (onFollowPress) {
+                          onFollowPress(e, comment.by.id);
+                          const res = {};
+                          res[comment.id] = true;
+                          setFollowed({ ...followed, ...res });
+                        }
+                      }}
+                      onProfileClick={onProfileClick}
+                      profilePictureStyleOverride={profilePictureStyleOverride}
+                      profileContainerStyleOverride={profileContainerStyleOverride}
+                      textContainerStyleOverride={textContainerStyleOverride}
+                      backgroundColorOverride={backgroundColorOverride}
+                      mediaImageStyleOverride={mediaImageStyleOverride}
+                      imageContainerStyleOverride={imageContainerStyleOverride}
+                      reactionsContainerStyleOverride={reactionsContainerStyleOverride}
+                      reactionContainerStyleOverride={reactionContainerStyleOverride}
+                      markdownStyleBottomMargin={markdownStyleBottomMargin}
+                      shareContainerStyleOverride={shareContainerStyleOverride}
+                      heartIconOverride={heartIconOverride}
+                      messageIconOverride={messageIconOverride}
+                      shareIconOverride={shareIconOverride}
+                      profileNameStyleOverride={profileNameStyleOverride}
+                      dateNameStyleOverride={dateNameStyleOverride}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           )
         })
