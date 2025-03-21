@@ -108,7 +108,7 @@ export function HorizontalPublication({
   const [assetUrl, setAssetUrl] = useState<string>("")
 
   const [leftColumnHeight, setLeftColumnHeight] = useState<number>(0)
-  const imageRef = useRef<HTMLImageElement | null>(null)
+  const imageRef = useRef<HTMLImageElement | HTMLIFrameElement | null>(null)
 
   const measureImageHeight = () => {
     requestAnimationFrame(() => {
@@ -246,6 +246,18 @@ export function HorizontalPublication({
 
   let cover // TODO: handle audio cover
 
+  function getCanvasUrl(publication: any): string | null {
+    if (!publication?.metadata?.attributes) return null
+    
+    const isCanvas = publication.metadata.attributes.find(attr => attr.key === 'isCanvas')
+    if (!isCanvas) return null
+
+    const apiUrl = publication.metadata.attributes.find(attr => attr.key === 'apiUrl')
+    if (!apiUrl?.value) return null
+
+    return `${apiUrl.value}/post/${publication.id}/canvas`
+  }
+
   const PostProfileAndTextContent = () => (
     <div onClick={onPublicationPress} className={topLevelContentStyle}>
       <div className={profileContainerStyle(isMirror)}>
@@ -309,59 +321,72 @@ export function HorizontalPublication({
         {!isLoadingActionModuleState && !actionModuleHandler?.mintableNFT && (
           <>
             <div></div>
-            {publication.metadata?.__typename === 'ImageMetadata' && (
-              <div className={imageContainerStyle}>
-                <img
-                  ref={imageRef}
-                  onLoad={handleImageLoad}
-                  className={mediaImageStyle}
-                  src={assetUrl}
-                  onClick={onPublicationPress}
-                  alt="Publication Image"
+            {getCanvasUrl(publication) ? (
+              <div className={iframeContainerStyle}>
+                <iframe 
+                  src={getCanvasUrl(publication) || ''}
+                  className={iframeStyle}
+                  ref={imageRef as React.RefObject<HTMLIFrameElement>}
+                  onLoad={(e: React.SyntheticEvent<HTMLIFrameElement>) => handleImageLoad()}
                 />
               </div>
-            )}
-            {(publication.metadata?.__typename === 'VideoMetadata' ||
-              publication.metadata?.__typename === 'LiveStreamMetadata') && (
-                <div className={videoContainerStyle}>
-                  <ReactPlayer
-                    className={videoStyle}
-                    url={assetUrl}
-                    controls={!withPlaybackError}
-                    onError={() => {
-                      if (!withPlaybackError) setWithPlaybackError(true)
-                    }}
-                    muted
-                    playing={true}
-                    onReady={() => {
-                      measureImageHeight()
-                    }}
-                  />
-                  {publication.metadata?.__typename === 'LiveStreamMetadataV3' &&
-                    !withPlaybackError && (
-                      <div className={liveContainerStyle}>
-                        <div className={liveDotStyle} />
-                        LIVE
-                      </div>
-                    )}
-                  {publication.metadata?.__typename === 'LiveStreamMetadataV3' &&
-                    withPlaybackError && (
-                      <div className={endedContainerStyle}>
-                        <VideoCameraSlashIcon color={reactionTextColor} />
-                        <p>Stream Ended</p>
-                      </div>
-                    )}
-                </div>
-              )}
-            {publication.metadata?.__typename === 'AudioMetadata' && (
-              <div className={audioContainerStyle}>
-                <AudioPlayer
-                  url={assetUrl}
-                  theme={theme}
-                  cover={cover}
-                  profile={publication.by}
-                />
-              </div>
+            ) : (
+              <>
+                {publication.metadata?.__typename === 'ImageMetadata' && (
+                  <div className={imageContainerStyle}>
+                    <img
+                      ref={imageRef as React.RefObject<HTMLImageElement>}
+                      onLoad={handleImageLoad}
+                      className={mediaImageStyle}
+                      src={assetUrl}
+                      onClick={onPublicationPress}
+                      alt="Publication Image"
+                    />
+                  </div>
+                )}
+                {(publication.metadata?.__typename === 'VideoMetadata' ||
+                  publication.metadata?.__typename === 'LiveStreamMetadata') && (
+                    <div className={videoContainerStyle}>
+                      <ReactPlayer
+                        className={videoStyle}
+                        url={assetUrl}
+                        controls={!withPlaybackError}
+                        onError={() => {
+                          if (!withPlaybackError) setWithPlaybackError(true)
+                        }}
+                        muted
+                        playing={true}
+                        onReady={() => {
+                          measureImageHeight()
+                        }}
+                      />
+                      {publication.metadata?.__typename === 'LiveStreamMetadataV3' &&
+                        !withPlaybackError && (
+                          <div className={liveContainerStyle}>
+                            <div className={liveDotStyle} />
+                            LIVE
+                          </div>
+                        )}
+                      {publication.metadata?.__typename === 'LiveStreamMetadataV3' &&
+                        withPlaybackError && (
+                          <div className={endedContainerStyle}>
+                            <VideoCameraSlashIcon color={reactionTextColor} />
+                            <p>Stream Ended</p>
+                          </div>
+                        )}
+                    </div>
+                  )}
+                {publication.metadata?.__typename === 'AudioMetadata' && (
+                  <div className={audioContainerStyle}>
+                    <AudioPlayer
+                      url={assetUrl}
+                      theme={theme}
+                      cover={cover}
+                      profile={publication.by}
+                    />
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
@@ -516,7 +541,7 @@ const publicationContainerStyle = (backgroundColor: string) => css`
 
 const leftColumnStyle = css`
   flex: 0 0 50%;
-  max-width: 50%;
+  max-width: 75%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -747,4 +772,22 @@ const endedContainerStyle = css`
   color: white;
   font-weight: bold;
   gap: 5px;
+`
+
+const iframeContainerStyle = css`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  margin-top: 12px;
+  border-radius: 16px;
+  overflow: hidden;
+  min-height: 600px;
+  min-width: 600px;
+`
+
+const iframeStyle = css`
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 16px;
 `
