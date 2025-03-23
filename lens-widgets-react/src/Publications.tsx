@@ -12,6 +12,97 @@ enum LimitType {
   FIFTY = 'Fifty'
 }
 
+// First, let's create a reusable CommentThread component to handle nested comments
+const CommentThread = ({
+  comment,
+  level = 0,
+  maxDepth = 3, // Limit nesting to 3 levels deep by default
+  ...props // All the props needed for PublicationComponent
+}) => {
+  const [expandedComments, setExpandedComments] = useState<any[]>([]);
+  const [loadingComments, setLoadingComments] = useState(false);
+
+  async function fetchNestedComments(publicationId: string) {
+    setLoadingComments(true);
+    try {
+      const lensClient = PublicClient.create({ environment: props.environment });
+      const comments = await getComments(publicationId, lensClient);
+
+      if (comments) {
+        setExpandedComments(comments);
+      }
+    } catch (err) {
+      console.log('error fetching nested comments: ', err);
+    } finally {
+      setLoadingComments(false);
+    }
+  }
+
+  return (
+    <div className={css`
+      padding-left: ${level > 0 ? '3rem' : '0'};
+      margin-top: ${level > 0 ? '0.5rem' : '0'};
+      & > * + * {
+        margin-top: 1rem;
+      }
+    `}>
+      <PublicationComponent
+        {...props}
+        publicationData={comment}
+        publicationId={comment.id}
+        hideCommentButton={level >= maxDepth}
+        hideQuoteButton={true}
+        hideShareButton={true}
+        followButtonDisabled={props.followButtonDisabled}
+        onCommentButtonClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          props.onCommentButtonClick?.(e, comment.id, comment.author.username.localName);
+          if (!expandedComments.length) {
+            fetchNestedComments(comment.id);
+          } else {
+            setExpandedComments([]);
+          }
+        }}
+      />
+      
+      {loadingComments && (
+        <div className={css`
+          display: flex;
+          justify-content: center;
+          padding: 1rem 0;
+        `}>
+          <div className={css`
+            animation: spin 1s linear infinite;
+            border-radius: 9999px;
+            height: 1.5rem;
+            width: 1.5rem;
+            border-bottom: 2px solid #4b5563;
+            @keyframes spin {
+              from { transform: rotate(0deg); }
+              to { transform: rotate(360deg); }
+            }
+          `} />
+        </div>
+      )}
+
+      {expandedComments.length > 0 && (
+        <div>
+          {expandedComments.map((nestedComment: any) => (
+            <CommentThread
+              key={nestedComment.id}
+              comment={nestedComment}
+              level={level + 1}
+              maxDepth={maxDepth}
+              {...props}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export function Publications({
   profileId,
   handle,
@@ -25,6 +116,7 @@ export function Publications({
   hideQuoteButton = false,
   hideShareButton = false,
   onLikeButtonClick,
+  onCommentButtonClick,
   hasUpvotedComment,
   getOperationsFor,
   renderMadFiBadge = false,
@@ -50,6 +142,7 @@ export function Publications({
   heartIconOverride,
   messageIconOverride,
   shareIconOverride,
+  maxCommentDepth = 3, // Add this new prop
 }: {
   profileId?: string,
   handle?: string,
@@ -62,6 +155,7 @@ export function Publications({
   hideQuoteButton?: boolean,
   hideShareButton?: boolean,
   onLikeButtonClick?: (e, publicationId: string) => void,
+  onCommentButtonClick?: (e, publicationId: string, username: string) => void,
   hasUpvotedComment: (publicationId: string) => boolean,
   getOperationsFor: (publicationId: string) => any,
   renderMadFiBadge?: boolean,
@@ -88,6 +182,7 @@ export function Publications({
   heartIconOverride?: boolean,
   messageIconOverride?: boolean,
   shareIconOverride?: boolean,
+  maxCommentDepth?: number,
 }) {
   const [_publications, setPublications] = useState<any[] | undefined>([])
   const [followed, setFollowed] = useState({});
@@ -217,10 +312,10 @@ export function Publications({
                   onCommentButtonClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    onCommentButtonClick?.(e, publication.id, publication.author.username.localName);
                     if (!hasExpandedComments) {
                       fetchComments(publication.id);
                     } else {
-                      // Toggle comments off if they're already shown
                       setExpandedComments(prev => {
                         const newState = { ...prev };
                         delete newState[publication.id];
@@ -258,48 +353,30 @@ export function Publications({
               )}
               
               {hasExpandedComments && (
-                <div className={css`
-                  padding-left: 3rem;
-                  margin-top: 0.5rem;
-                  & > * + * {
-                    margin-top: 1rem;
-                  }
-                `}>
+                <div>
                   {expandedComments[publication.id].map((comment: any) => (
-                    <PublicationComponent
+                    <CommentThread
                       key={comment.id}
-                      publicationData={comment}
+                      comment={comment}
+                      level={1}
+                      maxDepth={maxCommentDepth}
+                      operations={getOperationsFor(comment.id)}
+                      getOperationsFor={getOperationsFor}
                       environment={environment}
                       theme={theme}
                       authenticatedProfile={authenticatedProfile}
-                      hideCommentButton={true}
-                      hideQuoteButton={true}
-                      hideShareButton={true}
-                      containerBorderRadius={containerBorderRadius}
-                      containerPadding={containerPadding}
-                      profilePadding={profilePadding}
-                      onLikeButtonClick={onLikeButtonClick && !hasUpvotedComment(comment.id)
-                        ? (e) => onLikeButtonClick(e, comment.id)
-                        : undefined
-                      }
-                      operations={getOperationsFor(comment.id)}
-                      renderMadFiBadge={renderMadFiBadge}
+                      onLikeButtonClick={onLikeButtonClick}
+                      hasUpvotedComment={hasUpvotedComment}
                       hideFollowButton={hideFollowButton}
                       followButtonDisabled={followButtonDisabled}
-                      followButtonBackgroundColor={"#EEEDED"}
-                      isFollowed={false}
-                      onFollowPress={(e) => {
-                        if (onFollowPress) {
-                          onFollowPress(e, comment.by.id);
-                          const res = {};
-                          res[comment.id] = true;
-                          setFollowed({ ...followed, ...res });
-                        }
-                      }}
+                      onFollowPress={onFollowPress}
                       onProfileClick={onProfileClick}
                       profilePictureStyleOverride={profilePictureStyleOverride}
                       profileContainerStyleOverride={profileContainerStyleOverride}
                       textContainerStyleOverride={textContainerStyleOverride}
+                      containerBorderRadius={containerBorderRadius}
+                      containerPadding={containerPadding}
+                      profilePadding={profilePadding}
                       backgroundColorOverride={backgroundColorOverride}
                       mediaImageStyleOverride={mediaImageStyleOverride}
                       imageContainerStyleOverride={imageContainerStyleOverride}
@@ -312,6 +389,7 @@ export function Publications({
                       shareIconOverride={shareIconOverride}
                       profileNameStyleOverride={profileNameStyleOverride}
                       dateNameStyleOverride={dateNameStyleOverride}
+                      onCommentButtonClick={onCommentButtonClick}
                     />
                   ))}
                 </div>

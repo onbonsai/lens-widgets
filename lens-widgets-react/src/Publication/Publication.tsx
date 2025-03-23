@@ -440,7 +440,7 @@ export function Publication({
               </div>
               {!hideCommentButton && (
                 <div
-                  className={activeReactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onCommentButtonClick && operations.canComment, false)}
+                  className={activeReactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onCommentButtonClick && operations?.canComment, false)}
                   onClick={onCommentPress}
                 >
                   {messageIconOverride ? <NewMessageIcon color={reactionTextColor} /> : <MessageIcon color={reactionTextColor} />}
