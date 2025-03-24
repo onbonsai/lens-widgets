@@ -323,12 +323,14 @@ export function HorizontalPublication({
             <div></div>
             {getCanvasUrl(publication) ? (
               <div className={iframeContainerStyle}>
-                <iframe 
-                  src={getCanvasUrl(publication) || ''}
-                  className={iframeStyle}
-                  ref={imageRef as React.RefObject<HTMLIFrameElement>}
-                  onLoad={(e: React.SyntheticEvent<HTMLIFrameElement>) => handleImageLoad()}
-                />
+                {operations?.hasCollected ? (
+                  <iframe
+                    src={getCanvasUrl(publication) || ""}
+                    className={iframeStyle}
+                    ref={imageRef as React.RefObject<HTMLIFrameElement>}
+                    onLoad={(e: React.SyntheticEvent<HTMLIFrameElement>) => handleImageLoad()}
+                  />
+                ) : null}
               </div>
             ) : (
               <>
