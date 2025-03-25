@@ -16,8 +16,9 @@ enum LimitType {
 const CommentThread = ({
   comment,
   level = 0,
-  maxDepth = 3, // Limit nesting to 3 levels deep by default
-  ...props // All the props needed for PublicationComponent
+  maxDepth = 3,
+  isLastComment = false,
+  ...props
 }) => {
   const [expandedComments, setExpandedComments] = useState<any[]>([]);
   const [loadingComments, setLoadingComments] = useState(false);
@@ -40,12 +41,48 @@ const CommentThread = ({
 
   return (
     <div className={css`
+      position: relative;
       padding-left: ${level > 0 ? '3rem' : '0'};
       margin-top: ${level > 0 ? '0.5rem' : '0'};
-      & > * + * {
-        margin-top: 1rem;
-      }
     `}>
+      {/* Container for the thread lines */}
+      {level > 0 && (
+        <div className={css`
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 3rem;
+          height: ${!isLastComment ? 'calc(100% + 0.5rem)' : 'auto'};
+          pointer-events: none;
+          
+          /* The vertical thread line */
+          &::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0;
+            height: ${!isLastComment ? '100%' : '0.65rem'};
+            width: 2px;
+            background-color: rgb(70, 70, 70);
+          }
+          
+          /* The curved corner element */
+          .corner {
+            position: absolute;
+            left: 0.5rem;
+            top: 0;
+            width: 1rem;
+            height: 1.25rem;
+            border-bottom: 2px solid rgb(70, 70, 70);
+            border-left: 2px solid rgb(70, 70, 70);
+            border-bottom-left-radius: 10px;
+          }
+        `}>
+          <div className="corner"></div>
+        </div>
+      )}
+
+      {/* Comment content */}
       <PublicationComponent
         {...props}
         publicationData={comment}
@@ -66,6 +103,7 @@ const CommentThread = ({
         }}
       />
       
+      {/* Loading spinner */}
       {loadingComments && (
         <div className={css`
           display: flex;
@@ -86,14 +124,18 @@ const CommentThread = ({
         </div>
       )}
 
+      {/* Nested comments */}
       {expandedComments.length > 0 && (
-        <div>
-          {expandedComments.map((nestedComment: any) => (
+        <div className={css`
+          margin-top: 0.5rem;
+        `}>
+          {expandedComments.map((nestedComment: any, index) => (
             <CommentThread
               key={nestedComment.id}
               comment={nestedComment}
               level={level + 1}
               maxDepth={maxDepth}
+              isLastComment={index === expandedComments.length - 1}
               {...props}
             />
           ))}
@@ -354,7 +396,7 @@ export function Publications({
               
               {hasExpandedComments && (
                 <div>
-                  {expandedComments[publication.id].map((comment: any) => (
+                  {expandedComments[publication.id].map((comment: any, index: number) => (
                     <CommentThread
                       key={comment.id}
                       comment={comment}
@@ -390,6 +432,7 @@ export function Publications({
                       profileNameStyleOverride={profileNameStyleOverride}
                       dateNameStyleOverride={dateNameStyleOverride}
                       onCommentButtonClick={onCommentButtonClick}
+                      isLastComment={index === expandedComments[publication.id].length - 1}
                     />
                   ))}
                 </div>
