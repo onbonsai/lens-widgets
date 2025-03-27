@@ -65,7 +65,7 @@ const CommentThread = ({
           }
         }}
       />
-      
+
       {loadingComments && (
         <div className={css`
           display: flex;
@@ -115,6 +115,7 @@ export function Publications({
   hideCommentButton = false,
   hideQuoteButton = false,
   hideShareButton = false,
+  hideCollectButton = false,
   onLikeButtonClick,
   onCommentButtonClick,
   hasUpvotedComment,
@@ -154,6 +155,7 @@ export function Publications({
   hideCommentButton?: boolean,
   hideQuoteButton?: boolean,
   hideShareButton?: boolean,
+  hideCollectButton?: boolean,
   onLikeButtonClick?: (e, publicationId: string) => void,
   onCommentButtonClick?: (e, publicationId: string, username: string) => void,
   hasUpvotedComment: (publicationId: string) => boolean,
@@ -272,6 +274,7 @@ export function Publications({
                   hideCommentButton={hideCommentButton}
                   hideQuoteButton={hideQuoteButton}
                   hideShareButton={hideShareButton}
+                  hideCollectButton={hideCollectButton}
                   onLikeButtonClick={onLikeButtonClick && !hasUpvotedComment(publication.id)
                     ? (e) => onLikeButtonClick(e, publication.id)
                     : undefined
@@ -325,7 +328,7 @@ export function Publications({
                   }}
                 />
               </div>
-              
+
               {/* Comments section */}
               {isLoadingComments && (
                 <div className={css`
@@ -351,7 +354,7 @@ export function Publications({
                   `} />
                 </div>
               )}
-              
+
               {hasExpandedComments && (
                 <div>
                   {expandedComments[publication.id].map((comment: any) => (

@@ -248,7 +248,7 @@ export function HorizontalPublication({
 
   function getCanvasUrl(publication: any): string | null {
     if (!publication?.metadata?.attributes) return null
-    
+
     const isCanvas = publication.metadata.attributes.find(attr => attr.key === 'isCanvas')
     if (!isCanvas) return null
 
@@ -323,7 +323,7 @@ export function HorizontalPublication({
             <div></div>
             {getCanvasUrl(publication) ? (
               <div className={iframeContainerStyle}>
-                <iframe 
+                <iframe
                   src={getCanvasUrl(publication) || ''}
                   className={iframeStyle}
                   ref={imageRef as React.RefObject<HTMLIFrameElement>}
@@ -425,8 +425,8 @@ export function HorizontalPublication({
                   className={reactionContainerStyle(
                     reactionTextColor,
                     reactionBgColor,
-                    isAuthenticated && onCommentButtonClick && operations?.canComment,
-                    false
+                    isAuthenticated && onCommentButtonClick,
+                    operations?.canComment
                   )}
                   onClick={onCommentPress}
                 >
@@ -455,7 +455,7 @@ export function HorizontalPublication({
                   className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onCollectButtonClick, operations?.hasCollected)}
                   onClick={onCollectButtonClick}
                 >
-                  <NewColllectIcon fillColor={!operations?.hasCollected ? reactionTextColor : ThemeColor.transparent} outlineColor={reactionTextColor} />
+                  <NewColllectIcon fillColor={operations?.hasCollected ? reactionTextColor : ThemeColor.transparent} outlineColor={reactionTextColor} />
                   {(publication.stats.collects > 0) ? <p>{publication.stats.collects}</p> : null}
                 </div>
               )}
@@ -561,7 +561,6 @@ const imageContainerStyle = css`
   width: 100%;
   overflow: hidden;
   border-radius: 16px;
-  margin-top: 12px;
 `
 
 const mediaImageStyle = css`
@@ -591,10 +590,10 @@ const markdownStyle = (color, fontSize) => css`
   color: ${color};
   overflow: hidden;
   li {
-    font-size: ${fontSize || '14px'};
+    font-size: ${fontSize || '16px'};
   }
   p {
-    font-size: ${fontSize || '14px'};
+    font-size: ${fontSize || '16px'};
     margin-bottom: 0px;
   }
 `

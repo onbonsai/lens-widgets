@@ -556,10 +556,10 @@ const markdownStyle = (color, fontSize, bottomMargin?: string) => css`
   color: ${color};
   overflow: hidden;
   li {
-    font-size: ${fontSize || '14px'};
+    font-size: ${fontSize || '16px'};
   }
   p {
-    font-size: ${fontSize || '14px'};
+    font-size: ${fontSize || '16px'};
     margin-bottom: ${bottomMargin ?? '5px'};
   }
 `
