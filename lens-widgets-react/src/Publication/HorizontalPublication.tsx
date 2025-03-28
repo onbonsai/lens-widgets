@@ -305,9 +305,9 @@ export function HorizontalPublication({
         >
           {showFullText
             ? formatHandleColors(publication.metadata.content)
-            : formatHandleColors(getSubstring(publication.metadata.content, 1000))}
+            : formatHandleColors(getSubstring(publication.metadata.content, 1250))}
         </ReactMarkdown>
-        {publication.metadata.content.length > 1000 && (
+        {publication.metadata.content.length > 1250 && (
           <div style={{ display: 'flex', marginRight: 5 }}>
             <button
               className={showMoreStyle}
