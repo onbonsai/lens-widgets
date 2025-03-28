@@ -3,7 +3,6 @@ import { css } from '@emotion/css'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 import { ThemeColor, Theme } from '../types'
-import { formatDistance } from 'date-fns'
 import { isEmpty } from 'lodash/lang'
 import {
   MirrorIcon,
@@ -14,6 +13,7 @@ import {
   getSubstring,
   formatHandleColors,
   getDisplayName,
+  formatCustomDate,
 } from '../utils'
 import ReactPlayer from 'react-player'
 import { AudioPlayer } from '../AudioPlayer'
@@ -28,7 +28,7 @@ import { NewColllectIcon } from '../icons/NewCollectIcon'
 import { PublicClient } from '@lens-protocol/client'
 import { postId } from '@lens-protocol/client'
 import { fetchPost } from '@lens-protocol/client/actions'
-import { storageClient, DEFAULT_LENS_PROFILE_IMAGE } from '../utils'
+import { storageClient, DEFAULT_LENS_PROFILE_IMAGE, formatCustomDistance } from '../utils'
 
 export function HorizontalPublication({
   publicationId,
@@ -65,6 +65,7 @@ export function HorizontalPublication({
   isFollowed = false,
   onFollowPress,
   nestedWidget,
+  updatedAt,
 }: {
   publicationId?: string
   publicationData?: any
@@ -100,6 +101,7 @@ export function HorizontalPublication({
   isFollowed?: boolean
   onFollowPress?: (event, profileId) => void
   nestedWidget?: ReactNode
+  updatedAt?: number
 }) {
   const [publication, setPublication] = useState<any>(publicationData)
   const [showFullText, setShowFullText] = useState(false)
@@ -271,17 +273,28 @@ export function HorizontalPublication({
           />
         </div>
         <div className={profileDetailsContainerStyle(color)}>
-          <div className="flex justify-between w-full">
-            <div>
-              <div className="flex gap-x-2">
-                <p className={profileNameStyle}>{getDisplayName(author)}</p>
-              </div>
-              {publication.timestamp && (
-                <p className={dateStyle}>
-                  {formatDistance(new Date(publication.timestamp), new Date())} ago
-                </p>
-              )}
+          <div className="flex items-center gap-x-2 w-fit">
+            <p onClick={onProfilePress} className={activeProfileNameStyle}>{getDisplayName(author)}</p>
+            <p onClick={onProfilePress} className={usernameStyle}>@{author.username.localName}</p>
+            <div className="flex items-center">
+              <span className="mx-2 text-sm opacity-60">•</span>
             </div>
+            <p
+              className={timestampStyle}
+              title={new Date(publication.timestamp).toLocaleString()}
+            >
+              {formatCustomDate(publication.timestamp)}
+            </p>
+            {updatedAt && (
+              <>
+                <div className="flex items-center">
+                  <span className="mx-2 text-sm opacity-60">•</span>
+                </div>
+                <p className={timestampStyle} title={new Date(publication.timestamp).toLocaleString()} >
+                  {`updated ${formatCustomDistance(updatedAt)} ago`}
+                </p>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -623,7 +636,6 @@ const profileDetailsContainerStyle = (color) => css`
   display: flex;
   flex-direction: column;
   margin-left: 10px;
-  width: 100%;
   p {
     margin: 0;
     color: ${color};
@@ -791,4 +803,24 @@ const iframeStyle = css`
   height: 100%;
   border: none;
   border-radius: 16px;
+`
+const usernameStyle = css`
+  opacity: 0.6;
+  font-size: 14px;
+  color: inherit;
+  white-space: nowrap;
+`
+
+const timestampStyle = css`
+  opacity: 0.6;
+  font-size: 14px;
+  color: inherit;
+  cursor: help;
+  white-space: nowrap;
+`
+
+const activeProfileNameStyle = css`
+  font-weight: 600;
+  font-size: 16px;
+  white-space: nowrap;
 `

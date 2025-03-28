@@ -1,4 +1,5 @@
 import { fetchPostReferences } from '@lens-protocol/client/actions';
+import { formatDistanceToNowStrict } from 'date-fns'
 import {
   Theme, Size, ThemeColor, Profile
 } from './types'
@@ -241,6 +242,47 @@ export function formatHandleList(handles) {
   handles = handles.join(', ')
   handles = handles.replaceAll('.lens', '')
   return handles
+}
+
+export const formatCustomDate = (timestamp: string): string => {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+
+  if (diffInMinutes < 60) {
+    return `${diffInMinutes}m`;
+  }
+
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours < 24) {
+    return `${diffInHours}h`;
+  }
+
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric'
+  });
+}
+
+export const formatCustomDistance = (timestamp: number): string => {
+  const timeAgo = formatDistanceToNowStrict(new Date(timestamp * 1000), { addSuffix: false });
+
+  // Convert to shorthand
+  return timeAgo
+    .replace(" seconds", "s")
+    .replace(" second", "s")
+    .replace(" minutes", "m")
+    .replace(" minute", "m")
+    .replace(" hours", "h")
+    .replace(" hour", "h")
+    .replace(" days", "d")
+    .replace(" day", "d")
+    .replace(" weeks", "w")
+    .replace(" week", "w")
+    .replace(" months", "mo")
+    .replace(" month", "mo")
+    .replace(" years", "y")
+    .replace(" year", "y");
 }
 
 const styles = {

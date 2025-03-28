@@ -1,15 +1,13 @@
-import { ReactNode, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { css } from '@emotion/css'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 import { ThemeColor, Theme } from '../types'
-import { formatDistance } from 'date-fns'
 import { isEmpty } from 'lodash/lang';
 import {
   MessageIcon, MirrorIcon, HeartIcon, ShareIcon, VideoCameraSlashIcon
 } from '../icons'
 import {
-  returnIpfsPathOrUrl,
   systemFonts,
   getSubstring,
   formatHandleColors,
@@ -30,7 +28,7 @@ import { NewColllectIcon } from '../icons/NewCollectIcon'
 import { PublicClient, testnet, staging } from "@lens-protocol/client";
 import { evmAddress, postId, txHash } from "@lens-protocol/client";
 import { fetchPost } from "@lens-protocol/client/actions";
-import { storageClient, DEFAULT_LENS_PROFILE_IMAGE } from '../utils'
+import { storageClient, DEFAULT_LENS_PROFILE_IMAGE, formatCustomDate } from '../utils'
 
 export function Publication({
   publicationId,
@@ -314,30 +312,33 @@ export function Publication({
         <div className={profileDetailsContainerStyle(color)}>
           <div className="flex justify-between w-full">
             <div>
-              <div className="flex gap-x-2">
+              <div className="flex items-center gap-x-2">
                 <p className={activeProfileNameStyle}>{getDisplayName(author)}</p>
-                {/* {renderMadFiBadge && <span className="mt-1"><VerifiedBadgeIcon height={20} /></span>} */}
+                <p className={usernameStyle}>@{author.username.localName}</p>
+                <div className="flex items-center">
+                  <span className="mx-2 text-sm opacity-60">•</span>
+                </div>
+                <p className={timestampStyle}>
+                  {formatCustomDate(publication.timestamp)}
+                </p>
               </div>
-              {/* conditional due to bounties */}
-              {publication.timestamp && (
-                <p className={activeDateStyle}> {formatDistance(new Date(publication.timestamp), new Date())} ago</p>
-              )}
+              {/* TODO: add follow button */}
+              {/* <div style={getButtonContainerStyle(hideFollowButton)}>
+                  <button
+                    disabled={followButtonDisabled || isFollowed}
+                    onClick={(e) => onFollowPress ? onFollowPress(e, publication.by.id) : undefined}
+                    style={
+                      getButtonStyle(
+                        theme,
+                        !followButtonDisabled ? followButtonBackgroundColor : ThemeColor.darkGray,
+                        undefined, // followButtonTextColor
+                        followButtonDisabled || isFollowed
+                      )
+                    }
+                  >{!isFollowed ? "Follow" : "Following"}</button>
+                </div> */}
             </div>
-            {/* TODO: add follow button */}
-            {/* <div style={getButtonContainerStyle(hideFollowButton)}>
-                <button
-                  disabled={followButtonDisabled || isFollowed}
-                  onClick={(e) => onFollowPress ? onFollowPress(e, publication.by.id) : undefined}
-                  style={
-                    getButtonStyle(
-                      theme,
-                      !followButtonDisabled ? followButtonBackgroundColor : ThemeColor.darkGray,
-                      undefined, // followButtonTextColor
-                      followButtonDisabled || isFollowed
-                    )
-                  }
-                >{!isFollowed ? "Follow" : "Following"}</button>
-              </div> */}
+            {/* TODO: add username and timestamp */}
           </div>
         </div>
       </div>
@@ -761,3 +762,24 @@ function getButtonContainerStyle(hidden) {
     visibility: hidden ? 'hidden' : 'visible' as any
   }
 }
+
+const usernameStyle = css`
+  opacity: 0.6;
+  flex-grow: 1;
+  font-size: 14px;
+  color: inherit;
+`
+
+const timestampStyle = css`
+  opacity: 0.6;
+  flex-grow: 1;
+  font-size: 14px;
+  color: inherit;
+  cursor: help;
+`
+
+const activeProfileNameStyle = css`
+  font-weight: 600;
+  font-size: 16px;
+  flex-grow: 1;
+`
