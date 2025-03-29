@@ -440,8 +440,8 @@ export function HorizontalPublication({
                   className={reactionContainerStyle(
                     reactionTextColor,
                     reactionBgColor,
-                    isAuthenticated && onCommentButtonClick,
-                    operations?.canComment
+                    isAuthenticated && onCommentButtonClick && operations?.canComment,
+                    false
                   )}
                   onClick={onCommentPress}
                 >
