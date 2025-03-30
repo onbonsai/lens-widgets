@@ -52,7 +52,7 @@ export function HorizontalPublication({
   hideCommentButton = false,
   hideQuoteButton = false,
   hideShareButton = false,
-  hideCollectButton= false,
+  hideCollectButton = false,
   followButtonDisabled = false,
   followButtonBackgroundColor,
   operations,
@@ -328,7 +328,7 @@ export function HorizontalPublication({
   return (
     <div
       className={publicationContainerStyle(backgroundColor)}
-      style={{ height: leftColumnHeight > 0 ? leftColumnHeight : 'auto', minHeight: '40vh' }}
+      style={{ height: leftColumnHeight > 0 ? leftColumnHeight : 'auto' }}
     >
       <div className={leftColumnStyle}>
         {!isLoadingActionModuleState && !actionModuleHandler?.mintableNFT && (
