@@ -337,13 +337,36 @@ export function HorizontalPublication({
             {getCanvasUrl(publication) ? (
               <div className={iframeContainerStyle}>
                 {operations?.hasCollected ? (
-                  <iframe
-                    src={getCanvasUrl(publication) || ""}
-                    className={iframeStyle}
-                    ref={imageRef as React.RefObject<HTMLIFrameElement>}
-                    onLoad={(e: React.SyntheticEvent<HTMLIFrameElement>) => handleImageLoad()}
-                  />
-                ) : null}
+                  <>
+                    <iframe
+                      src={getCanvasUrl(publication) || ""}
+                      className={iframeStyle}
+                      ref={imageRef as React.RefObject<HTMLIFrameElement>}
+                      onLoad={(e: React.SyntheticEvent<HTMLIFrameElement>) => handleImageLoad()}
+                    />
+                    <button
+                      className={fullscreenButtonStyle}
+                      onClick={() => {
+                        const container = imageRef.current?.parentElement;
+                        if (container) {
+                          if (document.fullscreenElement) {
+                            document.exitFullscreen();
+                          } else {
+                            container.requestFullscreen();
+                          }
+                        }
+                      }}
+                    >
+                      {document.fullscreenElement ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+                    </button>
+                  </>
+                ) : (
+                  <div className={collectMessageContainerStyle}>
+                    <p className={collectMessageStyle}>
+                      Collect this post to view the canvas
+                    </p>
+                  </div>
+                )}
               </div>
             ) : (
               <>
@@ -804,6 +827,7 @@ const iframeStyle = css`
   border: none;
   border-radius: 16px;
 `
+
 const usernameStyle = css`
   opacity: 0.6;
   font-size: 14px;
@@ -823,4 +847,39 @@ const activeProfileNameStyle = css`
   font-weight: 600;
   font-size: 16px;
   white-space: nowrap;
+`
+
+const collectMessageContainerStyle = css`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+`
+
+const collectMessageStyle = css`
+  color: ${ThemeColor.darkGray};
+  font-size: 18px;
+  font-style: italic;
+  font-weight: 500;
+`
+
+const fullscreenButtonStyle = css`
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s ease;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+  z-index: 10;
 `
