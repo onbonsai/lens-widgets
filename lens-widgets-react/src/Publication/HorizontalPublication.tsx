@@ -559,7 +559,7 @@ export function HorizontalPublication({
 
 const showMoreStyle = css`
   color: ${ThemeColor.lightGreen};
-  font-size: 20px;
+  font-size: 14px;
   padding-top: 4px;
   padding-bottom: 4px;
   transition: opacity 0.2s ease;
@@ -574,7 +574,7 @@ const showMoreStyle = css`
 const textContainerStyle = css`
   padding-top: 16px;
   margin-bottom: 16px;
-  font-size: 20px;
+  font-size: 16px;
   line-height: 20px;
   font-family: inherit;
 `
@@ -648,13 +648,14 @@ const markdownStyle = (color, fontSize) => css`
   overflow: hidden;
   font-family: inherit;
   li {
-    font-size: ${fontSize || '20px'};
+    font-size: ${fontSize || '16px'};
     font-family: inherit;
   }
   p {
-    font-size: ${fontSize || '20px'};
+    font-size: ${fontSize || '16px'};
     margin-bottom: 0px;
     font-family: inherit;
+    font-weight: 300;
   }
 `
 
@@ -687,7 +688,7 @@ const profileDetailsContainerStyle = (color) => css`
 
 const activeProfileNameStyle = css`
   font-weight: 600;
-  font-size: 20px;
+  font-size: 16px;
   white-space: nowrap;
   font-family: inherit;
 `
@@ -742,7 +743,7 @@ const reactionContainerStyle =
       justify-content: center;
       color: ${color};
       background-color: rgba(255, 255, 255, 0.04);
-      font-size: 15px;
+      font-size: 10px;
       margin: 0;
       margin-left: 4px;
       height: 14px;
