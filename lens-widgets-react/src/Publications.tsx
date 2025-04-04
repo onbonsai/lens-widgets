@@ -230,8 +230,8 @@ export function Publications({
 }) {
   const [_publications, setPublications] = useState<any[] | undefined>([])
   const [followed, setFollowed] = useState({});
-  const [expandedComments, setExpandedComments] = useState<{[key: string]: any[]}>({});
-  const [loadingComments, setLoadingComments] = useState<{[key: string]: boolean}>({});
+  const [expandedComments, setExpandedComments] = useState<{ [key: string]: any[] }>({});
+  const [loadingComments, setLoadingComments] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     if (!publications?.length) {

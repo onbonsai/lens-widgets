@@ -58,7 +58,7 @@ const sizeMap: Record<Size, string> = {
   large: '18px',
 }
 
-export const dimensionsMap:Record<Size, Record<string, number>> = {
+export const dimensionsMap: Record<Size, Record<string, number>> = {
   small: { width: 25.5, height: 16.5 },
   medium: { width: 34, height: 22 },
   large: { width: 51, height: 33 }
@@ -81,7 +81,7 @@ export function getContainerStyle(theme: Theme, size: Size) {
   }
 }
 
-export function getTextStyle(theme:Theme, size: Size) {
+export function getTextStyle(theme: Theme, size: Size) {
   let appendedStyles = {
     color: foregroundColorMap[theme],
     fontSize: sizeMap[size]
@@ -215,7 +215,7 @@ const pastels = [
 ]
 
 export function getRandomColor() {
-  return pastels[Math.floor(Math.random()*pastels.length)]
+  return pastels[Math.floor(Math.random() * pastels.length)]
 }
 
 export function getSubstring(string, length = 130) {

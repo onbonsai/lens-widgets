@@ -9,11 +9,13 @@ import {
   VideoCameraSlashIcon
 } from '../icons'
 import {
-  systemFonts,
   getSubstring,
   formatHandleColors,
   getDisplayName,
   formatCustomDate,
+  formatCustomDistance,
+  storageClient,
+  DEFAULT_LENS_PROFILE_IMAGE
 } from '../utils'
 import ReactPlayer from 'react-player'
 import { AudioPlayer } from '../AudioPlayer'
@@ -28,7 +30,6 @@ import { NewColllectIcon } from '../icons/NewCollectIcon'
 import { PublicClient } from '@lens-protocol/client'
 import { postId } from '@lens-protocol/client'
 import { fetchPost } from '@lens-protocol/client/actions'
-import { storageClient, DEFAULT_LENS_PROFILE_IMAGE, formatCustomDistance } from '../utils'
 
 export function HorizontalPublication({
   publicationId,
@@ -52,7 +53,7 @@ export function HorizontalPublication({
   hideCommentButton = false,
   hideQuoteButton = false,
   hideShareButton = false,
-  hideCollectButton= false,
+  hideCollectButton = false,
   followButtonDisabled = false,
   followButtonBackgroundColor,
   operations,
@@ -92,16 +93,16 @@ export function HorizontalPublication({
   followButtonDisabled: boolean
   followButtonBackgroundColor?: string
   operations?: any
-  focusedOpenActionModuleName?: string // in case a post has multiple action modules
-  useToast?: Toast // ex: react-hot-toast to render notifs
+  focusedOpenActionModuleName?: string
+  useToast?: Toast
   rpcURLs?: { [chainId: number]: string }
   appDomainWhitelistedGasless?: boolean
   renderMadFiBadge?: boolean
-  handlePinMetadata?: (content: string, files: any[]) => Promise<string> // to upload post content on bounties
+  handlePinMetadata?: (content: string, files: any[]) => Promise<string>
   isFollowed?: boolean
   onFollowPress?: (event, profileId) => void
   nestedWidget?: ReactNode
-  updatedAt?: number
+  updatedAt?: number,
 }) {
   const [publication, setPublication] = useState<any>(publicationData)
   const [showFullText, setShowFullText] = useState(false)
@@ -229,7 +230,7 @@ export function HorizontalPublication({
   // theming
   const isDarkTheme = theme === Theme.dark
   const color = isDarkTheme ? ThemeColor.white : ThemeColor.darkGray
-  const backgroundColor = isDarkTheme ? ThemeColor.lightBlack : ThemeColor.white
+  const backgroundColor = isDarkTheme ? '#191919' : ThemeColor.white
   const reactionBgColor = isDarkTheme ? ThemeColor.darkGray : ThemeColor.lightGray
   const actButttonBgColor = isDarkTheme ? ThemeColor.darkGray : ThemeColor.lightGray
   const reactionTextColor = isDarkTheme ? ThemeColor.lightGray : ThemeColor.darkGray
@@ -244,9 +245,12 @@ export function HorizontalPublication({
   const renderActLoading =
     walletClient &&
     isAuthenticated &&
-    (isActionModuleSupported && isLoadingActionModuleState && !actionModuleHandler?.panicked && !actHandledExternally)
+    (isActionModuleSupported &&
+      isLoadingActionModuleState &&
+      !actionModuleHandler?.panicked &&
+      !actHandledExternally)
 
-  let cover // TODO: handle audio cover
+  let cover // (Optional) If you want to handle audio cover logic
 
   function getCanvasUrl(publication: any): string | null {
     if (!publication?.metadata?.attributes) return null
@@ -290,7 +294,10 @@ export function HorizontalPublication({
                 <div className="flex items-center">
                   <span className="mx-2 text-sm opacity-60">•</span>
                 </div>
-                <p className={timestampStyle} title={new Date(publication.timestamp).toLocaleString()} >
+                <p
+                  className={timestampStyle}
+                  title={new Date(publication.timestamp).toLocaleString()}
+                >
                   {`updated ${formatCustomDistance(updatedAt)} ago`}
                 </p>
               </>
@@ -328,7 +335,10 @@ export function HorizontalPublication({
   return (
     <div
       className={publicationContainerStyle(backgroundColor)}
-      style={{ height: leftColumnHeight > 0 ? leftColumnHeight : 'auto', minHeight: '40vh' }}
+      style={{
+        height: leftColumnHeight > 0 ? leftColumnHeight : 'auto',
+        minHeight: '40vh'
+      }}
     >
       <div className={leftColumnStyle}>
         {!isLoadingActionModuleState && !actionModuleHandler?.mintableNFT && (
@@ -348,12 +358,12 @@ export function HorizontalPublication({
                       className={fullscreenButtonStyle}
                       onClick={() => {
                         const container = imageRef.current?.parentElement;
-                        if (container) {
-                          if (document.fullscreenElement) {
-                            document.exitFullscreen();
-                          } else {
-                            container.requestFullscreen();
-                          }
+                        if (!container) return
+                        // Toggle fullscreen
+                        if (document.fullscreenElement) {
+                          document.exitFullscreen();
+                        } else {
+                          container.requestFullscreen();
                         }
                       }}
                     >
@@ -444,19 +454,13 @@ export function HorizontalPublication({
               >
                 <NewHeartIcon
                   fillColor={
-                    !operations?.hasUpvoted
-                      ? ThemeColor.transparent
-                      : ThemeColor.red
+                    !operations?.hasUpvoted ? ThemeColor.transparent : ThemeColor.red
                   }
                   outlineColor={
-                    !operations?.hasUpvoted
-                      ? reactionTextColor
-                      : ThemeColor.red
+                    !operations?.hasUpvoted ? reactionTextColor : ThemeColor.red
                   }
                 />
-                {publication.stats.upvotes > 0 && (
-                  <p>{publication.stats.upvotes}</p>
-                )}
+                {publication.stats.upvotes > 0 && <p>{publication.stats.upvotes}</p>}
               </div>
               {!hideCommentButton && (
                 <div
@@ -469,9 +473,7 @@ export function HorizontalPublication({
                   onClick={onCommentPress}
                 >
                   <NewMessageIcon color={reactionTextColor} />
-                  {publication.stats.comments > 0 && (
-                    <p>{publication.stats.comments}</p>
-                  )}
+                  {publication.stats.comments > 0 && <p>{publication.stats.comments}</p>}
                 </div>
               )}
               {!hideQuoteButton && (
@@ -484,17 +486,35 @@ export function HorizontalPublication({
                   )}
                   onClick={onMirrorPress}
                 >
-                  <MirrorIcon color={!operations?.hasMirrored ? reactionTextColor : ThemeColor.lightGreen} />
-                  {(publication.stats.mirrors + publication.stats.quotes > 0) ? <p>{publication.stats.mirrors + publication.stats.quotes}</p> : null}
+                  <MirrorIcon
+                    color={
+                      !operations?.hasMirrored
+                        ? reactionTextColor
+                        : ThemeColor.lightGreen
+                    }
+                  />
+                  {(publication.stats.mirrors + publication.stats.quotes > 0) ? (
+                    <p>{publication.stats.mirrors + publication.stats.quotes}</p>
+                  ) : null}
                 </div>
               )}
               {!hideCollectButton && (
                 <div
-                  className={reactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onCollectButtonClick, operations?.hasCollected)}
+                  className={reactionContainerStyle(
+                    reactionTextColor,
+                    reactionBgColor,
+                    isAuthenticated && onCollectButtonClick,
+                    operations?.hasCollected
+                  )}
                   onClick={onCollectButtonClick}
                 >
-                  <NewColllectIcon fillColor={operations?.hasCollected ? reactionTextColor : ThemeColor.transparent} outlineColor={reactionTextColor} />
-                  {(publication.stats.collects > 0) ? <p>{publication.stats.collects}</p> : null}
+                  <NewColllectIcon
+                    fillColor={
+                      operations?.hasCollected ? reactionTextColor : ThemeColor.transparent
+                    }
+                    outlineColor={reactionTextColor}
+                  />
+                  {publication.stats.collects > 0 && <p>{publication.stats.collects}</p>}
                 </div>
               )}
               {renderActButton && (
@@ -542,7 +562,7 @@ export function HorizontalPublication({
 
 const showMoreStyle = css`
   color: ${ThemeColor.lightGreen};
-  font-size: 14px;
+  font-size: 20px;
   padding-top: 4px;
   padding-bottom: 4px;
   transition: opacity 0.2s ease;
@@ -551,19 +571,21 @@ const showMoreStyle = css`
   }
   margin-left: auto;
   display: block;
+  font-family: inherit;
 `
 
 const textContainerStyle = css`
   padding-top: 16px;
   margin-bottom: 16px;
-  font-size: 16px;
+  font-size: 20px;
   line-height: 20px;
-  font-family: var(--font-inter), sans-serif;
+  font-family: inherit;
 `
 
 const topLevelContentStyle = css`
   padding: 12px;
   /* The right column's content can be tall. It will scroll if it overflows. */
+  font-family: inherit;
 `
 
 const publicationContainerStyle = (backgroundColor: string) => css`
@@ -574,7 +596,7 @@ const publicationContainerStyle = (backgroundColor: string) => css`
   overflow: hidden;
   margin-bottom: 4px;
   border-radius: 24px;
-  font-family: ${systemFonts} !important;
+  font-family: inherit;
 `
 
 const leftColumnStyle = css`
@@ -627,12 +649,15 @@ const videoStyle = css`
 const markdownStyle = (color, fontSize) => css`
   color: ${color};
   overflow: hidden;
+  font-family: inherit;
   li {
-    font-size: ${fontSize || '16px'};
+    font-size: ${fontSize || '20px'};
+    font-family: inherit;
   }
   p {
-    font-size: ${fontSize || '16px'};
+    font-size: ${fontSize || '20px'};
     margin-bottom: 0px;
+    font-family: inherit;
   }
 `
 
@@ -640,11 +665,7 @@ const profileContainerStyle = (isMirror) => css`
   display: flex;
   align-items: center;
   padding: 0;
-`
-
-const profileNameStyle = css`
-  font-weight: 600;
-  font-size: 16px;
+  font-family: inherit;
 `
 
 const profilePictureStyle = css`
@@ -659,10 +680,36 @@ const profileDetailsContainerStyle = (color) => css`
   display: flex;
   flex-direction: column;
   margin-left: 10px;
+  font-family: inherit;
   p {
     margin: 0;
     color: ${color};
+    font-family: inherit;
   }
+`
+
+const activeProfileNameStyle = css`
+  font-weight: 600;
+  font-size: 20px;
+  white-space: nowrap;
+  font-family: inherit;
+`
+
+const usernameStyle = css`
+  opacity: 0.6;
+  font-size: 14px;
+  color: inherit;
+  white-space: nowrap;
+  font-family: inherit;
+`
+
+const timestampStyle = css`
+  opacity: 0.6;
+  font-size: 14px;
+  color: inherit;
+  cursor: help;
+  white-space: nowrap;
+  font-family: inherit;
 `
 
 const reactionsContainerStyle = css`
@@ -676,6 +723,7 @@ const reactionsContainerStyle = css`
   margin-left: 12px;
   gap: 8px;
   cursor: default;
+  font-family: inherit;
 `
 
 const reactionContainerStyle =
@@ -690,19 +738,21 @@ const reactionContainerStyle =
     display: flex;
     border-radius: 10px;
     padding: 6px;
+    font-family: inherit;
     p {
       display: flex;
       align-items: center;
       justify-content: center;
       color: ${color};
       background-color: rgba(255, 255, 255, 0.04);
-      font-size: 10px;
+      font-size: 15px;
       margin: 0;
       margin-left: 4px;
       height: 14px;
       width: 14px;
       border-radius: 50%;
       font-weight: 500;
+      font-family: inherit;
     }
     cursor: ${isAuthenticatedAndWithHandler && !hasReacted
       ? 'pointer'
@@ -726,6 +776,7 @@ const shareContainerStyle = (color, backgroundColor) => css`
   top: 0px;
   height: 24px;
   width: 24px;
+  font-family: inherit;
   p {
     color: ${color};
     font-size: 12px;
@@ -750,19 +801,33 @@ const actButtonContainerStyle = (color, backgroundColor, disabled?: boolean) => 
   top: 0px;
   height: 28px;
   width: 68px;
+  font-family: inherit;
   p {
     color: ${color};
     font-size: 14px;
     opacity: 0.75;
     margin: 0;
+    font-family: inherit;
   }
   cursor: ${!disabled ? 'pointer' : 'default'};
 `
 
-const dateStyle = css`
-  font-size: 12px;
-  color: ${ThemeColor.darkGray};
-  opacity: 0.75;
+const iframeContainerStyle = css`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  margin-top: 12px;
+  border-radius: 16px;
+  overflow: hidden;
+  min-height: 600px;
+  min-width: 600px;
+`
+
+const iframeStyle = css`
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 16px;
 `
 
 const liveContainerStyle = css`
@@ -810,50 +875,12 @@ const endedContainerStyle = css`
   gap: 5px;
 `
 
-const iframeContainerStyle = css`
-  position: relative;
-  width: 100%;
-  height: 100%;
-  margin-top: 12px;
-  border-radius: 16px;
-  overflow: hidden;
-  min-height: 600px;
-  min-width: 600px;
-`
-
-const iframeStyle = css`
-  width: 100%;
-  height: 100%;
-  border: none;
-  border-radius: 16px;
-`
-
-const usernameStyle = css`
-  opacity: 0.6;
-  font-size: 14px;
-  color: inherit;
-  white-space: nowrap;
-`
-
-const timestampStyle = css`
-  opacity: 0.6;
-  font-size: 14px;
-  color: inherit;
-  cursor: help;
-  white-space: nowrap;
-`
-
-const activeProfileNameStyle = css`
-  font-weight: 600;
-  font-size: 16px;
-  white-space: nowrap;
-`
-
 const collectMessageContainerStyle = css`
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100%;
+  font-family: inherit;
 `
 
 const collectMessageStyle = css`
@@ -861,6 +888,7 @@ const collectMessageStyle = css`
   font-size: 18px;
   font-style: italic;
   font-weight: 500;
+  font-family: inherit;
 `
 
 const fullscreenButtonStyle = css`
@@ -874,6 +902,7 @@ const fullscreenButtonStyle = css`
   padding: 8px 16px;
   cursor: pointer;
   font-size: 14px;
+  font-family: inherit;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -882,4 +911,4 @@ const fullscreenButtonStyle = css`
     background-color: rgba(0, 0, 0, 0.7);
   }
   z-index: 10;
-`
+  `
