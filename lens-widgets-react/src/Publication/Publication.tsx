@@ -8,7 +8,6 @@ import {
   MessageIcon, MirrorIcon, HeartIcon, ShareIcon, VideoCameraSlashIcon
 } from '../icons'
 import {
-  systemFonts,
   getSubstring,
   formatHandleColors,
   getDisplayName,
@@ -310,35 +309,16 @@ export function Publication({
           />
         </div>
         <div className={profileDetailsContainerStyle(color)}>
-          <div className="flex justify-between w-full">
-            <div>
-              <div className="flex items-center gap-x-2">
-                <p className={activeProfileNameStyle}>{getDisplayName(author)}</p>
-                <p className={usernameStyle}>@{author.username.localName}</p>
-                <div className="flex items-center">
-                  <span className="mx-2 text-sm opacity-60">•</span>
-                </div>
-                <p className={timestampStyle}>
-                  {formatCustomDate(publication.timestamp)}
-                </p>
-              </div>
-              {/* TODO: add follow button */}
-              {/* <div style={getButtonContainerStyle(hideFollowButton)}>
-                  <button
-                    disabled={followButtonDisabled || isFollowed}
-                    onClick={(e) => onFollowPress ? onFollowPress(e, publication.by.id) : undefined}
-                    style={
-                      getButtonStyle(
-                        theme,
-                        !followButtonDisabled ? followButtonBackgroundColor : ThemeColor.darkGray,
-                        undefined, // followButtonTextColor
-                        followButtonDisabled || isFollowed
-                      )
-                    }
-                  >{!isFollowed ? "Follow" : "Following"}</button>
-                </div> */}
+          <div className="flex justify-between w-full items-start">
+            <div className="flex flex-col items-start">
+              <p className={activeProfileNameStyle}>{getDisplayName(author)}</p>
+              <p className={usernameStyle}>@{author.username.localName}</p>
             </div>
-            {/* TODO: add username and timestamp */}
+            <div>
+              <p className={timestampStyle}>
+                {formatCustomDate(publication.timestamp)}
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -571,12 +551,13 @@ const profileContainerStyle = (isMirror, padding?: string) => css`
   padding: ${padding ?? (isMirror ? '2px 0 0 0' : '6px 0 0 0')};
 `
 const system = css`
-  font-family: ${systemFonts} !important
+  font-family: inherit !important;
 `
 
 const profileNameStyle = css`
   font-weight: 600;
   font-size: 16px;
+  line-height: 16px;
 `
 
 const profilePictureStyle = css`
@@ -698,8 +679,6 @@ const dateStyle = css`
 `
 
 const profileDetailsContainerStyle = color => css`
-  display: flex;
-  flex-direction: column;
   margin-left: 10px;
   width: 100%;
   p {
@@ -765,9 +744,9 @@ function getButtonContainerStyle(hidden) {
 
 const usernameStyle = css`
   opacity: 0.6;
-  flex-grow: 1;
   font-size: 14px;
   color: inherit;
+  line-height: 14px;
 `
 
 const timestampStyle = css`
