@@ -112,17 +112,25 @@ export function HorizontalPublication({
 
   const [leftColumnHeight, setLeftColumnHeight] = useState<number>(0)
   const imageRef = useRef<HTMLImageElement | HTMLIFrameElement | null>(null)
+  const leftColumnRef = useRef<HTMLDivElement>(null)
+  const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const measureImageHeight = () => {
-    requestAnimationFrame(() => {
+    if (resizeTimeoutRef.current) {
+      clearTimeout(resizeTimeoutRef.current);
+    }
+
+    resizeTimeoutRef.current = setTimeout(() => {
       if (imageRef.current) {
-        setLeftColumnHeight(imageRef.current.clientHeight)
+        setLeftColumnHeight(imageRef.current.clientHeight);
       }
-    })
+    }, 100); // Debounce resize events
   }
 
   const handleImageLoad = () => {
-    measureImageHeight()
+    if (imageRef.current) {
+      setLeftColumnHeight(imageRef.current.clientHeight);
+    }
   }
 
   const {
@@ -149,9 +157,13 @@ export function HorizontalPublication({
   }, [publicationId])
 
   useEffect(() => {
-    window.addEventListener('resize', measureImageHeight)
+    const handleResize = () => measureImageHeight();
+    window.addEventListener('resize', handleResize);
     return () => {
-      window.removeEventListener('resize', measureImageHeight)
+      window.removeEventListener('resize', handleResize);
+      if (resizeTimeoutRef.current) {
+        clearTimeout(resizeTimeoutRef.current);
+      }
     }
   }, [])
 
@@ -335,9 +347,9 @@ export function HorizontalPublication({
   return (
     <div
       className={publicationContainerStyle(backgroundColor)}
-      style={{ height: leftColumnHeight > 0 ? leftColumnHeight : 'auto' }}
+      style={{ minHeight: leftColumnHeight > 0 ? leftColumnHeight : 'auto' }}
     >
-      <div className={leftColumnStyle}>
+      <div className={leftColumnStyle} ref={leftColumnRef}>
         {!isLoadingActionModuleState && !actionModuleHandler?.mintableNFT && (
           <>
             <div></div>
@@ -581,7 +593,6 @@ const textContainerStyle = css`
 
 const topLevelContentStyle = css`
   padding: 12px;
-  /* The right column's content can be tall. It will scroll if it overflows. */
   font-family: inherit;
 `
 
@@ -597,11 +608,16 @@ const publicationContainerStyle = (backgroundColor: string) => css`
 `
 
 const leftColumnStyle = css`
-  flex: 0 0 50%;
-  max-width: 75%;
+  flex: 0 0 auto;
+  width: 50%;
+  max-width: 50%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  height: auto;
+  position: relative;
+  overflow: hidden;
+  padding: 0; 
 `
 
 const rightColumnStyle = css`
@@ -613,34 +629,39 @@ const rightColumnStyle = css`
 const imageContainerStyle = css`
   position: relative;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  justify-content: flex-start;
+  align-items: flex-start; 
   width: 100%;
+  height: auto;
   overflow: hidden;
   border-radius: 16px;
+  margin-top: 0; 
 `
 
 const mediaImageStyle = css`
   width: 100%;
   height: auto;
+  max-height: 100%;
   display: block;
   border-radius: 16px;
-  object-fit: cover;
+  object-fit: contain;
 `
 
 const videoContainerStyle = css`
   position: relative !important;
-  margin-top: 14px;
-`
-
-const audioContainerStyle = css`
-  margin-top: 14px;
+  margin-top: 0;
+  width: 100%;
+  height: auto;
 `
 
 const videoStyle = css`
   width: 100% !important;
   height: 100% !important;
   position: relative !important;
+`
+
+const audioContainerStyle = css`
+  margin-top: 0;
 `
 
 const markdownStyle = (color, fontSize) => css`
@@ -718,7 +739,7 @@ const reactionsContainerStyle = css`
   align-items: center;
   margin-top: 12px;
   padding-bottom: 12px;
-  margin-left: 12px;
+  padding-left: 12px;
   gap: 8px;
   cursor: default;
   font-family: inherit;
@@ -813,12 +834,11 @@ const actButtonContainerStyle = (color, backgroundColor, disabled?: boolean) => 
 const iframeContainerStyle = css`
   position: relative;
   width: 100%;
-  height: 100%;
-  margin-top: 12px;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  margin-top: 0;
   border-radius: 16px;
   overflow: hidden;
-  min-height: 600px;
-  min-width: 600px;
 `
 
 const iframeStyle = css`
