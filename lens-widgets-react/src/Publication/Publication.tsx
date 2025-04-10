@@ -309,16 +309,18 @@ export function Publication({
           />
         </div>
         <div className={profileDetailsContainerStyle(color)}>
-          <div className="flex justify-between w-full items-start">
-            <div className="flex flex-col items-start">
-              <p className={activeProfileNameStyle}>{getDisplayName(author)}</p>
-              <p className={usernameStyle}>@{author.username.localName}</p>
+          <div className="flex items-center gap-x-2 w-fit">
+            <p onClick={onProfilePress} className={activeProfileNameStyle}>{getDisplayName(author)}</p>
+            <p onClick={onProfilePress} className={usernameStyle}>@{author.username.localName}</p>
+            <div className="flex items-center">
+              <span className="mx-2 text-sm opacity-60">•</span>
             </div>
-            <div>
-              <p className={timestampStyle}>
-                {formatCustomDate(publication.timestamp)}
-              </p>
-            </div>
+            <p
+              className={timestampStyle}
+              title={new Date(publication.timestamp).toLocaleString()}
+            >
+              {formatCustomDate(publication.timestamp)}
+            </p>
           </div>
         </div>
       </div>
