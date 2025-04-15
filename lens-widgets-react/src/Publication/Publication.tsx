@@ -82,6 +82,8 @@ export function Publication({
   messageIconOverride,
   shareIconOverride,
   actButtonContainerStyleOverride,
+  profileMaxWidth = '200px',
+  usernameMaxWidth = '150px',
 }: {
   publicationId?: string,
   publicationData?: any,
@@ -135,6 +137,8 @@ export function Publication({
   messageIconOverride?: boolean,
   shareIconOverride?: boolean,
   actButtonContainerStyleOverride?: (color, backgroundColor, disabled?: boolean) => string,
+  profileMaxWidth?: string,
+  usernameMaxWidth?: string,
 }) {
   let [publication, setPublication] = useState<any>(publicationData)
   let [showFullText, setShowFullText] = useState(false)
@@ -310,8 +314,8 @@ export function Publication({
         </div>
         <div className={profileDetailsContainerStyle(color)}>
           <div className="flex items-center gap-x-2 w-fit">
-            <p onClick={onProfilePress} className={activeProfileNameStyle}>{getDisplayName(author)}</p>
-            <p onClick={onProfilePress} className={usernameStyle}>@{author.username.localName}</p>
+            <p onClick={onProfilePress} className={profileNameStyle(profileMaxWidth)}>{getDisplayName(author)}</p>
+            <p onClick={onProfilePress} className={usernameStyle(usernameMaxWidth)}>@{author.username.localName}</p>
             <div className="flex items-center">
               <span className="mx-2 text-sm opacity-60">•</span>
             </div>
@@ -555,10 +559,24 @@ const system = css`
   font-family: inherit !important;
 `
 
-const profileNameStyle = css`
+const profileNameStyle = (profileMaxWidth) => css`
   font-weight: 600;
   font-size: 16px;
-  line-height: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: ${profileMaxWidth};
+`
+
+const usernameStyle = (usernameMaxWidth) => css`
+  opacity: 0.6;
+  font-size: 14px;
+  color: inherit;
+  line-height: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: ${usernameMaxWidth};
 `
 
 const profilePictureStyle = css`
@@ -742,13 +760,6 @@ function getButtonContainerStyle(hidden) {
     visibility: hidden ? 'hidden' : 'visible' as any
   }
 }
-
-const usernameStyle = css`
-  opacity: 0.6;
-  font-size: 14px;
-  color: inherit;
-  line-height: 14px;
-`
 
 const timestampStyle = css`
   opacity: 0.6;
