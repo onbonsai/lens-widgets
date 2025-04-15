@@ -317,7 +317,6 @@ export function Publication({
             </div>
             <p
               className={timestampStyle}
-              title={new Date(publication.timestamp).toLocaleString()}
             >
               {formatCustomDate(publication.timestamp)}
             </p>

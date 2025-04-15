@@ -297,7 +297,6 @@ export function HorizontalPublication({
             </div>
             <p
               className={timestampStyle}
-              title={new Date(publication.timestamp).toLocaleString()}
             >
               {formatCustomDate(publication.timestamp)}
             </p>
@@ -308,7 +307,6 @@ export function HorizontalPublication({
                 </div>
                 <p
                   className={timestampStyle}
-                  title={new Date(publication.timestamp).toLocaleString()}
                 >
                   {`updated ${formatCustomDistance(updatedAt)} ago`}
                 </p>
@@ -617,7 +615,7 @@ const leftColumnStyle = css`
   height: auto;
   position: relative;
   overflow: hidden;
-  padding: 0; 
+  padding: 0;
 `
 
 const rightColumnStyle = css`
@@ -630,12 +628,12 @@ const imageContainerStyle = css`
   position: relative;
   display: flex;
   justify-content: flex-start;
-  align-items: flex-start; 
+  align-items: flex-start;
   width: 100%;
   height: auto;
   overflow: hidden;
   border-radius: 16px;
-  margin-top: 0; 
+  margin-top: 0;
 `
 
 const mediaImageStyle = css`
