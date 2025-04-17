@@ -27,6 +27,7 @@ const CommentThread = ({
     setLoadingComments(true);
     try {
       const lensClient = PublicClient.create({ environment: props.environment });
+      console.log(`fetchNestedComments for: ${publicationId}`)
       const comments = await getComments(publicationId, lensClient);
 
       if (comments) {
@@ -91,6 +92,7 @@ const CommentThread = ({
         hideQuoteButton={true}
         hideShareButton={true}
         followButtonDisabled={props.followButtonDisabled}
+        hideCollectButton={true}
         onCommentButtonClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -300,7 +302,9 @@ export function Publications({
   return (
     <div className={publicationsContainerStyle}>
       {
-        publications?.map(publication => {
+        publications?.map(_publication => {
+          const isThread = !!_publication.commentOn && (_publication.commentOn.id !== _publication.root.id);
+          const publication = isThread ? _publication?.commentOn : _publication;
           const hasExpandedComments = !!expandedComments[publication.id]?.length;
           const isLoadingComments = loadingComments[publication.id];
 
@@ -397,9 +401,9 @@ export function Publications({
                 </div>
               )}
 
-              {hasExpandedComments && (
+              {(hasExpandedComments || isThread) && (
                 <div>
-                  {expandedComments[publication.id].map((comment: any, index: number) => (
+                  {(expandedComments[publication.id] || [_publication]).map((comment: any, index: number) => (
                     <CommentThread
                       key={comment.id}
                       comment={comment}
@@ -435,7 +439,7 @@ export function Publications({
                       profileNameStyleOverride={profileNameStyleOverride}
                       dateNameStyleOverride={dateNameStyleOverride}
                       onCommentButtonClick={onCommentButtonClick}
-                      isLastComment={index === expandedComments[publication.id].length - 1}
+                      isLastComment={!isThread ? index === expandedComments[publication.id].length - 1 : true}
                     />
                   ))}
                 </div>

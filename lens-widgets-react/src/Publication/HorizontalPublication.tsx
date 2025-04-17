@@ -344,7 +344,7 @@ export function HorizontalPublication({
 
   return (
     <div
-      className={publicationContainerStyle(backgroundColor)}
+      className={publicationContainerStyle(backgroundColor, !!onClick)}
       style={{ minHeight: leftColumnHeight > 0 ? leftColumnHeight : 'auto' }}
     >
       <div className={leftColumnStyle} ref={leftColumnRef}>
@@ -594,7 +594,7 @@ const topLevelContentStyle = css`
   font-family: inherit;
 `
 
-const publicationContainerStyle = (backgroundColor: string) => css`
+const publicationContainerStyle = (backgroundColor: string, hasClick: boolean) => css`
   width: 100%;
   background-color: ${backgroundColor};
   display: flex;
@@ -603,6 +603,7 @@ const publicationContainerStyle = (backgroundColor: string) => css`
   margin-bottom: 4px;
   border-radius: 24px;
   font-family: inherit;
+  ${hasClick ? 'cursor: pointer;' : ''}
 `
 
 const leftColumnStyle = css`
