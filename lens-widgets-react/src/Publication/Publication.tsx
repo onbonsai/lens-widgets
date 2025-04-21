@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { css } from '@emotion/css'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
@@ -143,9 +143,11 @@ export function Publication({
   let [publication, setPublication] = useState<any>(publicationData)
   let [showFullText, setShowFullText] = useState(false)
   let [openActModal, setOpenActModal] = useState(false)
-  const [withPlaybackError, setWithPlaybackError] = useState<boolean>(false);
-
-  const [assetUrl, setAssetUrl] = useState<string>("");
+  const [withPlaybackError, setWithPlaybackError] = useState<boolean>(false)
+  const [assetUrl, setAssetUrl] = useState<string>("")
+  const [isPlaying, setIsPlaying] = useState(true)
+  const playCount = useRef(0)
+  const playerRef = useRef(null)
 
   const {
     isActionModuleSupported,
@@ -252,6 +254,16 @@ export function Publication({
     }
   }
 
+  const handleEnded = () => {
+    playCount.current += 1;
+    if (playCount.current < 2) {
+      (playerRef.current as unknown as ReactPlayer).seekTo(0);
+      setIsPlaying(true);
+    } else {
+      setIsPlaying(false);
+    }
+  };
+
   if (!publication) return null
   let isMirror = false
   if (publication.mirrorOf) {
@@ -352,7 +364,7 @@ export function Publication({
 
   return (
     <div
-      className={publicationContainerStyle(backgroundColor, onClick ? true : false, containerBorderRadius)}
+      className={publicationContainerStyle(backgroundColor, onClick ? true : false, containerBorderRadius, publication.metadata?.__typename === "VideoMetadata" || publication.metadata?.__typename === "LiveStreamMetadata")}
     >
       <PostProfileAndTextContent isTop />
       <div>
@@ -373,6 +385,7 @@ export function Publication({
               (publication.metadata?.__typename === "VideoMetadata" || publication.metadata?.__typename === "LiveStreamMetadata") && (
                 <div className={videoContainerStyle}>
                   <ReactPlayer
+                    ref={playerRef}
                     className={videoStyle}
                     url={assetUrl}
                     controls={!withPlaybackError}
@@ -380,7 +393,18 @@ export function Publication({
                       if (!withPlaybackError) setWithPlaybackError(true);
                     }}
                     muted
-                    playing={true}
+                    playing={isPlaying}
+                    onEnded={handleEnded}
+                    width="100%"
+                    height="100%"
+                    config={{
+                      file: {
+                        forceVideo: true,
+                        attributes: {
+                          crossOrigin: "anonymous"
+                        }
+                      }
+                    }}
                   />
                   {publication.metadata?.__typename === "LiveStreamMetadataV3" && !withPlaybackError && (
                     <div className={liveContainerStyle}>
@@ -513,10 +537,14 @@ const imageContainerStyle = css`
 `
 
 const videoContainerStyle = css`
-  padding-top: 56.25% !important;
+  padding-top: 166.67% !important; /* 1280/768 = 1.6667 = 166.67% for your aspect ratio */
   height: 0px !important;
   position: relative !important;
   margin-top: 14px;
+  width: 100%;
+  max-width: 384px; /* Reduced by 20% from 480px */
+  margin-left: auto;
+  margin-right: auto;
 `
 
 const audioContainerStyle = css`
@@ -529,6 +557,7 @@ const videoStyle = css`
   position: absolute !important;
   top: 0 !important;
   left: 0 !important;
+  object-fit: contain !important;
 `
 const mediaImageStyle = css`
   width: 100%;
@@ -677,13 +706,15 @@ const actButtonContainerStyle = (color, backgroundColor, disabled?: boolean) => 
   cursor: ${!disabled ? 'pointer' : 'default'};
 `
 
-const publicationContainerStyle = (color, onClick: boolean, containerBorderRadius?: string,) => css`
-  width: 100%;
+const publicationContainerStyle = (color, onClick: boolean, containerBorderRadius?: string, isVideo = false) => css`
+  width: ${isVideo ? 'fit-content' : '100%'};
+  min-width: 384px;
   background-color: ${color};
   cursor: ${onClick ? 'pointer' : 'default'};
   border-radius: ${containerBorderRadius ?? '18px'};
   @media (max-width: 510px) {
-    width: 100%
+    width: 100%;
+    min-width: unset;
     max-width: 510px;
   }
   * {

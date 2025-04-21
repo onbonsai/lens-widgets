@@ -109,6 +109,9 @@ export function HorizontalPublication({
   const [openActModal, setOpenActModal] = useState(false)
   const [withPlaybackError, setWithPlaybackError] = useState<boolean>(false)
   const [assetUrl, setAssetUrl] = useState<string>("")
+  const [isPlaying, setIsPlaying] = useState(true)
+  const playCount = useRef(0)
+  const playerRef = useRef(null)
 
   const [leftColumnHeight, setLeftColumnHeight] = useState<number>(0)
   const imageRef = useRef<HTMLImageElement | HTMLIFrameElement | null>(null)
@@ -177,7 +180,7 @@ export function HorizontalPublication({
           : publication.metadata.image.item
         setAssetUrl(url)
       } else if (publication.metadata.__typename === 'VideoMetadata') {
-        const url = publication.metadata.image.item.startsWith('lens://')
+        const url = publication.metadata.video.item.startsWith('lens://')
           ? await storageClient.resolve(publication.metadata.video.item)
           : publication.metadata.video.item
         setAssetUrl(url)
@@ -226,6 +229,16 @@ export function HorizontalPublication({
   function onMirrorPress(e) {
     onMirrorButtonClick?.(e, actionModuleHandler)
   }
+
+  const handleEnded = () => {
+    playCount.current += 1;
+    if (playCount.current < 2) {
+      (playerRef.current as unknown as ReactPlayer).seekTo(0);
+      setIsPlaying(true);
+    } else {
+      setIsPlaying(false);
+    }
+  };
 
   if (!publication) return null
 
@@ -403,18 +416,20 @@ export function HorizontalPublication({
                   publication.metadata?.__typename === 'LiveStreamMetadata') && (
                     <div className={videoContainerStyle}>
                       <ReactPlayer
-                        className={videoStyle}
-                        url={assetUrl}
-                        controls={!withPlaybackError}
-                        onError={() => {
-                          if (!withPlaybackError) setWithPlaybackError(true)
-                        }}
-                        muted
-                        playing={true}
-                        onReady={() => {
-                          measureImageHeight()
-                        }}
-                      />
+                      ref={playerRef}
+                      className={videoStyle}
+                      url={assetUrl}
+                      controls={!withPlaybackError}
+                      onReady={() => {
+                        measureImageHeight()
+                      }}
+                      onError={() => {
+                        if (!withPlaybackError) setWithPlaybackError(true);
+                      }}
+                      muted
+                      playing={isPlaying}
+                      onEnded={handleEnded}
+                    />
                       {publication.metadata?.__typename === 'LiveStreamMetadataV3' &&
                         !withPlaybackError && (
                           <div className={liveContainerStyle}>
