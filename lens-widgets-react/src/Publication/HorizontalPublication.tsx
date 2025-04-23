@@ -209,7 +209,9 @@ export function HorizontalPublication({
   }
 
   function onProfilePress(e) {
-    onProfileClick?.(e, publication.author.username.localName)
+    if (publication.author.username?.localName) {
+      onProfileClick?.(e, publication.author.username.localName)
+    }
   }
 
   function _onActButtonClick(e) {
@@ -304,7 +306,7 @@ export function HorizontalPublication({
         <div className={profileDetailsContainerStyle(color)}>
           <div className="flex items-center gap-x-2 w-fit">
             <p onClick={onProfilePress} className={activeProfileNameStyle}>{getDisplayName(author)}</p>
-            <p onClick={onProfilePress} className={usernameStyle}>@{author.username.localName}</p>
+            <p onClick={onProfilePress} className={usernameStyle}>@{author.username?.localName}</p>
             <div className="flex items-center">
               <span className="mx-2 text-sm opacity-60">•</span>
             </div>

@@ -219,7 +219,7 @@ export function Publication({
   }
 
   function onProfilePress(e) {
-    if (onProfileClick) {
+    if (onProfileClick && publication.author.username?.localName) {
       onProfileClick(e, publication.author.username.localName);
     } else {
       // if (profile) {
@@ -327,7 +327,7 @@ export function Publication({
         <div className={profileDetailsContainerStyle(color)}>
           <div className="flex items-center gap-x-2 w-fit">
             <p onClick={onProfilePress} className={profileNameStyle(profileMaxWidth)}>{getDisplayName(author)}</p>
-            <p onClick={onProfilePress} className={usernameStyle(usernameMaxWidth)}>@{author.username.localName}</p>
+            <p onClick={onProfilePress} className={usernameStyle(usernameMaxWidth)}>@{author.username?.localName}</p>
             <div className="flex items-center">
               <span className="mx-2 text-sm opacity-60">•</span>
             </div>

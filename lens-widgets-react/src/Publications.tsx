@@ -96,7 +96,9 @@ const CommentThread = ({
         onCommentButtonClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          props.onCommentButtonClick?.(e, comment.id, comment.author.username.localName);
+          if (comment.author.username?.localName) {
+            props.onCommentButtonClick?.(e, comment.id, comment.author.username.localName);
+          }
           if (!expandedComments.length) {
             fetchNestedComments(comment.id);
           } else {
@@ -361,7 +363,9 @@ export function Publications({
                   onCommentButtonClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    onCommentButtonClick?.(e, publication.id, publication.author.username.localName);
+                    if (publication.author.username?.localName) {
+                      onCommentButtonClick?.(e, publication.id, publication.author.username.localName);
+                    }
                     if (!hasExpandedComments) {
                       fetchComments(publication.id);
                     } else {

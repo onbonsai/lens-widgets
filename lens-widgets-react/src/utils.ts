@@ -158,7 +158,7 @@ export function formatProfilePicture(profile: any) {
 }
 
 export function getDisplayName(profile: any) {
-  return profile.metadata?.name || profile.username.localName;
+  return profile.metadata?.name || profile.username?.localName;
 }
 
 export function configureMirrorAndIpfsUrl(items: any[]) {
