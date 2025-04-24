@@ -668,12 +668,20 @@ const videoContainerStyle = css`
   margin-top: 0;
   width: 100%;
   height: auto;
+  max-height: 720px;
+  overflow: hidden;
+  background-color: black;
 `
 
 const videoStyle = css`
   width: 100% !important;
   height: 100% !important;
   position: relative !important;
+  & > div {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 1080px !important;
+  }
 `
 
 const audioContainerStyle = css`

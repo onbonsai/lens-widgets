@@ -12,7 +12,6 @@ import {
   formatHandleColors,
   getDisplayName,
 } from '../utils'
-import ReactPlayer from 'react-player'
 import { AudioPlayer } from '../AudioPlayer'
 import { useSupportedActionModule } from '../hooks/useSupportedActionModule';
 import Spinner from '../components/Spinner';
@@ -84,6 +83,9 @@ export function Publication({
   actButtonContainerStyleOverride,
   profileMaxWidth = '200px',
   usernameMaxWidth = '150px',
+  fullVideoHeight = false,
+  playVideo = true,
+  hideVideoControls = false,
 }: {
   publicationId?: string,
   publicationData?: any,
@@ -139,15 +141,16 @@ export function Publication({
   actButtonContainerStyleOverride?: (color, backgroundColor, disabled?: boolean) => string,
   profileMaxWidth?: string,
   usernameMaxWidth?: string,
+  fullVideoHeight?: boolean,
+  playVideo?: boolean,
+  hideVideoControls?: boolean,
 }) {
   let [publication, setPublication] = useState<any>(publicationData)
   let [showFullText, setShowFullText] = useState(false)
   let [openActModal, setOpenActModal] = useState(false)
   const [withPlaybackError, setWithPlaybackError] = useState<boolean>(false)
   const [assetUrl, setAssetUrl] = useState<string>("")
-  const [isPlaying, setIsPlaying] = useState(true)
-  const playCount = useRef(0)
-  const playerRef = useRef(null)
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const {
     isActionModuleSupported,
@@ -171,6 +174,18 @@ export function Publication({
       setPublication(publicationData)
     }
   }, [publicationId])
+
+  useEffect(() => {
+    if (videoRef.current) {
+      if (playVideo) {
+        videoRef.current.play().catch(error => {
+          console.error("Video autoplay prevented: ", error);
+        });
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  }, [playVideo, assetUrl]);
 
   useEffect(() => {
     const resolveAssetUrl = async () => {
@@ -253,16 +268,6 @@ export function Publication({
       onMirrorButtonClick(e, actionModuleHandler);
     }
   }
-
-  const handleEnded = () => {
-    playCount.current += 1;
-    if (playCount.current < 2) {
-      (playerRef.current as unknown as ReactPlayer).seekTo(0);
-      setIsPlaying(true);
-    } else {
-      setIsPlaying(false);
-    }
-  };
 
   if (!publication) return null
   let isMirror = false
@@ -383,28 +388,19 @@ export function Publication({
             }
             {
               (publication.metadata?.__typename === "VideoMetadata" || publication.metadata?.__typename === "LiveStreamMetadata") && (
-                <div className={videoContainerStyle}>
-                  <ReactPlayer
-                    ref={playerRef}
-                    className={videoStyle}
-                    url={assetUrl}
-                    controls={!withPlaybackError}
+                <div className={videoContainerStyle(fullVideoHeight)}>
+                  <video
+                    ref={videoRef}
+                    src={assetUrl}
+                    controls={!hideVideoControls && !withPlaybackError}
+                    muted
+                    autoPlay={playVideo}
                     onError={() => {
                       if (!withPlaybackError) setWithPlaybackError(true);
                     }}
-                    muted
-                    playing={isPlaying}
-                    onEnded={handleEnded}
-                    width="100%"
-                    height="100%"
-                    config={{
-                      file: {
-                        forceVideo: true,
-                        attributes: {
-                          crossOrigin: "anonymous"
-                        }
-                      }
-                    }}
+                    className={videoStyle}
+                    crossOrigin="anonymous"
+                    playsInline
                   />
                   {publication.metadata?.__typename === "LiveStreamMetadataV3" && !withPlaybackError && (
                     <div className={liveContainerStyle}>
@@ -508,7 +504,6 @@ const showMoreStyle = css`
   color: ${ThemeColor.lightGreen};
   font-size: 14px;
   padding-top: 4px;
-  padding-bottom: 4px;
   transition: opacity 0.2s ease;
   &:hover {
     opacity: 0.6;
@@ -536,15 +531,11 @@ const imageContainerStyle = css`
   margin-top: 14px;
 `
 
-const videoContainerStyle = css`
-  padding-top: 166.67% !important; /* 1280/768 = 1.6667 = 166.67% for your aspect ratio */
-  height: 0px !important;
-  position: relative !important;
-  margin-top: 14px;
+const videoContainerStyle = (fullVideoHeight: boolean = false) => css`
+  position: relative;
   width: 100%;
-  max-width: 384px; /* Reduced by 20% from 480px */
-  margin-left: auto;
-  margin-right: auto;
+  height: ${fullVideoHeight ? 'auto' : '480px'};
+  background-color: black;
 `
 
 const audioContainerStyle = css`
@@ -552,12 +543,10 @@ margin-top: 14px;
 `
 
 const videoStyle = css`
-  width: 100% !important;
-  height: 100% !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  object-fit: contain !important;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 `
 const mediaImageStyle = css`
   width: 100%;
@@ -708,7 +697,7 @@ const actButtonContainerStyle = (color, backgroundColor, disabled?: boolean) => 
 
 const publicationContainerStyle = (color, onClick: boolean, containerBorderRadius?: string, isVideo = false) => css`
   width: ${isVideo ? 'fit-content' : '100%'};
-  min-width: 384px;
+  min-width: 350px;
   background-color: ${color};
   cursor: ${onClick ? 'pointer' : 'default'};
   border-radius: ${containerBorderRadius ?? '18px'};

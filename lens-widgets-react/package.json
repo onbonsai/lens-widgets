@@ -1,6 +1,6 @@
 {
   "name": "@madfi/widgets-react",
-  "version": "3.1.14",
+  "version": "3.1.15",
   "description": "React widgets to render Lens components, with support for Open Actions",
   "main": "dist/index.js",
   "scripts": {
@@ -41,8 +41,8 @@
     "@graphql-codegen/typescript-operations": "^3.0.4"
   },
   "peerDependencies": {
-    "@tanstack/react-query": "^5.40.1",
     "@lens-chain/storage-client": ">=1.0.0",
-    "@lens-protocol/client": "canary"
+    "@lens-protocol/client": "canary",
+    "@tanstack/react-query": "^5.40.1"
   }
 }
