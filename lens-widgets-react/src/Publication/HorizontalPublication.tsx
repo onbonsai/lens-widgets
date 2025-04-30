@@ -573,7 +573,6 @@ export function HorizontalPublication({
                     false,
                     false
                   )}
-                  onClick={onShareButtonClick}
                 >
                   <EyeIcon outlineColor={reactionTextColor} />
                   <p>{presenceCount}</p>

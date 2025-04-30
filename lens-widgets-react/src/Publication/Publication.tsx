@@ -495,7 +495,6 @@ export function Publication({
                     false,
                     false
                   )}
-                  onClick={onShareButtonClick}
                 >
                   <EyeIcon outlineColor={reactionTextColor} />
                   <p>{presenceCount}</p>
