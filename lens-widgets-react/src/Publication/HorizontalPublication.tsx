@@ -30,6 +30,7 @@ import { NewColllectIcon } from '../icons/NewCollectIcon'
 import { PublicClient } from '@lens-protocol/client'
 import { postId } from '@lens-protocol/client'
 import { fetchPost } from '@lens-protocol/client/actions'
+import { EyeIcon } from '../icons/EyeIcon'
 
 export function HorizontalPublication({
   publicationId,
@@ -67,6 +68,7 @@ export function HorizontalPublication({
   onFollowPress,
   nestedWidget,
   updatedAt,
+  presenceCount,
 }: {
   publicationId?: string
   publicationData?: any
@@ -103,6 +105,7 @@ export function HorizontalPublication({
   onFollowPress?: (event, profileId) => void
   nestedWidget?: ReactNode
   updatedAt?: number,
+  presenceCount?: number,
 }) {
   const [publication, setPublication] = useState<any>(publicationData)
   const [showFullText, setShowFullText] = useState(false)
@@ -560,6 +563,20 @@ export function HorizontalPublication({
               {renderActLoading && (
                 <div className={shareContainerStyle(reactionTextColor, reactionBgColor)}>
                   <Spinner customClasses="h-6 w-6" color={color} />
+                </div>
+              )}
+              {presenceCount && presenceCount > 1 && (
+                <div
+                  className={reactionContainerStyle(
+                    reactionTextColor,
+                    reactionBgColor,
+                    false,
+                    false
+                  )}
+                  onClick={onShareButtonClick}
+                >
+                  <EyeIcon outlineColor={reactionTextColor} />
+                  <p>{presenceCount}</p>
                 </div>
               )}
               {!hideShareButton && (

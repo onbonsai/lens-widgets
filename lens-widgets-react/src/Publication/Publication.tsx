@@ -27,6 +27,7 @@ import { PublicClient, testnet, staging } from "@lens-protocol/client";
 import { evmAddress, postId, txHash } from "@lens-protocol/client";
 import { fetchPost } from "@lens-protocol/client/actions";
 import { storageClient, DEFAULT_LENS_PROFILE_IMAGE, formatCustomDate } from '../utils'
+import { EyeIcon } from '../icons/EyeIcon'
 
 export function Publication({
   publicationId,
@@ -86,6 +87,7 @@ export function Publication({
   fullVideoHeight = false,
   playVideo = true,
   hideVideoControls = false,
+  presenceCount,
 }: {
   publicationId?: string,
   publicationData?: any,
@@ -144,6 +146,7 @@ export function Publication({
   fullVideoHeight?: boolean,
   playVideo?: boolean,
   hideVideoControls?: boolean,
+  presenceCount?: number,
 }) {
   let [publication, setPublication] = useState<any>(publicationData)
   let [showFullText, setShowFullText] = useState(false)
@@ -484,6 +487,20 @@ export function Publication({
                   <Spinner customClasses="h-6 w-6" color={color} />
                 </div>
               )}
+              {presenceCount && presenceCount > 1 && (
+                <div
+                  className={reactionContainerStyle(
+                    reactionTextColor,
+                    reactionBgColor,
+                    false,
+                    false
+                  )}
+                  onClick={onShareButtonClick}
+                >
+                  <EyeIcon outlineColor={reactionTextColor} />
+                  <p>{presenceCount}</p>
+                </div>
+              )}
               {!hideShareButton && (
                 <div
                   className={activeShareContainerStyle(reactionTextColor, reactionBgColor)}
@@ -793,4 +810,27 @@ const activeProfileNameStyle = css`
   font-weight: 600;
   font-size: 16px;
   flex-grow: 1;
+`
+
+const eyeContainerStyle = (color, backgroundColor) => css`
+  background-color: transparent;
+  &:hover {
+    background-color: ${backgroundColor}
+  }
+  display: flex;
+  align-items: center;
+  border-radius: 24px;
+  padding: 12px 16px 10px 16px;
+  margin-right: 10px;
+  position: absolute;
+  right: 60px;
+  top: 0px;
+  p {
+    color: ${color};
+    font-size: 12px;
+    opacity: .75;
+    margin: 0;
+    margin-left: 4px;
+  }
+  cursor: pointer;
 `
