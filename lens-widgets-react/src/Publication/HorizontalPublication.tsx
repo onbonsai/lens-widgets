@@ -110,7 +110,6 @@ export function HorizontalPublication({
   const [publication, setPublication] = useState<any>(publicationData)
   const [showFullText, setShowFullText] = useState(false)
   const [openActModal, setOpenActModal] = useState(false)
-  const [withPlaybackError, setWithPlaybackError] = useState<boolean>(false)
   const [assetUrl, setAssetUrl] = useState<string>("")
   const [isPlaying, setIsPlaying] = useState(true)
   const playCount = useRef(0)
@@ -176,21 +175,39 @@ export function HorizontalPublication({
   useEffect(() => {
     if (!publication) return
 
+    let isMounted = true
+
     const resolveAssetUrl = async () => {
-      if (publication.metadata.__typename === 'ImageMetadata') {
-        const url = publication.metadata.image.item.startsWith('lens://')
-          ? await storageClient.resolve(publication.metadata.image.item)
-          : publication.metadata.image.item
-        setAssetUrl(url)
-      } else if (publication.metadata.__typename === 'VideoMetadata') {
-        const url = publication.metadata.video.item.startsWith('lens://')
-          ? await storageClient.resolve(publication.metadata.video.item)
-          : publication.metadata.video.item
-        setAssetUrl(url)
+      try {
+        if (publication.metadata.__typename === 'ImageMetadata') {
+          const url = publication.metadata.image.item?.startsWith('lens://')
+            ? await storageClient.resolve(publication.metadata.image.item)
+            : publication.metadata.image.item
+          if (isMounted) {
+            setAssetUrl(url)
+          }
+        } else if (publication.metadata.__typename === 'VideoMetadata') {
+          const url = publication.metadata.video.item?.startsWith('lens://')
+            ? await storageClient.resolve(publication.metadata.video.item)
+            : publication.metadata.video.item
+          if (isMounted) {
+            setAssetUrl(url)
+          }
+        }
+      } catch (error) {
+        console.error('Error resolving asset URL:', error)
+        if (isMounted) {
+          setAssetUrl('')
+        }
       }
     }
+
     resolveAssetUrl()
-  }, [publication])
+
+    return () => {
+      isMounted = false
+    }
+  }, [publication]);
 
   async function fetchPublication() {
     try {
@@ -420,35 +437,37 @@ export function HorizontalPublication({
                 {(publication.metadata?.__typename === 'VideoMetadata' ||
                   publication.metadata?.__typename === 'LiveStreamMetadata') && (
                     <div className={videoContainerStyle}>
-                      <ReactPlayer
-                      ref={playerRef}
-                      className={videoStyle}
-                      url={assetUrl}
-                      controls={!withPlaybackError}
-                      onReady={() => {
-                        measureImageHeight()
-                      }}
-                      onError={() => {
-                        if (!withPlaybackError) setWithPlaybackError(true);
-                      }}
-                      muted
-                      playing={isPlaying}
-                      onEnded={handleEnded}
-                    />
-                      {publication.metadata?.__typename === 'LiveStreamMetadataV3' &&
-                        !withPlaybackError && (
-                          <div className={liveContainerStyle}>
-                            <div className={liveDotStyle} />
-                            LIVE
-                          </div>
-                        )}
-                      {publication.metadata?.__typename === 'LiveStreamMetadataV3' &&
-                        withPlaybackError && (
-                          <div className={endedContainerStyle}>
-                            <VideoCameraSlashIcon color={reactionTextColor} />
-                            <p>Stream Ended</p>
-                          </div>
-                        )}
+                      <video
+                        ref={playerRef}
+                        className={videoStyle}
+                        src={assetUrl}
+                        onLoadedMetadata={() => {
+                          measureImageHeight()
+                        }}
+                        onError={(e) => {
+                          console.error('Video error:', e)
+                          setIsPlaying(false)
+                        }}
+                        controls
+                        playsInline
+                        muted={false}
+                        autoPlay={isPlaying}
+                        onEnded={handleEnded}
+                        style={{ width: '100%', height: '100%' }}
+                      />
+                      {publication.metadata?.__typename === 'LiveStreamMetadataV3' && (
+                        <div className={liveContainerStyle}>
+                          <div className={liveDotStyle} />
+                          LIVE
+                        </div>
+                      )
+                      }
+                      {publication.metadata?.__typename === 'LiveStreamMetadataV3' && (
+                        <div className={endedContainerStyle}>
+                          <VideoCameraSlashIcon color={reactionTextColor} />
+                          <p>Stream Ended</p>
+                        </div>
+                      )}
                     </div>
                   )}
                 {publication.metadata?.__typename === 'AudioMetadata' && (

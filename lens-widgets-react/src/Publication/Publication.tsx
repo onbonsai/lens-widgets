@@ -151,7 +151,6 @@ export function Publication({
   let [publication, setPublication] = useState<any>(publicationData)
   let [showFullText, setShowFullText] = useState(false)
   let [openActModal, setOpenActModal] = useState(false)
-  const [withPlaybackError, setWithPlaybackError] = useState<boolean>(false)
   const [assetUrl, setAssetUrl] = useState<string>("")
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -191,21 +190,39 @@ export function Publication({
   }, [playVideo, assetUrl]);
 
   useEffect(() => {
+    if (!publication) return
+
+    let isMounted = true
+
     const resolveAssetUrl = async () => {
-      if (publication.metadata.__typename === "ImageMetadata") {
-        const url = publication.metadata.image.item.startsWith("lens://")
-          ? await storageClient.resolve(publication.metadata.image.item)
-          : publication.metadata.image.item;
-        setAssetUrl(url);
-      } else if (publication.metadata.__typename === "VideoMetadata") {
-        const url = publication.metadata.video.item.startsWith("lens://")
-          ? await storageClient.resolve(publication.metadata.video.item)
-          : publication.metadata.video.item;
-        setAssetUrl(url);
+      try {
+        if (publication.metadata.__typename === "ImageMetadata") {
+          const url = publication.metadata.image.item?.startsWith("lens://")
+            ? await storageClient.resolve(publication.metadata.image.item)
+            : publication.metadata.image.item;
+          if (isMounted) {
+            setAssetUrl(url);
+          }
+        } else if (publication.metadata.__typename === "VideoMetadata") {
+          const url = publication.metadata.video.item?.startsWith("lens://")
+            ? await storageClient.resolve(publication.metadata.video.item)
+            : publication.metadata.video.item;
+          if (isMounted) {
+            setAssetUrl(url);
+          }
+        }
+      } catch (error) {
+        console.error('Error resolving asset URL:', error)
+        if (isMounted) {
+          setAssetUrl('')
+        }
       }
     }
-    if (publication) {
-      resolveAssetUrl();
+
+    resolveAssetUrl()
+
+    return () => {
+      isMounted = false
     }
   }, [publication]);
 
@@ -395,23 +412,20 @@ export function Publication({
                   <video
                     ref={videoRef}
                     src={assetUrl}
-                    controls={!hideVideoControls && !withPlaybackError}
+                    controls={!hideVideoControls}
                     muted
                     autoPlay={playVideo}
-                    onError={() => {
-                      if (!withPlaybackError) setWithPlaybackError(true);
-                    }}
                     className={videoStyle}
                     crossOrigin="anonymous"
                     playsInline
                   />
-                  {publication.metadata?.__typename === "LiveStreamMetadataV3" && !withPlaybackError && (
+                  {publication.metadata?.__typename === "LiveStreamMetadataV3" && (
                     <div className={liveContainerStyle}>
                       <div className={liveDotStyle} />
                       LIVE
                     </div>
                   )}
-                  {publication.metadata?.__typename === "LiveStreamMetadataV3" && withPlaybackError && (
+                  {publication.metadata?.__typename === "LiveStreamMetadataV3" && (
                     <div className={endedContainerStyle}>
                       <VideoCameraSlashIcon color={reactionTextColor} />
                       <p>Stream Ended</p>
