@@ -311,6 +311,11 @@ export function HorizontalPublication({
     const isCanvas = publication.metadata.attributes.find(attr => attr.key === 'isCanvas')
     if (!isCanvas) return null
 
+    // If isCanvas contains a URL, return it directly
+    if (isCanvas.value && (isCanvas.value.startsWith('http://') || isCanvas.value.startsWith('https://'))) {
+      return isCanvas.value;
+    }
+
     const apiUrl = publication.metadata.attributes.find(attr => attr.key === 'apiUrl')
     if (!apiUrl?.value) return null
 
