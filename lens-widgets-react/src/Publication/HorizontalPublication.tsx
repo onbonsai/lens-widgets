@@ -113,7 +113,7 @@ export function HorizontalPublication({
   const [assetUrl, setAssetUrl] = useState<string>("")
   const [isPlaying, setIsPlaying] = useState(true)
   const playCount = useRef(0)
-  const playerRef = useRef(null)
+  const playerRef = useRef<HTMLVideoElement>(null)
 
   const [leftColumnHeight, setLeftColumnHeight] = useState<number>(0)
   const imageRef = useRef<HTMLImageElement | HTMLIFrameElement | null>(null)
@@ -255,8 +255,14 @@ export function HorizontalPublication({
   const handleEnded = () => {
     playCount.current += 1;
     if (playCount.current < 2) {
-      (playerRef.current as unknown as ReactPlayer).seekTo(0);
-      setIsPlaying(true);
+      try {
+        if (playerRef.current) {
+          playerRef.current.currentTime = 0;
+          setIsPlaying(true);
+        }
+      } catch (error) {
+        console.error('Error resetting video:', error);
+      }
     } else {
       setIsPlaying(false);
     }
