@@ -461,7 +461,7 @@ export function HorizontalPublication({
                         }}
                         controls
                         playsInline
-                        muted={false}
+                        muted
                         autoPlay={isPlaying}
                         onEnded={handleEnded}
                         style={{ width: '100%', height: '100%' }}

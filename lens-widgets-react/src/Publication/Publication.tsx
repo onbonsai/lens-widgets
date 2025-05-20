@@ -350,17 +350,17 @@ export function Publication({
           />
         </div>
         <div className={profileDetailsContainerStyle(color)}>
-          <div className="flex items-center gap-x-2 w-fit">
-            <p onClick={onProfilePress} className={profileNameStyle(profileMaxWidth)}>{getDisplayName(author)}</p>
-            <p onClick={onProfilePress} className={usernameStyle(usernameMaxWidth)}>@{author.username?.localName}</p>
+          <div className={`flex ${!fullVideoHeight ? 'items-center gap-x-2' : 'items-center gap-x-2'} w-fit`}>
+            <div className={`flex ${!fullVideoHeight ? 'flex-col leading-7' : ''}`}>
+              <p onClick={onProfilePress} className={profileNameStyle(profileMaxWidth)}>{getDisplayName(author)}</p>
+              <p onClick={onProfilePress} className={usernameStyle(usernameMaxWidth)}>@{author.username?.localName}</p>
+            </div>
             <div className="flex items-center">
               <span className="mx-2 text-sm opacity-60">•</span>
+              <p className={timestampStyle}>
+                {formatCustomDate(publication.timestamp)}
+              </p>
             </div>
-            <p
-              className={timestampStyle}
-            >
-              {formatCustomDate(publication.timestamp)}
-            </p>
           </div>
         </div>
       </div>
@@ -620,7 +620,7 @@ const usernameStyle = (usernameMaxWidth) => css`
   opacity: 0.6;
   font-size: 14px;
   color: inherit;
-  line-height: 14px;
+  line-height: 18px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -748,7 +748,8 @@ const dateStyle = css`
 `
 
 const profileDetailsContainerStyle = color => css`
-  margin-left: 10px;
+  margin-left: 16px;
+  margin-bottom: 4px;
   width: 100%;
   p {
     margin: 0;
