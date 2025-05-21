@@ -1,33 +1,32 @@
-import { useEffect, useState, useRef } from 'react'
 import { css } from '@emotion/css'
+import { postId, PublicClient } from "@lens-protocol/client"
+import { fetchPost } from "@lens-protocol/client/actions"
+import { isEmpty } from 'lodash/lang'
+import { useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
-import { ThemeColor, Theme } from '../types'
-import { isEmpty } from 'lodash/lang';
+import { WalletClient } from 'viem'
+import { AudioPlayer } from '../AudioPlayer'
+import Spinner from '../components/Spinner'
+import { useSupportedActionModule } from '../hooks/useSupportedActionModule'
 import {
-  MessageIcon, MirrorIcon, HeartIcon, ShareIcon, VideoCameraSlashIcon
+  HeartIcon,
+  MessageIcon, MirrorIcon,
+  ShareIcon, VideoCameraSlashIcon
 } from '../icons'
+import { EyeIcon } from '../icons/EyeIcon'
+import { NewColllectIcon } from '../icons/NewCollectIcon'
+import { NewHeartIcon } from '../icons/NewHeartIcon'
+import { NewMessageIcon } from '../icons/NewMessageIcon'
+import { NewShareIcon } from '../icons/NewShareIcon'
+import { Theme, ThemeColor, Toast } from '../types'
 import {
-  getSubstring,
+  DEFAULT_LENS_PROFILE_IMAGE, formatCustomDate,
   formatHandleColors,
   getDisplayName,
+  getSubstring,
+  storageClient,
 } from '../utils'
-import { AudioPlayer } from '../AudioPlayer'
-import { useSupportedActionModule } from '../hooks/useSupportedActionModule';
-import Spinner from '../components/Spinner';
-import { WalletClient } from 'viem';
-import { Toast } from '../types';
-import { VerifiedBadgeIcon } from "../icons"
-import { getButtonStyle } from "../Profile"
-import { NewHeartIcon } from '../icons/NewHeartIcon';
-import { NewMessageIcon } from '../icons/NewMessageIcon';
-import { NewShareIcon } from '../icons/NewShareIcon';
-import { NewColllectIcon } from '../icons/NewCollectIcon'
-import { PublicClient, testnet, staging } from "@lens-protocol/client";
-import { evmAddress, postId, txHash } from "@lens-protocol/client";
-import { fetchPost } from "@lens-protocol/client/actions";
-import { storageClient, DEFAULT_LENS_PROFILE_IMAGE, formatCustomDate } from '../utils'
-import { EyeIcon } from '../icons/EyeIcon'
 
 export function Publication({
   publicationId,
@@ -350,8 +349,8 @@ export function Publication({
           />
         </div>
         <div className={profileDetailsContainerStyle(color)}>
-          <div className={`flex ${!fullVideoHeight ? 'items-center gap-x-2' : 'items-center gap-x-2'} w-fit`}>
-            <div className={`flex ${!fullVideoHeight ? 'flex-col leading-2' : ''}`}>
+          <div className={`flex ${!fullVideoHeight ? 'items-center' : 'items-center'} w-fit`}>
+            <div className={`flex ${!fullVideoHeight ? 'flex-col leading-2' : 'gap-x-2 items-center'}`}>
               <p onClick={onProfilePress} className={profileNameStyle(profileMaxWidth)}>{getDisplayName(author)}</p>
               <p onClick={onProfilePress} className={usernameStyle(usernameMaxWidth)}>@{author.username?.localName}</p>
             </div>
@@ -620,7 +619,6 @@ const usernameStyle = (usernameMaxWidth) => css`
   opacity: 0.6;
   font-size: 14px;
   color: inherit;
-  line-height: 18px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -748,8 +746,7 @@ const dateStyle = css`
 `
 
 const profileDetailsContainerStyle = color => css`
-  margin-left: 16px;
-  margin-bottom: 4px;
+  margin-left: 10px;
   width: 100%;
   p {
     margin: 0;
