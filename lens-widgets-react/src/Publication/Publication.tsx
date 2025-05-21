@@ -351,7 +351,7 @@ export function Publication({
         </div>
         <div className={profileDetailsContainerStyle(color)}>
           <div className={`flex ${!fullVideoHeight ? 'items-center gap-x-2' : 'items-center gap-x-2'} w-fit`}>
-            <div className={`flex ${!fullVideoHeight ? 'flex-col leading-7' : ''}`}>
+            <div className={`flex ${!fullVideoHeight ? 'flex-col leading-2' : ''}`}>
               <p onClick={onProfilePress} className={profileNameStyle(profileMaxWidth)}>{getDisplayName(author)}</p>
               <p onClick={onProfilePress} className={usernameStyle(usernameMaxWidth)}>@{author.username?.localName}</p>
             </div>
@@ -817,7 +817,6 @@ const timestampStyle = css`
   flex-grow: 1;
   font-size: 14px;
   color: inherit;
-  cursor: help;
 `
 
 const activeProfileNameStyle = css`
