@@ -350,7 +350,7 @@ export function Publication({
         </div>
         <div className={profileDetailsContainerStyle(color)}>
           <div className={`flex ${!fullVideoHeight ? 'items-center' : 'items-center'} w-fit`}>
-            <div className={`flex ${!fullVideoHeight ? 'flex-col leading-2' : 'gap-x-2 items-center'}`}>
+            <div className="flex items-center gap-x-2">
               <p onClick={onProfilePress} className={profileNameStyle(profileMaxWidth)}>{getDisplayName(author)}</p>
               <p onClick={onProfilePress} className={usernameStyle(usernameMaxWidth)}>@{author.username?.localName}</p>
             </div>
@@ -579,9 +579,9 @@ const videoStyle = css`
 `
 const mediaImageStyle = css`
   width: 100%;
-  height: auto;
+  height: 100%;
   display: block;
-  object-fit: contain;
+  object-fit: cover;
   max-height: 100%;
 `
 
@@ -724,7 +724,7 @@ const actButtonContainerStyle = (color, backgroundColor, disabled?: boolean) => 
 `
 
 const publicationContainerStyle = (color, onClick: boolean, containerBorderRadius?: string, isVideo = false) => css`
-  width: ${isVideo ? 'fit-content' : '100%'};
+  width: 100%;
   min-width: 350px;
   background-color: ${color};
   cursor: ${onClick ? 'pointer' : 'default'};
@@ -745,12 +745,15 @@ const dateStyle = css`
   opacity: .75;
 `
 
-const profileDetailsContainerStyle = color => css`
+const profileDetailsContainerStyle = (color) => css`
+  display: flex;
+  flex-direction: column;
   margin-left: 10px;
-  width: 100%;
+  font-family: inherit;
   p {
     margin: 0;
     color: ${color};
+    font-family: inherit;
   }
 `
 
