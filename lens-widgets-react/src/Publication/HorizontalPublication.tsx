@@ -108,7 +108,6 @@ export function HorizontalPublication({
   presenceCount?: number,
 }) {
   const [publication, setPublication] = useState<any>(publicationData)
-  const [showFullText, setShowFullText] = useState(false)
   const [openActModal, setOpenActModal] = useState(false)
   const [assetUrl, setAssetUrl] = useState<string>("")
   const [isPlaying, setIsPlaying] = useState(true)
@@ -366,23 +365,8 @@ export function HorizontalPublication({
           className={markdownStyle(color, fontSize)}
           rehypePlugins={[rehypeRaw]}
         >
-          {showFullText
-            ? formatHandleColors(publication.metadata.content)
-            : formatHandleColors(getSubstring(publication.metadata.content, 1250))}
+          {formatHandleColors(publication.metadata.content)}
         </ReactMarkdown>
-        {publication.metadata.content.length > 1250 && (
-          <div style={{ display: 'flex', marginRight: 5 }}>
-            <button
-              className={showMoreStyle}
-              onClick={(event) => {
-                event.stopPropagation()
-                setShowFullText(!showFullText)
-              }}
-            >
-              {showFullText ? 'Show Less' : 'Show More'}
-            </button>
-          </div>
-        )}
       </div>
       {nestedWidget}
     </div>
@@ -645,7 +629,7 @@ const showMoreStyle = css`
 `
 
 const textContainerStyle = css`
-  padding-top: 16px;
+  padding-top: 24px;
   margin-bottom: 16px;
   font-size: 16px;
   line-height: 20px;

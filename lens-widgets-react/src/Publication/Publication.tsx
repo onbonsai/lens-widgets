@@ -500,7 +500,7 @@ export function Publication({
                   <Spinner customClasses="h-6 w-6" color={color} />
                 </div>
               )}
-              {presenceCount && presenceCount > 1 && (
+              {presenceCount && presenceCount > 1 ? (
                 <div
                   className={reactionContainerStyle(
                     reactionTextColor,
@@ -512,7 +512,7 @@ export function Publication({
                   <EyeIcon outlineColor={reactionTextColor} />
                   <p>{presenceCount}</p>
                 </div>
-              )}
+              ) : null}
               {!hideShareButton && (
                 <div
                   className={activeShareContainerStyle(reactionTextColor, reactionBgColor)}
