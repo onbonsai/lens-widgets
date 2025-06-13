@@ -483,7 +483,7 @@ export function Publication({
                   className={activeReactionContainerStyle(reactionTextColor, reactionBgColor, isAuthenticated && onCollectButtonClick, operations?.hasCollected)}
                   onClick={onCollectButtonClick}
                 >
-                  <NewColllectIcon fillColor={!operations?.hasCollected ? reactionTextColor : ThemeColor.transparent} outlineColor={reactionTextColor} />
+                  <NewColllectIcon fillColor={operations?.hasCollected ? reactionTextColor : ThemeColor.transparent} outlineColor={reactionTextColor} />
                   {(publication.stats.collects > 0) ? <p>{publication.stats.collects}</p> : null}
                 </div>
               )}
