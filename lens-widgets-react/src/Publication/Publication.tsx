@@ -412,6 +412,7 @@ export function Publication({
                     ref={videoRef}
                     src={assetUrl}
                     controls={!hideVideoControls}
+                    controlsList="nodownload"
                     muted
                     autoPlay={playVideo}
                     className={videoStyle}

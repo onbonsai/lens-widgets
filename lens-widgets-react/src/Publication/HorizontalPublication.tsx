@@ -444,6 +444,7 @@ export function HorizontalPublication({
                           setIsPlaying(false)
                         }}
                         controls
+                        controlsList="nodownload"
                         playsInline
                         muted
                         autoPlay={isPlaying}
