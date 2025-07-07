@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { css } from '@emotion/css'
-import { profileById, profile as profileQuery, client } from './graphql'
+import { profileById, profile as profileQuery, createGraphqlClient } from './graphql'
 import {
   systemFonts,
   getRandomColor
@@ -41,6 +41,7 @@ export function ProfileListItem({
     if (handle) {
       try {
         handle = handle.toLowerCase()
+        const client = createGraphqlClient()
         const { data } = await client
           .query(profileQuery, {
             handle
@@ -55,6 +56,7 @@ export function ProfileListItem({
     if (profileId) {
       try {
         try {
+          const client = createGraphqlClient()
           const { data } = await client
             .query(profileById, {
               profileId

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { css } from '@emotion/css'
-import { client, profileByHandle, getPublications } from './graphql'
+import { createGraphqlClient, profileByHandle, getPublications } from './graphql'
 import { Publication as PublicationComponent } from './Publication/Publication'
 import { Theme } from './types'
 import { PublicClient } from '@lens-protocol/client'
@@ -256,6 +256,7 @@ export function Publications({
         limit = LimitType.FIFTY
       }
     }
+    const client = createGraphqlClient(environment)
     if (!id && handle) {
       try {
         const response = await client.query(profileByHandle, {

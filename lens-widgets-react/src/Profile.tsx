@@ -1,13 +1,6 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { css } from '@emotion/css'
 import { ThemeColor, ProfileHandle, Theme, AirstackProfile, ENSProfile } from './types'
-import { client } from './graphql/client'
-import {
-  profileById,
-  profileByAddress,
-  getFollowers,
-  profile as profileQuery
-} from './graphql'
 import {
   formatProfilePicture,
   systemFonts,
@@ -123,30 +116,6 @@ export function Profile({
     }
   }
 
-  async function fetchFollowers(id: string) {
-    if (skipFetchFollowers) return;
-
-    try {
-      const { data } = await client
-        .query(getFollowers, {
-          profileId: id
-        })
-       .toPromise()
-      let filteredProfiles = data.followers.items.filter(p => p.handle?.fullHandle)
-      filteredProfiles = filteredProfiles.filter(p => p.metadata && p.metadata.picture)
-      filteredProfiles = filteredProfiles.filter(p => p.metadata.picture.optimized)
-      let first3 = JSON.parse(JSON.stringify(filteredProfiles.slice(0, 3)))
-      first3 = first3.map(profile => {
-        profile.handle = profile.handle.fullHandle
-        profile.picture = profile.metadata.picture.optimized.uri
-        return profile
-      })
-      setFollowers(first3)
-    } catch (err) {
-      console.log('error fetching followers ...', err)
-    }
-  }
-
   async function fetchProfile() {
     throw new Error('not supporting fetch profile yet');
   }
@@ -180,23 +149,6 @@ export function Profile({
       }
     })
     setHasError(false);
-  }
-
-  function formatProfileEns(profile: ENSProfile) {
-    setProfile({
-      dappName: "ens",
-      metadata: {
-        coverPicture: null,
-        picture: {
-          uri: profile.avatar
-        },
-        bio: profile.name,
-      },
-      stats: {
-        following: 0,
-        followers: 0,
-      }
-    })
   }
 
   if (!profile) return null

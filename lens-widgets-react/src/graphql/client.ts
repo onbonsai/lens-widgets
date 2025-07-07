@@ -1,8 +1,14 @@
 import { createClient, Client } from 'urql'
+import { mainnet } from "@lens-protocol/client";
 
-const API_URL = 'https://api-v2.lens.dev'
+const API_URL = {
+  mainnet: 'https://api.lens.xyz/graphql',
+  testnet: 'https://api.testnet.lens.xyz/graphql'
+}
 
 /* creates the API client */
-export const client: Client = createClient({
-  url: API_URL
-})
+export const createGraphqlClient = (environment = mainnet): Client => {
+  return createClient({
+    url: API_URL[environment.name as keyof typeof API_URL],
+  })
+}

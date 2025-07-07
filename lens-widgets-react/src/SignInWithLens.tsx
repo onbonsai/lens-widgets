@@ -4,7 +4,7 @@ import { getContainerStyle, getTextStyle } from './utils'
 // @ts-ignore: ??
 import { Web3Provider } from '@ethersproject/providers'
 import { ethers } from 'ethers'
-import { client } from './graphql/client'
+import { createGraphqlClient } from './graphql/client'
 import {
   challenge, authenticate, profileByAddress, profiles as profilesQuery
 } from './graphql'
@@ -62,6 +62,7 @@ export function SignInWithLens({
         return
       }
       const address = await getAddress()
+      const client = createGraphqlClient()
       const { data: { challenge: { text }} } = await client
         .query(challenge, {
           address
