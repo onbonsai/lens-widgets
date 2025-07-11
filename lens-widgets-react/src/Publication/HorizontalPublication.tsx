@@ -580,7 +580,7 @@ export function HorizontalPublication({
                   <Spinner customClasses="h-6 w-6" color={color} />
                 </div>
               )}
-              {presenceCount && presenceCount > 1 && (
+              {presenceCount && presenceCount > 1 ? (
                 <div
                   className={reactionContainerStyle(
                     reactionTextColor,
@@ -592,7 +592,7 @@ export function HorizontalPublication({
                   <EyeIcon outlineColor={reactionTextColor} />
                   <p>{presenceCount}</p>
                 </div>
-              )}
+              ) : null}
               {!hideShareButton && (
                 <div
                   className={shareContainerStyle(reactionTextColor, reactionBgColor)}
