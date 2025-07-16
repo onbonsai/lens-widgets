@@ -106,6 +106,9 @@ export function ProfileListItem({
                     profile.metadata.picture.image.optimized.uri :  profile.metadata.picture.optimized.uri 
                   }
                   className={profilePictureStyle}
+                  loading="lazy"
+                  decoding="async"
+                  alt="Profile picture"
                 />
               </div>
               ) : (
@@ -214,6 +217,11 @@ const profilePictureStyle = css`
   width: 40px;
   height: 40px;
   border-radius: 20px;
+  object-fit: cover;
+  transform: translateZ(0);
+  will-change: auto;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 `
 
 const emptyProfilePictureStyle = css``
