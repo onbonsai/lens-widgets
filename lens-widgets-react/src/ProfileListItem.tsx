@@ -106,7 +106,7 @@ export function ProfileListItem({
                     profile.metadata.picture.image.optimized.uri :  profile.metadata.picture.optimized.uri 
                   }
                   className={profilePictureStyle}
-                  loading="lazy"
+                  loading="eager"
                   decoding="async"
                   alt="Profile picture"
                 />

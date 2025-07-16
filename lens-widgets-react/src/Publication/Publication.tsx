@@ -346,7 +346,7 @@ export function Publication({
           <img
             src={publication.author?.metadata?.picture || DEFAULT_LENS_PROFILE_IMAGE}
             className={activeProfilePictureStyle}
-            loading="lazy"
+            loading="eager"
             decoding="async"
             alt="Profile picture"
           />

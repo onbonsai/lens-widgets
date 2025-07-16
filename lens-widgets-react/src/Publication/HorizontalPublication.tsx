@@ -331,7 +331,7 @@ export function HorizontalPublication({
           <img
             src={author?.metadata?.picture || DEFAULT_LENS_PROFILE_IMAGE}
             className={profilePictureStyle}
-            loading="lazy"
+            loading="eager"
             decoding="async"
             alt="Profile picture"
           />

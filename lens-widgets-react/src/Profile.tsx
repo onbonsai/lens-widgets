@@ -173,7 +173,7 @@ export function Profile({
                   <img
                     src={profile.metadata.picture.uri || profile.metadata.picture.url}
                     className={profilePictureStyle}
-                    loading="lazy"
+                    loading="eager"
                     decoding="async"
                     alt="Profile picture"
                     onError={async (e) => {
@@ -397,6 +397,7 @@ const profilePictureStyle = css`
   will-change: auto;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
 `
 
 function getFollowedByContainerStyle(theme:Theme) {

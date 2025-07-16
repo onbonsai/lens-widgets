@@ -191,7 +191,7 @@ export function ProfileLarge({
                   <img
                     src={profile.metadata.picture.uri || profile.metadata.picture.url}
                     className={profilePictureStyle}
-                    loading="lazy"
+                    loading="eager"
                     decoding="async"
                     alt="Profile picture"
                     onError={async (e) => {
