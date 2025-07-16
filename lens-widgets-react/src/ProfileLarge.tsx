@@ -191,6 +191,9 @@ export function ProfileLarge({
                   <img
                     src={profile.metadata.picture.uri || profile.metadata.picture.url}
                     className={profilePictureStyle}
+                    loading="lazy"
+                    decoding="async"
+                    alt="Profile picture"
                     onError={async (e) => {
                       if (!hasError) {
                         const target = e.target as HTMLImageElement;
@@ -384,6 +387,10 @@ const profilePictureStyle = css`
   height: 128px;
   border-radius: 70px;
   object-fit: cover;
+  transform: translateZ(0);
+  will-change: auto;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 `
 
 function getFollowedByContainerStyle(theme: Theme) {

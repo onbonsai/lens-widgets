@@ -331,6 +331,9 @@ export function HorizontalPublication({
           <img
             src={author?.metadata?.picture || DEFAULT_LENS_PROFILE_IMAGE}
             className={profilePictureStyle}
+            loading="lazy"
+            decoding="async"
+            alt="Profile picture"
           />
         </div>
         <div className={profileDetailsContainerStyle(color)}>
@@ -748,6 +751,10 @@ const profilePictureStyle = css`
   border-radius: 12px;
   object-fit: cover;
   background-color: #dddddd;
+  transform: translateZ(0);
+  will-change: auto;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 `
 
 const profileDetailsContainerStyle = (color) => css`
