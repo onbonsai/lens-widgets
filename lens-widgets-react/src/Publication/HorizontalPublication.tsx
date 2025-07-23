@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useRef, useState } from 'react'
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { css } from '@emotion/css'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
@@ -269,111 +269,91 @@ export function HorizontalPublication({
 
   if (!publication) return null
 
-  let isMirror = false
-  if (publication.mirrorOf) {
-    isMirror = true
-    const { mirrorOf, ...original } = publication
-    setPublication(publication.mirrorOf)
-    publication.original = original
-  }
+  const { isMirror, processedPublication } = useMemo(() => {
+    if (publication.mirrorOf) {
+      const { mirrorOf, ...original } = publication;
+      return { isMirror: true, processedPublication: { ...mirrorOf, original } };
+    }
+    return { isMirror: false, processedPublication: publication };
+  }, [publication]);
 
-  const { author } = publication
+  const {
+    isDarkTheme,
+    color,
+    backgroundColor,
+    reactionBgColor,
+    actButttonBgColor,
+    reactionTextColor,
+  } = useMemo(() => {
+    const isDarkTheme = theme === Theme.dark;
+    return {
+      isDarkTheme,
+      color: isDarkTheme ? ThemeColor.white : ThemeColor.darkGray,
+      backgroundColor: isDarkTheme ? '#191919' : ThemeColor.white,
+      reactionBgColor: isDarkTheme ? ThemeColor.darkGray : ThemeColor.lightGray,
+      actButttonBgColor: isDarkTheme ? ThemeColor.darkGray : ThemeColor.lightGray,
+      reactionTextColor: isDarkTheme ? ThemeColor.lightGray : ThemeColor.darkGray,
+    };
+  }, [theme]);
 
-  // theming
-  const isDarkTheme = theme === Theme.dark
-  const color = isDarkTheme ? ThemeColor.white : ThemeColor.darkGray
-  const backgroundColor = isDarkTheme ? '#191919' : ThemeColor.white
-  const reactionBgColor = isDarkTheme ? ThemeColor.darkGray : ThemeColor.lightGray
-  const actButttonBgColor = isDarkTheme ? ThemeColor.darkGray : ThemeColor.lightGray
-  const reactionTextColor = isDarkTheme ? ThemeColor.lightGray : ThemeColor.darkGray
+  const isAuthenticated = useMemo(
+    () => !!authenticatedProfile?.address,
+    [authenticatedProfile]
+  );
 
-  const isAuthenticated = !!authenticatedProfile?.address
-  const renderActButton =
-    walletClient &&
-    isAuthenticated &&
-    ((isActionModuleSupported && !isLoadingActionModuleState && !actionModuleHandler?.panicked) ||
-      actHandledExternally)
+  const renderActButton = useMemo(
+    () =>
+      walletClient &&
+      isAuthenticated &&
+      ((isActionModuleSupported && !isLoadingActionModuleState && !actionModuleHandler?.panicked) ||
+        actHandledExternally),
+    [
+      walletClient,
+      isAuthenticated,
+      isActionModuleSupported,
+      isLoadingActionModuleState,
+      actionModuleHandler,
+      actHandledExternally,
+    ]
+  );
 
-  const renderActLoading =
-    walletClient &&
-    isAuthenticated &&
-    (isActionModuleSupported &&
-      isLoadingActionModuleState &&
-      !actionModuleHandler?.panicked &&
-      !actHandledExternally)
+  const renderActLoading = useMemo(
+    () =>
+      walletClient &&
+      isAuthenticated &&
+      (isActionModuleSupported &&
+        isLoadingActionModuleState &&
+        !actionModuleHandler?.panicked &&
+        !actHandledExternally),
+    [
+      walletClient,
+      isAuthenticated,
+      isActionModuleSupported,
+      isLoadingActionModuleState,
+      actionModuleHandler,
+      actHandledExternally,
+    ]
+  );
 
-  let cover // (Optional) If you want to handle audio cover logic
+  const canvasUrl = useMemo(() => {
+    if (!publication?.metadata?.attributes) return null;
 
-  function getCanvasUrl(publication: any): string | null {
-    if (!publication?.metadata?.attributes) return null
-
-    const isCanvas = publication.metadata.attributes.find(attr => attr.key === 'isCanvas')
-    if (!isCanvas) return null
+    const isCanvas = publication.metadata.attributes.find((attr: any) => attr.key === 'isCanvas');
+    if (!isCanvas) return null;
 
     // If isCanvas contains a URL, return it directly
-    if (isCanvas.value && (isCanvas.value.startsWith('http://') || isCanvas.value.startsWith('https://'))) {
+    if (
+      isCanvas.value &&
+      (isCanvas.value.startsWith('http://') || isCanvas.value.startsWith('https://'))
+    ) {
       return isCanvas.value;
     }
 
-    const apiUrl = publication.metadata.attributes.find(attr => attr.key === 'apiUrl')
-    if (!apiUrl?.value) return null
+    const apiUrl = publication.metadata.attributes.find((attr: any) => attr.key === 'apiUrl');
+    if (!apiUrl?.value) return null;
 
-    return `${apiUrl.value}/post/${publication.id}/canvas`
-  }
-
-  const PostProfileAndTextContent = () => (
-    <div onClick={onPublicationPress} className={topLevelContentStyle}>
-      <div className={profileContainerStyle(isMirror)}>
-        <div
-          className={onProfileClick ? 'cursor-pointer' : 'cursor-default'}
-          onClick={onProfilePress}
-        >
-          <img
-            src={author?.metadata?.picture || DEFAULT_LENS_PROFILE_IMAGE}
-            className={profilePictureStyle}
-            loading="eager"
-            decoding="async"
-            alt="Profile picture"
-          />
-        </div>
-        <div className={profileDetailsContainerStyle(color)}>
-          <div className="flex items-center gap-x-2 w-fit">
-            <p onClick={onProfilePress} className={activeProfileNameStyle}>{getDisplayName(author)}</p>
-            <p onClick={onProfilePress} className={usernameStyle}>@{author.username?.localName}</p>
-            <div className="flex items-center">
-              <span className="mx-2 text-sm opacity-60">•</span>
-            </div>
-            <p
-              className={timestampStyle}
-            >
-              {formatCustomDate(publication.timestamp)}
-            </p>
-            {updatedAt && (
-              <>
-                <div className="flex items-center">
-                  <span className="mx-2 text-sm opacity-60">•</span>
-                </div>
-                <p
-                  className={timestampStyle}
-                >
-                  {`updated ${formatCustomDistance(updatedAt)} ago`}
-                </p>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-      <div className={textContainerStyle}>
-        <ReactMarkdown
-          className={markdownStyle(color, fontSize)}
-          rehypePlugins={[rehypeRaw]}
-        >
-          {formatHandleColors(publication.metadata.content)}
-        </ReactMarkdown>
-      </div>
-      {nestedWidget}
-    </div>
-  )
+    return `${apiUrl.value}/post/${publication.id}/canvas`;
+  }, [publication]);
 
   return (
     <div
@@ -384,12 +364,12 @@ export function HorizontalPublication({
         {!isLoadingActionModuleState && !actionModuleHandler?.mintableNFT && (
           <>
             <div></div>
-            {getCanvasUrl(publication) ? (
+            {canvasUrl ? (
               <div className={iframeContainerStyle}>
                 {operations?.hasCollected ? (
                   <>
                     <iframe
-                      src={getCanvasUrl(publication) || ""}
+                      src={canvasUrl}
                       className={iframeStyle}
                       ref={imageRef as React.RefObject<HTMLIFrameElement>}
                       onLoad={(e: React.SyntheticEvent<HTMLIFrameElement>) => handleImageLoad()}
@@ -474,7 +454,7 @@ export function HorizontalPublication({
                     <AudioPlayer
                       url={assetUrl}
                       theme={theme}
-                      cover={cover}
+                      cover={publication.metadata.audio.item?.cover}
                       profile={publication.by}
                     />
                   </div>
@@ -610,7 +590,57 @@ export function HorizontalPublication({
       </div>
 
       <div className={rightColumnStyle}>
-        <PostProfileAndTextContent />
+        <div onClick={onPublicationPress} className={topLevelContentStyle}>
+          <div className={profileContainerStyle(isMirror)}>
+            <div
+              className={onProfileClick ? 'cursor-pointer' : 'cursor-default'}
+              onClick={onProfilePress}
+            >
+              <img
+                src={publication.author?.metadata?.picture || DEFAULT_LENS_PROFILE_IMAGE}
+                className={profilePictureStyle}
+                loading="eager"
+                decoding="async"
+                alt="Profile picture"
+              />
+            </div>
+            <div className={profileDetailsContainerStyle(color)}>
+              <div className="flex items-center gap-x-2 w-fit">
+                <p onClick={onProfilePress} className={activeProfileNameStyle}>{getDisplayName(publication.author)}</p>
+                <p onClick={onProfilePress} className={usernameStyle}>@{publication.author.username?.localName}</p>
+                <div className="flex items-center">
+                  <span className="mx-2 text-sm opacity-60">•</span>
+                </div>
+                <p
+                  className={timestampStyle}
+                >
+                  {formatCustomDate(publication.timestamp)}
+                </p>
+                {updatedAt && (
+                  <>
+                    <div className="flex items-center">
+                      <span className="mx-2 text-sm opacity-60">•</span>
+                    </div>
+                    <p
+                      className={timestampStyle}
+                    >
+                      {`updated ${formatCustomDistance(updatedAt)} ago`}
+                    </p>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className={textContainerStyle}>
+            <ReactMarkdown
+              className={markdownStyle(color, fontSize)}
+              rehypePlugins={[rehypeRaw]}
+            >
+              {formatHandleColors(publication.metadata.content)}
+            </ReactMarkdown>
+          </div>
+          {nestedWidget}
+        </div>
       </div>
     </div>
   )
@@ -755,6 +785,7 @@ const profilePictureStyle = css`
   will-change: auto;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
 `
 
 const profileDetailsContainerStyle = (color) => css`

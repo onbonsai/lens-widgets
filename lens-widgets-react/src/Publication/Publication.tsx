@@ -2,7 +2,7 @@ import { css } from '@emotion/css'
 import { postId, PublicClient } from "@lens-protocol/client"
 import { fetchPost } from "@lens-protocol/client/actions"
 import { isEmpty } from 'lodash/lang'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 import { WalletClient } from 'viem'
@@ -289,111 +289,177 @@ export function Publication({
   }
 
   if (!publication) return null
-  let isMirror = false
-  if (publication.mirrorOf) {
-    isMirror = true
-    const { mirrorOf, ...original } = publication
-    publication = publication.mirrorOf
-    publication.original = original
-  }
-  const { author } = publication
+
+  const { isMirror, processedPublication } = useMemo(() => {
+    if (publication.mirrorOf) {
+      const { mirrorOf, ...original } = publication;
+      const processed = { ...mirrorOf, original };
+      return { isMirror: true, processedPublication: processed };
+    }
+    return { isMirror: false, processedPublication: publication };
+  }, [publication]);
 
   // theming
-  const isDarkTheme = theme === Theme.dark
-  const color = isDarkTheme ? ThemeColor.white : ThemeColor.darkGray
-  const backgroundColor = backgroundColorOverride ?? (isDarkTheme ? ThemeColor.lightBlack : ThemeColor.white)
-  const reactionBgColor = isDarkTheme ? ThemeColor.darkGray : ThemeColor.lightGray
-  const actButttonBgColor = isDarkTheme ? ThemeColor.darkGray : ThemeColor.lightGray
-  const reactionTextColor = isDarkTheme ? ThemeColor.lightGray : ThemeColor.darkGray
+  const isDarkTheme = useMemo(() => theme === Theme.dark, [theme]);
+  const color = useMemo(
+    () => isDarkTheme ? ThemeColor.white : ThemeColor.darkGray,
+    [isDarkTheme]
+  );
+  const backgroundColor = useMemo(
+    () => backgroundColorOverride ?? (isDarkTheme ? ThemeColor.lightBlack : ThemeColor.white),
+    [backgroundColorOverride, isDarkTheme]
+  );
+  const reactionBgColor = useMemo(
+    () => isDarkTheme ? ThemeColor.darkGray : ThemeColor.lightGray,
+    [isDarkTheme]
+  );
+  const actButttonBgColor = useMemo(
+    () => isDarkTheme ? ThemeColor.darkGray : ThemeColor.lightGray,
+    [isDarkTheme]
+  );
+  const reactionTextColor = useMemo(
+    () => isDarkTheme ? ThemeColor.lightGray : ThemeColor.darkGray,
+    [isDarkTheme]
+  );
 
   // style overrides
-  const activeProfilePictureStyle = profilePictureStyleOverride ?? profilePictureStyle;
-  const activeProfileContainerStyle = profileContainerStyleOverride ?? profileContainerStyle;
-  const activeTextContainerStyle = textContainerStyleOverride ?? textContainerStyle;
-  const activeMediaImageStyle = mediaImageStyleOverride ?? mediaImageStyle;
-  const activeImageContainerStyle = imageContainerStyleOverride ?? imageContainerStyle;
-  const activeReactionsContainerStyle = reactionsContainerStyleOverride ?? reactionsContainerStyle;
-  const activeReactionContainerStyle = reactionContainerStyleOverride ?? reactionContainerStyle;
-  const activeShareContainerStyle = shareContainerStyleOverride ?? shareContainerStyle;
-  const activeActContainerStyle = actButtonContainerStyleOverride ?? actButtonContainerStyle;
-  const activeProfileNameStyle = profileNameStyleOverride ?? profileNameStyle;
-  const activeDateStyle = dateNameStyleOverride ?? dateStyle;
+  const activeProfilePictureStyle = useMemo(
+    () => profilePictureStyleOverride ?? profilePictureStyle,
+    [profilePictureStyleOverride]
+  );
+  const activeProfileContainerStyle = useMemo(
+    () => profileContainerStyleOverride ?? profileContainerStyle,
+    [profileContainerStyleOverride]
+  );
+  const activeTextContainerStyle = useMemo(
+    () => textContainerStyleOverride ?? textContainerStyle,
+    [textContainerStyleOverride]
+  );
+  const activeMediaImageStyle = useMemo(
+    () => mediaImageStyleOverride ?? mediaImageStyle,
+    [mediaImageStyleOverride]
+  );
+  const activeImageContainerStyle = useMemo(
+    () => imageContainerStyleOverride ?? imageContainerStyle,
+    [imageContainerStyleOverride]
+  );
+  const activeReactionsContainerStyle = useMemo(
+    () => reactionsContainerStyleOverride ?? reactionsContainerStyle,
+    [reactionsContainerStyleOverride]
+  );
+  const activeReactionContainerStyle = useMemo(
+    () => reactionContainerStyleOverride ?? reactionContainerStyle,
+    [reactionContainerStyleOverride]
+  );
+  const activeShareContainerStyle = useMemo(
+    () => shareContainerStyleOverride ?? shareContainerStyle,
+    [shareContainerStyleOverride]
+  );
+  const activeActContainerStyle = useMemo(
+    () => actButtonContainerStyleOverride ?? actButtonContainerStyle,
+    [actButtonContainerStyleOverride]
+  );
 
   // misc
-  const isAuthenticated = !!authenticatedProfile?.address;
-  const renderActButton = walletClient && isAuthenticated && ((isActionModuleSupported && !isLoadingActionModuleState && !actionModuleHandler?.panicked) || actHandledExternally);
-  const renderActLoading = walletClient && isAuthenticated && (isActionModuleSupported && isLoadingActionModuleState && !actionModuleHandler?.panicked && !actHandledExternally);
-
-
-  let cover; // TODO: handle audio cover
-
-
-  const PostProfileAndTextContent = (props: { isTop?: boolean }) => (
-    <div
-      onClick={onPublicationPress}
-      className={topLevelContentStyle(containerPadding)}
-    >
-      {/* {
-            isMirror && (
-              <div className={mirroredByContainerStyle}>
-                <MirrorIcon color={ThemeColor.mediumGray} />
-                <p>mirrored by {getDisplayName(publication.original.by)}</p>
-              </div>
-            )
-          } */}
-      <div className={activeProfileContainerStyle(isMirror, profilePadding)}>
-        <div className={onProfileClick ? 'cursor-pointer' : 'cursor-default'} onClick={onProfilePress}>
-          <img
-            src={publication.author?.metadata?.picture || DEFAULT_LENS_PROFILE_IMAGE}
-            className={activeProfilePictureStyle}
-            loading="eager"
-            decoding="async"
-            alt="Profile picture"
-          />
-        </div>
-        <div className={profileDetailsContainerStyle(color)}>
-          <div className={`flex ${!fullVideoHeight ? 'items-center' : 'items-center'} w-fit`}>
-            <div className="flex items-center gap-x-2">
-              <p onClick={onProfilePress} className={profileNameStyle(profileMaxWidth)}>{getDisplayName(author)}</p>
-              <p onClick={onProfilePress} className={usernameStyle(usernameMaxWidth)}>@{author.username?.localName}</p>
-            </div>
-            <div className="flex items-center">
-              <span className="mx-2 text-sm opacity-60">•</span>
-              <p className={timestampStyle}>
-                {formatCustomDate(publication.timestamp)}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className={activeTextContainerStyle}>
-        <ReactMarkdown
-          className={markdownStyle(color, fontSize, markdownStyleBottomMargin)}
-          rehypePlugins={[rehypeRaw]}
-        >
-          {showFullText
-            ? formatHandleColors(publication.metadata.content)
-            : formatHandleColors(getSubstring(publication.metadata.content, 250))}
-        </ReactMarkdown>
-        {publication.metadata.content.length > 250 && (
-          <div style={{ display: 'flex', marginRight: 5 }}>
-            <button className={showMoreStyle} onClick={(event) => {
-              event.stopPropagation()
-              setShowFullText(!showFullText)
-            }}>
-              {showFullText ? 'Show Less' : 'Show More'}
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
+  const isAuthenticated = useMemo(
+    () => !!authenticatedProfile?.address,
+    [authenticatedProfile]
+  );
+  const renderActButton = useMemo(
+    () =>
+      walletClient &&
+      isAuthenticated &&
+      ((isActionModuleSupported && !isLoadingActionModuleState && !actionModuleHandler?.panicked) ||
+        actHandledExternally),
+    [
+      walletClient,
+      isAuthenticated,
+      isActionModuleSupported,
+      isLoadingActionModuleState,
+      actionModuleHandler,
+      actHandledExternally,
+    ]
+  );
+  const renderActLoading = useMemo(
+    () =>
+      walletClient &&
+      isAuthenticated &&
+      (isActionModuleSupported &&
+        isLoadingActionModuleState &&
+        !actionModuleHandler?.panicked &&
+        !actHandledExternally),
+    [
+      walletClient,
+      isAuthenticated,
+      isActionModuleSupported,
+      isLoadingActionModuleState,
+      actionModuleHandler,
+      actHandledExternally,
+    ]
   );
 
   return (
     <div
       className={publicationContainerStyle(backgroundColor, onClick ? true : false, containerBorderRadius, publication.metadata?.__typename === "VideoMetadata" || publication.metadata?.__typename === "LiveStreamMetadata")}
     >
-      <PostProfileAndTextContent isTop />
+      <div
+        onClick={onPublicationPress}
+        className={topLevelContentStyle(containerPadding)}
+      >
+        {/* {
+              isMirror && (
+                <div className={mirroredByContainerStyle}>
+                  <MirrorIcon color={ThemeColor.mediumGray} />
+                  <p>mirrored by {getDisplayName(publication.original.by)}</p>
+                </div>
+              )
+            } */}
+        <div className={activeProfileContainerStyle(isMirror, profilePadding)}>
+          <div className={onProfileClick ? 'cursor-pointer' : 'cursor-default'} onClick={onProfilePress}>
+            <img
+              src={publication.author?.metadata?.picture || DEFAULT_LENS_PROFILE_IMAGE}
+              className={activeProfilePictureStyle}
+              loading="eager"
+              decoding="async"
+              alt="Profile picture"
+            />
+          </div>
+          <div className={profileDetailsContainerStyle(color)}>
+            <div className={`flex ${!fullVideoHeight ? 'items-center' : 'items-center'} w-fit`}>
+              <div className="flex items-center gap-x-2">
+                <p onClick={onProfilePress} className={profileNameStyle(profileMaxWidth)}>{getDisplayName(publication.author)}</p>
+                <p onClick={onProfilePress} className={usernameStyle(usernameMaxWidth)}>@{publication.author.username?.localName}</p>
+              </div>
+              <div className="flex items-center">
+                <span className="mx-2 text-sm opacity-60">•</span>
+                <p className={timestampStyle}>
+                  {formatCustomDate(publication.timestamp)}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className={activeTextContainerStyle}>
+          <ReactMarkdown
+            className={markdownStyle(color, fontSize, markdownStyleBottomMargin)}
+            rehypePlugins={[rehypeRaw]}
+          >
+            {showFullText
+              ? formatHandleColors(publication.metadata.content)
+              : formatHandleColors(getSubstring(publication.metadata.content, 250))}
+          </ReactMarkdown>
+          {publication.metadata.content.length > 250 && (
+            <div style={{ display: 'flex', marginRight: 5 }}>
+              <button className={showMoreStyle} onClick={(event) => {
+                event.stopPropagation()
+                setShowFullText(!showFullText)
+              }}>
+                {showFullText ? 'Show Less' : 'Show More'}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
       <div>
         {!isLoadingActionModuleState && !actionModuleHandler?.mintableNFT && (
           <>
@@ -443,7 +509,7 @@ export function Publication({
                   <AudioPlayer
                     url={assetUrl}
                     theme={theme}
-                    cover={cover}
+                    cover={publication.metadata.audio.item?.cover}
                     profile={publication.by}
                   />
                 </div>
@@ -643,6 +709,7 @@ const profilePictureStyle = css`
   will-change: auto;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
 `
 
 const reactionsContainerStyle = css`
