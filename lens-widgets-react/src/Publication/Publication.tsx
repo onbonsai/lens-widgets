@@ -484,6 +484,7 @@ export function Publication({
                     controlsList="nodownload"
                     muted
                     autoPlay={playVideo}
+                    loop={playVideo}
                     className={videoStyle}
                     crossOrigin="anonymous"
                     playsInline
