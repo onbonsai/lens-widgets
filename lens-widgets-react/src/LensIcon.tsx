@@ -3,7 +3,7 @@ import { backgroundColorMap, foregroundColorMap, dimensionsMap } from './utils'
 
 export default function LensIcon({
   size = Size.small,
-  theme = Theme.default,
+  theme = Theme.dark,
   iconBackgroundColor,
   iconForegroundColor
 } : {

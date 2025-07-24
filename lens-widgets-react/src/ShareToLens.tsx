@@ -7,7 +7,7 @@ export function ShareToLens({
   url,
   via,
   hashtags,
-  theme = Theme.default,
+  theme = Theme.dark,
   size = Size.medium,
   title = 'Share to Lens',
   containerStyle,

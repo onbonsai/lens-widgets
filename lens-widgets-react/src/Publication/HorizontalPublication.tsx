@@ -37,7 +37,7 @@ export function HorizontalPublication({
   onClick,
   onProfileClick,
   publicationData,
-  theme = Theme.default,
+  theme = Theme.dark,
   ipfsGateway,
   fontSize,
   environment,

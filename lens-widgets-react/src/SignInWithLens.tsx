@@ -18,7 +18,7 @@ declare global {
 
 export function SignInWithLens({
   provider,
-  theme = Theme.default,
+  theme = Theme.dark,
   size = Size.medium,
   title = 'Sign in With Lens',
   onSignIn,

@@ -10,7 +10,7 @@ import { ThemeColor, Theme } from './types'
 export function ProfileListItem({
   profileId,
   handle,
-  theme = Theme.default,
+  theme = Theme.dark,
   profile: baseProfile,
   onClick,
   onFollowPress,

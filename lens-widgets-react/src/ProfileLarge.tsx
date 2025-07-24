@@ -24,7 +24,7 @@ export function ProfileLarge({
   ethereumAddress,
   handle, // ex: lens/madfinance
   onClick,
-  theme = Theme.default,
+  theme = Theme.dark,
   containerStyle = profileContainerStyle,
   followButtonStyle,
   followButtonContainerStyle,
